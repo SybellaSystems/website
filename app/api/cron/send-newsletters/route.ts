@@ -13,7 +13,7 @@ const NewsletterTemplate = (title: string, content: string) => {
         ${content}
       </div>
       <div style="margin-top: 30px; text-align: center;">
-        <a href="#" style="display: inline-block; background: #4CAF50; color: #fff; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: bold;">
+        <a href="https://sybellasystems.co.rw/" style="display: inline-block; background: #4CAF50; color: #fff; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: bold;">
           Visit Our Website
         </a>
       </div>
