@@ -22,7 +22,8 @@ const nextConfig = {
       'pbs.twimg.com',
       'media.licdn.com',
       'www.linkedin.com',
-      "www.google.com"
+      "www.google.com",
+      'ik.imagekit.io'
       
     ],
   },
