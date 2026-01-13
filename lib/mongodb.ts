@@ -21,6 +21,7 @@ function getClientPromise(): Promise<MongoClient> {
   } else {
     client = new MongoClient(process.env.MONGODB_URI, options);
     return client.connect();
+    
   }
 }
 
