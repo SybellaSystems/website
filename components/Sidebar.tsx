@@ -60,19 +60,18 @@ export default function Sidebar() {
         "marketing",
         "qa-tester",
         "superadmin",
-        "cto",
       ],
     },
     {
       name: "Contacts",
       href: "/admin/contacts",
       icon: Phone,
-      roles: ["executive", "marketing", "superadmin", "cto"],
+      roles: ["executive", "marketing", "superadmin"],
     },
     {
       name: "Blogs",
       icon: FileText,
-      roles: ["executive", "marketing", "superadmin", "cto"],
+      roles: ["executive", "marketing", "superadmin"],
       children: [
         { name: "Add Blog", href: "/admin/blogs/add" },
         { name: "View Blogs", href: "/admin/blogs" },
@@ -96,12 +95,12 @@ export default function Sidebar() {
     {
       name: "Sections",
       icon: ClipboardList,
-      roles: ["executive", "marketing", "manager", "superadmin", "cto"],
+      roles: ["executive", "marketing", "manager", "superadmin"],
       children: [
         { name: "Milestones", href: "/admin/sections?tab=milestones" },
         { name: "Team Members", href: "/admin/sections?tab=team_members" },
         { name: "Projects", href: "/admin/sections?tab=projects" },
-        // { name: "Blogs", href: "/admin/sections?tab=blogs" },
+        { name: "Blogs", href: "/admin/sections?tab=blogs" },
         { name: "Updates", href: "/admin/sections?tab=updates" },
       ],
     },
@@ -124,11 +123,7 @@ export default function Sidebar() {
     <aside className="w-64 h-screen bg-white border-r flex flex-col p-6 shadow-sm">
       <nav className="flex flex-col gap-1 flex-grow">
         {menuItems
-          .filter((item) => {
-            // Superadmin and CTO have access to everything
-            if (role === "superadmin" || role === "cto") return true;
-            return role && item.roles.includes(role);
-          })
+          .filter((item) => role && item.roles.includes(role))
           .map((item) => {
             const isActive = item.href ? pathname === item.href : false;
             const isChildActive = item.children?.some(

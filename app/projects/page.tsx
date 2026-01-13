@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   FaGraduationCap,
   FaShoppingCart,
@@ -13,7 +12,6 @@ import {
 } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
-
 interface Project {
   id: string;
   title: string;
@@ -22,7 +20,6 @@ interface Project {
   isActive: boolean;
   [key: string]: any;
 }
-
 
 const iconMap: Record<string, IconType> = {
   education: FaGraduationCap,
@@ -35,36 +32,75 @@ const iconMap: Record<string, IconType> = {
   government: FaGlobe,
 };
 
+// Static projects data
+const staticProjects: Project[] = [
+  {
+    id: "1",
+    title: "E-Commerce Platform",
+    overview: "A comprehensive e-commerce solution with advanced inventory management, payment processing, and customer analytics.",
+    category: "business",
+    isActive: true,
+  },
+  {
+    id: "2",
+    title: "Healthcare Management System",
+    overview: "Streamlined healthcare management platform for hospitals and clinics to manage patient records, appointments, and billing.",
+    category: "healthcare",
+    isActive: true,
+  },
+  {
+    id: "3",
+    title: "Learning Management System",
+    overview: "Modern LMS platform enabling educational institutions to deliver online courses, track progress, and manage student engagement.",
+    category: "education",
+    isActive: true,
+  },
+  {
+    id: "4",
+    title: "Financial Analytics Dashboard",
+    overview: "Real-time financial analytics and reporting dashboard for businesses to track revenue, expenses, and financial KPIs.",
+    category: "financial",
+    isActive: true,
+  },
+  {
+    id: "5",
+    title: "Project Management Tool",
+    overview: "Collaborative project management platform with task tracking, team collaboration, and real-time updates.",
+    category: "business",
+    isActive: true,
+  },
+  {
+    id: "6",
+    title: "Customer Relationship Management",
+    overview: "Comprehensive CRM solution to manage customer interactions, sales pipelines, and marketing campaigns.",
+    category: "business",
+    isActive: true,
+  },
+  {
+    id: "7",
+    title: "Hotel Booking System",
+    overview: "Complete hotel management system for reservations, room management, and guest services.",
+    category: "hospitality",
+    isActive: true,
+  },
+  {
+    id: "8",
+    title: "Transportation Management",
+    overview: "Fleet management and logistics platform for tracking vehicles, routes, and deliveries in real-time.",
+    category: "transport",
+    isActive: true,
+  },
+  {
+    id: "9",
+    title: "HR Management System",
+    overview: "Human resources platform for employee management, payroll, attendance, and performance tracking.",
+    category: "hr",
+    isActive: true,
+  },
+];
+
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchProjects() {
-      try {
-        const res = await fetch("/api/projects");
-        const data: Project[] = await res.json();
-
-        // Filter only active projects
-        const activeProjects = data.filter(project => project.isActive);
-        setProjects(activeProjects);
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProjects();
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="py-16 text-center">
-        <p>Loading projects...</p>
-      </section>
-    );
-  }
+  const projects = staticProjects;
 
   return (
     <section className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-16">
