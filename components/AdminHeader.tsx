@@ -71,7 +71,7 @@ export default function AdminHeader() {
           alt="Sysbella Logo"
           className="h-8 w-8 rounded-full bg-white p-1"
         />
-        <h1 className="text-white font-bold text-lg">Sysbella Admin</h1>
+        <h1 className="text-white font-bold text-lg">Sybella Admin</h1>
       </div>
 
 

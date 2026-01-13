@@ -52,23 +52,42 @@ export default function Sidebar() {
       name: "Dashboard",
       href: "/admin",
       icon: LayoutDashboard,
-      roles: ["executive", "manager", "accountant", "sales", "marketing", "qa-tester"],
+      roles: [
+        "executive",
+        "manager",
+        "accountant",
+        "sales",
+        "marketing",
+        "qa-tester",
+        "superadmin",
+        "cto",
+      ],
     },
-    { name: "Contacts", href: "/admin/contacts", icon: Phone, roles: ["executive", "marketing"] },
+    {
+      name: "Contacts",
+      href: "/admin/contacts",
+      icon: Phone,
+      roles: ["executive", "marketing", "superadmin", "cto"],
+    },
     {
       name: "Blogs",
       icon: FileText,
-      roles: ["executive", "marketing"],
+      roles: ["executive", "marketing", "superadmin", "cto"],
       children: [
         { name: "Add Blog", href: "/admin/blogs/add" },
         { name: "View Blogs", href: "/admin/blogs" },
       ],
     },
-    { name: "Users", href: "/admin/users", icon: Users, roles: ["executive"] },
+    {
+      name: "Users",
+      href: "/admin/users",
+      icon: Users,
+      roles: ["executive", "superadmin"],
+    },
     {
       name: "Staff",
       icon: UserCog,
-      roles: ["executive", "manager"],
+      roles: ["executive", "manager", "superadmin"],
       children: [
         { name: "Add Staff", href: "/admin/staffs/add" },
         { name: "View Staff", href: "/admin/staffs" },
@@ -77,7 +96,7 @@ export default function Sidebar() {
     {
       name: "Sections",
       icon: ClipboardList,
-      roles: ["executive", "marketing", "manager"],
+      roles: ["executive", "marketing", "manager", "superadmin", "cto"],
       children: [
         { name: "Milestones", href: "/admin/sections?tab=milestones" },
         { name: "Team Members", href: "/admin/sections?tab=team_members" },
@@ -87,18 +106,34 @@ export default function Sidebar() {
       ],
     },
     // { name: "Updates", href: "/admin/updates", icon: ClipboardList, roles: ["executive"] },
-    { name: "Accounts", href: "/admin/accounts", icon: DollarSign, roles: ["accountant"] },
-    { name: "Sales", href: "/admin/sales", icon: DollarSign, roles: ["sales"] },
+    {
+      name: "Accounts",
+      href: "/admin/accounts",
+      icon: DollarSign,
+      roles: ["accountant", "superadmin"],
+    },
+    {
+      name: "Sales",
+      href: "/admin/sales",
+      icon: DollarSign,
+      roles: ["sales", "superadmin"],
+    },
   ];
 
   return (
     <aside className="w-64 h-screen bg-white border-r flex flex-col p-6 shadow-sm">
       <nav className="flex flex-col gap-1 flex-grow">
         {menuItems
-          .filter((item) => role && item.roles.includes(role))
+          .filter((item) => {
+            // Superadmin and CTO have access to everything
+            if (role === "superadmin" || role === "cto") return true;
+            return role && item.roles.includes(role);
+          })
           .map((item) => {
             const isActive = item.href ? pathname === item.href : false;
-            const isChildActive = item.children?.some((child) => pathname === child.href);
+            const isChildActive = item.children?.some(
+              (child) => pathname === child.href
+            );
 
             if (item.children) {
               return (
@@ -158,7 +193,9 @@ export default function Sidebar() {
                 }`}
               >
                 <item.icon
-                  className={`h-5 w-5 ${isActive ? "text-white" : "text-indigo-600"}`}
+                  className={`h-5 w-5 ${
+                    isActive ? "text-white" : "text-indigo-600"
+                  }`}
                 />
                 <span>{item.name}</span>
               </Link>
