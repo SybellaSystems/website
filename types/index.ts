@@ -80,7 +80,7 @@ export interface Project {
   overview: string;
   image: string;
   demoLink?: string;
-  problemSolved: string;
+  problemSolved?: string;
   techStack: string[];
   partners?: string[];
   callToAction?: string;
