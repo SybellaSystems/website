@@ -11,6 +11,10 @@ import {
   Plus,
   X,
   Loader2,
+  FileText,
+  Image,
+  Tag,
+  CheckCircle,
 } from 'lucide-react';
 
 interface Update {
@@ -98,10 +102,13 @@ export default function UpdatesSection() {
   return (
     <section className="p-6 md:p-10 bg-gray-50 min-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Manage Updates</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+          <FileText className="w-6 h-6 text-blue-600" />
+          Manage Updates
+        </h2>
         <button
           onClick={openCreateForm}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl font-medium"
         >
           <Plus className="w-4 h-4" /> Add Update
         </button>
@@ -191,128 +198,249 @@ export default function UpdatesSection() {
 
       {/* View Modal */}
       {isViewOpen && selectedUpdate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg relative">
-            <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-              onClick={() => setIsViewOpen(false)}
-            >
-              <X className="w-5 h-5" />
-            </button>
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4 transition-opacity duration-300"
+          onClick={() => setIsViewOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between sticky top-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">View Update</h3>
+              </div>
+              <button
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white hover:rotate-90 duration-200"
+                onClick={() => setIsViewOpen(false)}
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            <h3 className="text-2xl font-bold mb-4">{selectedUpdate.title}</h3>
-            {selectedUpdate.thumbnail && (
-              <img
-                src={selectedUpdate.thumbnail}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-                alt=""
-              />
-            )}
-            <p className="text-gray-700 mb-3">{selectedUpdate.description}</p>
-            <p className="text-sm text-gray-500">
-              <strong>Category:</strong> {selectedUpdate.category}
-            </p>
-            <p className="text-sm text-gray-500">
-              <strong>Author:</strong> {selectedUpdate.author || 'Unknown'}
-            </p>
+            {/* Content */}
+            <div className="p-6 space-y-5">
+              {selectedUpdate.thumbnail && (
+                <img
+                  src={selectedUpdate.thumbnail}
+                  className="w-full h-64 object-cover rounded-xl mb-4 shadow-md"
+                  alt={selectedUpdate.title}
+                />
+              )}
+              
+              <div className="flex items-center gap-3 mb-4">
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-xs uppercase font-semibold">
+                  {selectedUpdate.category}
+                </span>
+                {selectedUpdate.isActive ? (
+                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Active
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg text-xs font-semibold">
+                    Inactive
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+                {selectedUpdate.title}
+              </h3>
+
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                {selectedUpdate.description}
+              </p>
+
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span className="font-semibold">Author:</span>
+                  <span>{selectedUpdate.author || 'Unknown'}</span>
+                </div>
+                {selectedUpdate.createdAt && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <span className="font-semibold">Created:</span>
+                    <span>{new Date(selectedUpdate.createdAt).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Create / Edit Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4 transition-opacity duration-300"
+          onClick={() => setIsFormOpen(false)}
+        >
           <form
             onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg relative"
+            className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-100"
+            onClick={(e) => e.stopPropagation()}
           >
-            <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-              onClick={() => setIsFormOpen(false)}
-              type="button"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h3 className="text-xl font-bold mb-4">
-              {isEditing ? 'Edit Update' : 'Create Update'}
-            </h3>
-
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Title"
-                className="w-full border rounded-lg p-2"
-                value={formData.title || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
-              />
-
-              <select
-                className="w-full border rounded-lg p-2"
-                value={formData.category || 'news'}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    category: e.target.value as Update['category'],
-                  })
-                }
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                  {isEditing ? 'Edit Update' : 'Create Update'}
+                </h3>
+              </div>
+              <button
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white hover:rotate-90 duration-200"
+                onClick={() => setIsFormOpen(false)}
+                type="button"
+                aria-label="Close"
               >
-                <option value="news">News</option>
-                <option value="announcement">Announcement</option>
-                <option value="event">Event</option>
-                <option value="other">Other</option>
-              </select>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              <textarea
-                placeholder="Description"
-                className="w-full border rounded-lg p-2 h-24"
-                value={formData.description || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                required
-              />
-
-              <input
-                type="text"
-                placeholder="Author"
-                className="w-full border rounded-lg p-2"
-                value={formData.author || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, author: e.target.value })
-                }
-              />
-
-              <input
-                type="url"
-                placeholder="Thumbnail URL"
-                className="w-full border rounded-lg p-2"
-                value={formData.thumbnail || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, thumbnail: e.target.value })
-                }
-              />
-
-              <div className="flex items-center gap-2">
+            {/* Form Content */}
+            <div className="p-6 space-y-5 max-h-[calc(100vh-200px)] overflow-y-auto">
+              {/* Title */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <Tag className="w-4 h-4 text-blue-600" />
+                  Title
+                </label>
                 <input
-                  type="checkbox"
-                  checked={formData.isActive ?? true}
+                  type="text"
+                  placeholder="Enter update title"
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-dark-surface text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  value={formData.title || ''}
                   onChange={(e) =>
-                    setFormData({ ...formData, isActive: e.target.checked })
+                    setFormData({ ...formData, title: e.target.value })
                   }
+                  required
                 />
-                <label>Active</label>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
-              >
-                {isEditing ? 'Update' : 'Create'}
-              </button>
+              {/* Category */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  Category
+                </label>
+                <select
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-dark-surface text-gray-900 dark:text-white cursor-pointer"
+                  value={formData.category || 'news'}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      category: e.target.value as Update['category'],
+                    })
+                  }
+                >
+                  <option value="news">News</option>
+                  <option value="announcement">Announcement</option>
+                  <option value="event">Event</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  Description
+                </label>
+                <textarea
+                  placeholder="Enter update description..."
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all resize-none bg-white dark:bg-dark-surface text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  rows={5}
+                  value={formData.description || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              {/* Author and Thumbnail - Side by Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <User className="w-4 h-4 text-blue-600" />
+                    Author
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Author name"
+                    className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-dark-surface text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={formData.author || ''}
+                    onChange={(e) =>
+                      setFormData({ ...formData, author: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Image className="w-4 h-4 text-blue-600" />
+                    Thumbnail URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-dark-surface text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={formData.thumbnail || ''}
+                    onChange={(e) =>
+                      setFormData({ ...formData, thumbnail: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Active Checkbox */}
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-gray-200 dark:border-gray-700">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={formData.isActive ?? true}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isActive: e.target.checked })
+                    }
+                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  />
+                </div>
+                <label 
+                  htmlFor="isActive" 
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer"
+                >
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                  Active
+                </label>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="px-5 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  {isEditing ? 'Update Update' : 'Create Update'}
+                </button>
+              </div>
             </div>
           </form>
         </div>

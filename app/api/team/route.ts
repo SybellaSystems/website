@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const authResult = await authMiddleware(req, { roles: ["executive"] });
+    const authResult = await authMiddleware(req, { roles: ["executive", "superadmin"] });
 
     //If middleware returned a NextResponse, it means auth failed
     if (authResult instanceof NextResponse) return authResult;

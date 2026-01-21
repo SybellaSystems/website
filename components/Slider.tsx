@@ -95,17 +95,31 @@ export default function TeamSlider() {
             1024: { slidesPerView: 3 },
           }}
         >
-          {members.map((member, index) => (
+          {members.map((member, index) => {
+            const imageUrl = member.image || '/profile.webp';
+            const isExternalUrl = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+            
+            return (
             <SwiperSlide key={index}>
               <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6 text-center transition transform hover:scale-105 hover:shadow-2xl duration-300">
                 <div className="relative w-36 h-36 mx-auto mb-4 overflow-hidden rounded-full border-4 border-blue-100 shadow-md">
-                  <Image
-                    src={member.image || '/fallback-profile.png'}
-                    alt={member.name}
-                    fill
-                    className="object-cover transition-opacity duration-500 opacity-0"
-                    onLoadingComplete={(img) => img.classList.remove('opacity-0')}
-                  />
+                  {isExternalUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/profile.webp';
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src={imageUrl}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{member.name}</h3>
                 <p className="text-blue-600 font-medium mb-3">{member.role}</p>
@@ -145,7 +159,8 @@ export default function TeamSlider() {
                 </div>
               </div>
             </SwiperSlide>
-          ))}
+          );
+          })}
         </Swiper>
       </div>
     </section>

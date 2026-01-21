@@ -1,16 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-module.exports = {
-  reactStrictMode: true,
-  images: {
-    domains: [],
-  },
-  i18n: {
-    locales: ['en','fr','sw','rw'],
-    defaultLocale: 'en'
-  }
-}
-
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -23,10 +12,14 @@ const nextConfig = {
       'media.licdn.com',
       'www.linkedin.com',
       "www.google.com",
-      'ik.imagekit.io'
-      
+      'ik.imagekit.io',
+      'uxwing.com'
     ],
   },
+  i18n: {
+    locales: ['en','fr','sw','rw'],
+    defaultLocale: 'en'
+  }
 };
 
 module.exports = nextConfig;

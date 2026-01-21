@@ -3,10 +3,10 @@ import { z } from "zod";
 export const projectSchema = z.object({
   title: z.string().min(2, "Title is required"),
   overview: z.string().min(5, "Overview is required"),
-  image: z.string().url("Must be a valid image URL"),
-  demoLink: z.string().url("Must be a valid URL").optional(),
-  problemSolved: z.string().min(5, "Problem solved description required"),
-  techStack: z.array(z.string()).min(1, "At least one tech stack item required"),
+  image: z.string().min(1, "Image is required"), // Can be local path or URL
+  demoLink: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  problemSolved: z.string().optional(),
+  techStack: z.array(z.string()).optional().default([]),
   partners: z.array(z.string()).optional(),
   callToAction: z.string().optional(),
   isActive: z.boolean().optional().default(true),

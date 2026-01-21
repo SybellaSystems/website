@@ -9,7 +9,10 @@ interface Params {
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
-    await authMiddleware(req, { roles: ["executive"] });
+    const authResult = await authMiddleware(req, { roles: ["executive", "superadmin"] });
+
+    //If middleware returned a NextResponse, it means auth failed
+    if (authResult instanceof NextResponse) return authResult;
 
     const body = await req.json();
     const updated = await updateTeamMember(params.id, body);
@@ -26,7 +29,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
-    await authMiddleware(req, { roles: ["executive"] });
+    const authResult = await authMiddleware(req, { roles: ["executive", "superadmin"] });
+
+    //If middleware returned a NextResponse, it means auth failed
+    if (authResult instanceof NextResponse) return authResult;
 
     const deleted = await deleteTeamMember(params.id);
 
