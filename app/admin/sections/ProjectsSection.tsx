@@ -106,13 +106,25 @@ export default function ProjectsSection() {
     }
 
     try {
+      // Ensure techStack is always an array of strings
+      let techStackArray: string[] = [];
+      if (editingProject.techStack) {
+        if (Array.isArray(editingProject.techStack)) {
+          techStackArray = editingProject.techStack
+            .map((s) => String(s).trim())
+            .filter((s) => s.length > 0);
+        } else {
+          // Handle edge case where techStack might be a string
+          techStackArray = String(editingProject.techStack)
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0);
+        }
+      }
+
       const projectToSave = {
         ...editingProject,
-        techStack: editingProject.techStack
-          ? typeof editingProject.techStack === "string"
-            ? editingProject.techStack.split(",").map((s) => s.trim()).filter(Boolean)
-            : editingProject.techStack.map((s) => s.trim()).filter(Boolean)
-          : [],
+        techStack: techStackArray,
       };
 
       if (editingProject.id) {
