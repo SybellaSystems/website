@@ -65,6 +65,10 @@ export default function AdminUsersPage() {
 
   const handleReply = async () => {
     if (!replyModal.subscriber) return;
+    if (!token) {
+      toast.error("Authentication token not found");
+      return;
+    }
     if (!replySubject.trim() || !replyMessage.trim()) {
       toast.error("Please fill in both subject and message");
       return;
@@ -109,6 +113,10 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!token) {
+      toast.error("Authentication token not found");
+      return;
+    }
     toast.warning("⚠️ Are you sure you want to delete this subscriber?", {
       action: {
         label: "Delete",
@@ -125,7 +133,9 @@ export default function AdminUsersPage() {
             const data = await res.json();
             if (res.ok && data.success) {
               toast.success("✅ Subscriber deleted successfully!", { id: toastId });
-              fetchSubscribers(token);
+              if (token) {
+                fetchSubscribers(token);
+              }
             } else {
               toast.error("❌ " + (data.message || "Failed to delete subscriber"), { 
                 id: toastId,
