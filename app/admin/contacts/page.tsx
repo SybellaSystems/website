@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
+import Loader from '@/components/Loader'
 
 interface Contact {
   _id: string
@@ -127,7 +128,7 @@ export default function AdminContactsPage() {
       <h1 className="text-2xl font-bold mb-6 text-dark-blue dark:text-white">Contact Messages</h1>
 
       {loading ? (
-        <p className="text-gray-600 dark:text-gray-300">Loading contacts...</p>
+        <Loader size="lg" text="Loading contacts..." />
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : contacts.length === 0 ? (

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { logger } from '../lib/logger'
 import { useI18n } from '../contexts/I18nContext'
+import { toast } from 'sonner'
 
 interface DemoStep {
     id: string
@@ -103,7 +104,9 @@ const OgeraDemo = () => {
         })
 
         // In a real implementation, this would open a modal or redirect to a signup form
-        alert('Thank you for your interest! We\'ll notify you when early access is available.')
+        toast.success('Thank you for your interest!', {
+          description: "We'll notify you when early access is available."
+        })
     }
 
     return (

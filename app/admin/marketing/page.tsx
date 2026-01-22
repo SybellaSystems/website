@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Eye, Users, Globe, TrendingUp, MapPin, Info, Download } from 'lucide-react';
+import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -55,7 +56,7 @@ export default function MarketingDashboard() {
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert('Failed to download file. Please try again.');
+      toast.error('Failed to download file. Please try again.');
       console.error(error);
     }
   };

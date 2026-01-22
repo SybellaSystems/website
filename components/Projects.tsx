@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Rocket, ExternalLink } from "lucide-react";
 import { logger } from "../lib/logger";
 import { useI18n } from "../contexts/I18nContext";
+import { toast } from "sonner";
+import Loader from "./Loader";
 
 type ProjectFromAPI = {
   id: string;
@@ -53,13 +55,15 @@ const Projects = () => {
       project: title,
     });
 
-    alert(`Thank you for your interest in ${title}! We'll notify you soon.`);
+    toast.success(`Thank you for your interest in ${title}!`, {
+      description: "We'll notify you soon.",
+    });
   };
 
   if (loading) {
     return (
       <section className="py-16 text-center text-white">
-        <p>Loading projects...</p>
+        <Loader size="lg" text="Loading projects..." />
       </section>
     );
   }

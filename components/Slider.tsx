@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { FaLinkedin, FaTwitter, FaGithub } from 'react-icons/fa';
 import { useI18n } from '../contexts/I18nContext';
 import axios from 'axios';
+import Loader from './Loader';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -49,26 +50,7 @@ export default function TeamSlider() {
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 dark:text-white mb-12">
             {t('team.title')}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6 text-center animate-pulse"
-              >
-                <div className="relative w-36 h-36 mx-auto mb-4 rounded-full bg-gray-200 dark:bg-gray-700" />
-                <div className="h-5 w-32 mx-auto bg-gray-200 dark:bg-gray-700 mb-2 rounded" />
-                <div className="h-4 w-20 mx-auto bg-gray-200 dark:bg-gray-700 mb-3 rounded" />
-                <div className="flex justify-center gap-4">
-                  {[...Array(3)].map((_, j) => (
-                    <div
-                      key={j}
-                      className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded-full"
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <Loader size="lg" text="Loading team members..." />
         </div>
       </section>
     );

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "../contexts/I18nContext";
+import { toast } from "sonner";
 
 export default function SubscriptionPopup() {
   const { t } = useI18n();
@@ -23,22 +24,32 @@ export default function SubscriptionPopup() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const toastId = toast.loading("Subscribing...");
     try {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const data = await res.json();
+      
       if (!res.ok) {
-        throw new Error("Failed to subscribe");
+        throw new Error(data.error || "Failed to subscribe");
       }
 
-      alert(t("popup.success"));
+      toast.success("✅ " + (t("popup.success") || "Thank you for subscribing!"), { 
+        id: toastId,
+        description: data.message || "You'll receive updates in your inbox."
+      });
       setShow(false);
       sessionStorage.setItem("popupClosed", "true");
-    } catch (err) {
+      setEmail(""); // Clear the email field
+    } catch (err: any) {
       console.error(err);
-      alert(t("popup.error"));
+      toast.error("❌ " + (t("popup.error") || "Failed to subscribe"), { 
+        id: toastId,
+        description: err.message || "Please try again later."
+      });
     }
   };
 

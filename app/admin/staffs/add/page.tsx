@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // ✅ use sonner
 import { User, Mail, Lock, Phone, Briefcase } from "lucide-react";
+import { FormValidator, ValidationErrors } from "@/lib/formValidation";
 
 export default function AddStaffPage() {
   const router = useRouter();
@@ -20,15 +21,53 @@ export default function AddStaffPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    // Validate name
+    const nameError = FormValidator.validateRequired(form.names, "Full Name");
+    if (nameError) newErrors.names = nameError;
+
+    // Validate email
+    const emailError = FormValidator.validateEmail(form.email);
+    if (emailError) newErrors.email = emailError;
+
+    // Validate password
+    const passwordError = FormValidator.validatePassword(form.password, 6);
+    if (passwordError) newErrors.password = passwordError;
+
+    // Validate phone (optional)
+    if (form.phone) {
+      const phoneError = FormValidator.validatePhone(form.phone);
+      if (phoneError) newErrors.phone = phoneError;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
     setLoading(true);
 
     const toastId = toast.loading("Creating staff...");
@@ -47,8 +86,10 @@ export default function AddStaffPage() {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "❌ Failed to create staff", {
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "❌ Failed to create staff";
+      toast.error(errorMessage, {
         id: toastId,
+        description: err.response?.data?.errors ? "Please check the form fields" : undefined
       });
     } finally {
       setLoading(false);
@@ -74,9 +115,13 @@ export default function AddStaffPage() {
               placeholder="Enter full name"
               value={form.names}
               onChange={handleChange}
-              required
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
+                errors.names ? "border-red-500" : ""
+              }`}
             />
+            {errors.names && (
+              <p className="text-red-500 text-sm mt-1">{errors.names}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -90,9 +135,13 @@ export default function AddStaffPage() {
               placeholder="staff@example.com"
               value={form.email}
               onChange={handleChange}
-              required
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
+                errors.email ? "border-red-500" : ""
+              }`}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -103,12 +152,16 @@ export default function AddStaffPage() {
             <input
               type="password"
               name="password"
-              placeholder="Enter password"
+              placeholder="Enter password (min 6 characters)"
               value={form.password}
               onChange={handleChange}
-              required
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
+                errors.password ? "border-red-500" : ""
+              }`}
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           {/* Phone */}
@@ -119,11 +172,16 @@ export default function AddStaffPage() {
             <input
               type="text"
               name="phone"
-              placeholder="Phone number"
+              placeholder="Phone number (optional)"
               value={form.phone}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
+                errors.phone ? "border-red-500" : ""
+              }`}
             />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            )}
           </div>
 
           {/* Role */}

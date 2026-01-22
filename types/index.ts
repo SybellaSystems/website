@@ -23,7 +23,6 @@ export interface BlogPost {
   publishedAt?: Date;
   author: string;
   tags: string[];
-  slug: string;
 }
 
 export interface CaseStudy {

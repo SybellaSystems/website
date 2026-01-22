@@ -2,6 +2,7 @@
 
 import { useState, useEffect, ChangeEvent } from "react";
 import axios from "axios";
+import { toast } from "sonner";
 
 interface QATestReport {
   _id: string;
@@ -99,10 +100,20 @@ export default function QADashboard() {
   };
 
   const handleUpload = async () => {
-    if (!file) return alert("Select a file first!");
-    if (!uploadBy) return alert("Please provide your name");
-    if (!testPhase) return alert("Please provide the test phase");
+    if (!file) {
+      toast.error("Please select a file first!");
+      return;
+    }
+    if (!uploadBy) {
+      toast.error("Please provide your name");
+      return;
+    }
+    if (!testPhase) {
+      toast.error("Please provide the test phase");
+      return;
+    }
 
+    const toastId = toast.loading("Uploading report...");
     const formData = new FormData();
     formData.append("file", file);
     formData.append("uploadBy", uploadBy);
@@ -111,14 +122,20 @@ export default function QADashboard() {
 
     try {
       const res = await axios.post("/api/qa-tester/upload", formData);
-      alert("Upload successful! Report ID: " + res.data.id);
+      toast.success("✅ Upload successful!", { 
+        id: toastId,
+        description: `Report ID: ${res.data.id}`
+      });
       setFile(null);
       setUploadBy("");
       setTestPhase("");
       setSelectedUsers([]);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Upload failed");
+      toast.error("❌ Upload failed", { 
+        id: toastId,
+        description: err.response?.data?.message || "Please try again"
+      });
     }
   };
 

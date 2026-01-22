@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
+import Loader from '@/components/Loader'
 
 interface Member {
     _id: string
@@ -129,17 +130,20 @@ export default function TeamMembersSection() {
             return
         }
 
+        const toastId = toast.loading('Updating team member...')
         try {
             const res = await axios.patch(`/api/team/${showUpdateModal.member._id}`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             })
-            if (res.data.success) {
-                toast.success('Team member updated!')
+            if ((res.status >= 200 && res.status < 300) && (res.data?.success !== false)) {
+                toast.success('✅ Team member updated successfully!', { id: toastId })
                 setShowUpdateModal({ open: false })
                 setImagePreview('')
                 setSelectedFile(null)
                 if (fileInputRef.current) fileInputRef.current.value = ''
                 fetchMembers()
+            } else {
+                toast.error('❌ Failed to update team member', { id: toastId })
             }
         } catch (err: any) {
             console.error(err)
@@ -148,17 +152,37 @@ export default function TeamMembersSection() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this team member?')) return
-        try {
-            const res = await axios.delete(`/api/team/${id}`, { headers: { Authorization: `Bearer ${token}` } })
-            if (res.data.success) {
-                toast.success('Team member deleted!')
-                fetchMembers()
+        toast.warning('⚠️ Are you sure you want to delete this team member?', {
+            action: {
+                label: 'Delete',
+                onClick: async () => {
+                    const toastId = toast.loading('Deleting team member...')
+                    try {
+                        const res = await axios.delete(`/api/team/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+                        // Show success if request succeeds (status 200-299) and API confirms success
+                        if ((res.status >= 200 && res.status < 300) && (res.data?.success !== false)) {
+                            toast.success('✅ Team member deleted successfully!', { id: toastId })
+                            fetchMembers()
+                        } else {
+                            toast.error('❌ Failed to delete team member', { 
+                                id: toastId,
+                                description: res.data?.message || 'Please try again'
+                            })
+                        }
+                    } catch (err: any) {
+                        console.error(err)
+                        toast.error('❌ Failed to delete team member', { 
+                            id: toastId,
+                            description: err.response?.data?.message || 'Please try again'
+                        })
+                    }
+                }
+            },
+            cancel: {
+                label: 'Cancel',
+                onClick: () => toast.dismiss()
             }
-        } catch (err) {
-            console.error(err)
-            toast.error('Failed to delete team member')
-        }
+        })
     }
 
     const openUpdateModal = (m: Member) => {
@@ -201,7 +225,7 @@ export default function TeamMembersSection() {
 
             {loading ? (
                 <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <Loader size="lg" text="Loading team members..." />
                 </div>
             ) : members.length === 0 ? (
                 <div className="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-lg">

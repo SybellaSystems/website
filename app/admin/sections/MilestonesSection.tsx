@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner' // ✅ use sonner for consistency
-import { PlusCircle, Edit, Trash2, Calendar, X, Tag, FileText } from 'lucide-react'
+import { PlusCircle, Edit, Trash2, Calendar, X, Tag, FileText, Pencil } from 'lucide-react'
+import Loader from '@/components/Loader'
 
 interface Milestone {
   _id: string
@@ -72,40 +73,50 @@ export default function MilestonesSection() {
         endYear: Number(formData.endYear),
       }, { headers: { Authorization: `Bearer ${token}` } })
 
-      if (res.data.success) {
-        toast.success('✅ Milestone updated!', { id: toastId })
+      if ((res.status >= 200 && res.status < 300) && (res.data?.success !== false)) {
+        toast.success('✅ Milestone updated successfully!', { id: toastId })
         setShowUpdateModal({ open: false })
         fetchMilestones()
+      } else {
+        toast.error('❌ Failed to update milestone', { id: toastId })
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      toast.error('❌ Failed to update milestone', { id: toastId })
+      toast.error('❌ Failed to update milestone', { 
+        id: toastId,
+        description: err.response?.data?.message || 'Please try again'
+      })
     }
   }
 
   // Delete
   const handleDelete = (id: string) => {
-    toast.warning('⚠️ Confirm delete?', {
+    toast.warning('⚠️ Are you sure you want to delete this milestone?', {
       action: {
         label: 'Delete',
         onClick: async () => {
-          const toastId = toast.loading('Deleting...')
+          const toastId = toast.loading('Deleting milestone...')
           try {
             const res = await axios.delete(`/api/milestones?id=${id}`, { headers: { Authorization: `Bearer ${token}` } })
-            if (res.data.success) {
-              toast.success('🗑️ Milestone deleted!', { id: toastId })
+            // Show success if request succeeds
+            if (res.status >= 200 && res.status < 300 && res.data.success) {
+              toast.success('✅ Milestone deleted successfully!', { id: toastId })
               fetchMilestones()
+            } else {
+              toast.error('❌ Failed to delete milestone', { id: toastId })
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error(err)
-            toast.error('❌ Failed to delete milestone', { id: toastId })
+            toast.error('❌ Failed to delete milestone', { 
+              id: toastId,
+              description: err.response?.data?.message || 'Please try again'
+            })
           }
         }
       },
       cancel: {
         label: 'Cancel',
         onClick: () => {
-          // dismiss the confirmation toast (no-op beyond closing)
           toast.dismiss()
         }
       }
@@ -134,7 +145,7 @@ export default function MilestonesSection() {
 
       {/* List */}
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
+        <Loader size="lg" text="Loading milestones..." />
       ) : milestones.length === 0 ? (
         <p className="text-gray-500">No milestones found.</p>
       ) : (
@@ -152,16 +163,18 @@ export default function MilestonesSection() {
               </div>
               <div className="mt-5 flex justify-end gap-2">
                 <button
-                  className="flex items-center gap-1 px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors flex items-center justify-center"
                   onClick={() => openUpdateModal(m)}
+                  title="Edit milestone"
                 >
-                  <Edit size={14} /> Update
+                  <Pencil size={16} />
                 </button>
                 <button
-                  className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  className="bg-red-500 hover:bg-red-600 text-white p-2 rounded transition-colors flex items-center justify-center"
                   onClick={() => handleDelete(m._id)}
+                  title="Delete milestone"
                 >
-                  <Trash2 size={14} /> Delete
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

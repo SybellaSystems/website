@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useI18n } from '../../contexts/I18nContext'
 import { logger } from '../../lib/logger'
+import { toast } from 'sonner'
+import Loader from '@/components/Loader'
 
 interface BlogPost {
   title: string
@@ -58,7 +60,7 @@ export default function BlogPage() {
       setModalOpen(true)
     } catch (err: any) {
       console.error(err)
-      alert('Failed to load blog details')
+      toast.error('Failed to load blog details')
     }
   }
 
@@ -92,7 +94,7 @@ export default function BlogPage() {
         {/* Main Content */}
         <div className="lg:w-2/3 space-y-8">
           {loading ? (
-            <p>Loading blogs...</p>
+            <Loader size="lg" text="Loading blogs..." />
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : blogPosts.length === 0 ? (

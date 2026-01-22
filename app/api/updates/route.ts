@@ -13,11 +13,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const authResult = await authMiddleware(request, { roles: ["*"] });
-  // If middleware returned a NextResponse, it means auth failed
-  if (authResult instanceof NextResponse) return authResult;
-  const permissionResult = await permissionMiddleware(request as any, ["create_updates"]);
-  if (permissionResult instanceof NextResponse) return permissionResult;
+  // Use role-based auth instead of permission-based for updates
+  const user = await authMiddleware(request, { 
+    roles: ["executive", "superadmin", "manager", "marketing"] 
+  });
+  if (user instanceof NextResponse) return user;
+  
   try {
     const data = await request.json();
     const update = await createUpdate(data);

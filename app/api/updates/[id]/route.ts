@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getUpdateById, updateUpdate, deleteUpdate } from "@/lib/models/Update";
+import { authMiddleware } from "@/app/middleware/auth.middleware";
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   try {
@@ -11,7 +12,10 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const user = await authMiddleware(request, { roles: ["*"] });
+  if (user instanceof NextResponse) return user;
+  
   try {
     const body = await request.json();
     const updated = await updateUpdate(params.id, body);
@@ -22,7 +26,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const user = await authMiddleware(request, { roles: ["*"] });
+  if (user instanceof NextResponse) return user;
+  
   try {
     const deleted = await deleteUpdate(params.id);
     if (!deleted) return NextResponse.json({ message: "Not found" }, { status: 404 });

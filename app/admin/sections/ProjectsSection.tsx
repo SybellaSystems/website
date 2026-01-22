@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
+import Loader from "@/components/Loader";
 
 interface Project {
   id: string;
@@ -128,6 +129,7 @@ export default function ProjectsSection() {
       };
 
       if (editingProject.id) {
+        const toastId = toast.loading("Updating project...");
         const res = await axios.patch(
           `/api/projects/${editingProject.id}`,
           projectToSave,
@@ -135,14 +137,23 @@ export default function ProjectsSection() {
             headers: { "Content-Type": "application/json" },
           }
         );
-        setProjects((prev) =>
-          prev.map((p) => (p.id === editingProject.id ? res.data : p))
-        );
-        toast.success("Project updated successfully!");
+        if (res.status >= 200 && res.status < 300) {
+          setProjects((prev) =>
+            prev.map((p) => (p.id === editingProject.id ? res.data : p))
+          );
+          toast.success("✅ Project updated successfully!", { id: toastId });
+        } else {
+          toast.error("❌ Failed to update project", { id: toastId });
+        }
       } else {
+        const toastId = toast.loading("Creating project...");
         const res = await axios.post("/api/projects", projectToSave);
-        setProjects((prev) => [res.data, ...prev]);
-        toast.success("Project created successfully!");
+        if (res.status >= 200 && res.status < 300) {
+          setProjects((prev) => [res.data, ...prev]);
+          toast.success("✅ Project created successfully!", { id: toastId });
+        } else {
+          toast.error("❌ Failed to create project", { id: toastId });
+        }
       }
 
       setShowForm(false);
@@ -151,20 +162,41 @@ export default function ProjectsSection() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.error || err.message || "Error saving project");
+      toast.error(err.response?.data?.error || err.message || "❌ Error saving project", { 
+        description: err.response?.data?.message || 'Please try again'
+      });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
-    try {
-      await axios.delete(`/api/projects/${id}`);
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Project deleted successfully!");
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.error || "Delete failed");
-    }
+    toast.warning("⚠️ Are you sure you want to delete this project?", {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          const toastId = toast.loading("Deleting project...");
+          try {
+            const res = await axios.delete(`/api/projects/${id}`);
+            // Show success if request succeeds
+            if (res.status >= 200 && res.status < 300) {
+              setProjects((prev) => prev.filter((p) => p.id !== id));
+              toast.success("✅ Project deleted successfully!", { id: toastId });
+            } else {
+              toast.error("❌ Failed to delete project", { id: toastId });
+            }
+          } catch (err: any) {
+            console.error(err);
+            toast.error(err.response?.data?.error || "❌ Delete failed", { 
+              id: toastId,
+              description: err.response?.data?.message || 'Please try again'
+            });
+          }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(),
+      },
+    });
   };
 
   const openEditModal = (project: Project) => {
@@ -198,7 +230,7 @@ export default function ProjectsSection() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Loader size="lg" text="Loading projects..." />
       </div>
     );
   }

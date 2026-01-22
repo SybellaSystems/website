@@ -62,7 +62,7 @@ export async function deleteSubscriber(id: string) {
 export async function replyToSubscriber({ id, subject, message }: ReplyData) {
   try {
     const client = await getClientPromise();
-    const db = client.db();
+    const db = client.db('newsletterDB'); // Use newsletterDB database
 
     const subscriber = await db.collection("subscribers").findOne({ _id: new ObjectId(id) });
 

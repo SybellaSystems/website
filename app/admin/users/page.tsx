@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
+import Loader from "@/components/Loader";
+import { MessageSquare, Trash2 } from "lucide-react";
 
 
 
@@ -10,6 +12,7 @@ interface Subscriber {
   email: string;
   name?: string;
   subscribedAt?: string;
+  subscribeAt?: string; // Support both field names for compatibility
 }
 
 export default function AdminUsersPage() {
@@ -30,7 +33,7 @@ export default function AdminUsersPage() {
   const fetchSubscribers = async (accessToken: string) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/subscribe", {
+      const res = await fetch("/api/newsletter", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -40,17 +43,14 @@ export default function AdminUsersPage() {
       });
       const data = await res.json();
 
-      if (data.subscribers && Array.isArray(data.subscribers)) {
-
+      if (data.success && data.subscribers && Array.isArray(data.subscribers)) {
         setSubscribers(data.subscribers);
-
       } else {
-
         toast.error("No subscribers found");
-
       }
     } catch (err) {
-      console.error("Erro occured", err)
+      console.error("Error occurred", err);
+      toast.error("Failed to fetch subscribers");
     } finally {
       setLoading(false);
     }
@@ -65,15 +65,20 @@ export default function AdminUsersPage() {
 
   const handleReply = async () => {
     if (!replyModal.subscriber) return;
+    if (!replySubject.trim() || !replyMessage.trim()) {
+      toast.error("Please fill in both subject and message");
+      return;
+    }
+    
+    const toastId = toast.loading("Sending reply...");
     try {
-      const res = await fetch("/api/reply", {
+      const res = await fetch("/api/newsletter/reply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          type: 'subscribers',
           id: replyModal.subscriber._id,
           subject: replySubject,
           message: replyMessage,
@@ -81,44 +86,63 @@ export default function AdminUsersPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Reply sent!");
+        toast.success("✅ Reply sent successfully!", { 
+          id: toastId,
+          description: data.message || "The email has been sent to the subscriber."
+        });
         setReplyModal({ open: false });
         setReplyMessage("");
         setReplySubject("");
-        alert(data.message)
       } else {
-        alert(data.error)
-        toast.error(data.message || "Failed to send reply");
+        toast.error("❌ Failed to send reply", { 
+          id: toastId,
+          description: data.message || data.error || "Please try again."
+        });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Something went wrong");
+      toast.error("❌ Failed to send reply", { 
+        id: toastId,
+        description: err.message || "Something went wrong. Please try again."
+      });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this subscriber?")) return;
-    try {
-      const res = await fetch(`/api/newsletter/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Subscriber deleted");
-        useEffect(() => {
-          if (token) {
-            fetchSubscribers(token);
+    toast.warning("⚠️ Are you sure you want to delete this subscriber?", {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          const toastId = toast.loading("Deleting subscriber...");
+          try {
+            const res = await fetch(`/api/newsletter/${id}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              toast.success("✅ Subscriber deleted successfully!", { id: toastId });
+              fetchSubscribers(token);
+            } else {
+              toast.error("❌ " + (data.message || "Failed to delete subscriber"), { 
+                id: toastId,
+                description: data.error || 'Please try again'
+              });
+            }
+          } catch (err) {
+            console.error(err);
+            toast.error("❌ Something went wrong", { id: toastId });
           }
-        }, [token]);
-      } else toast.error(data.message || "Failed to delete subscriber");
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
-    }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(),
+      },
+    });
   };
 
   return (
@@ -126,7 +150,7 @@ export default function AdminUsersPage() {
       <h1 className="text-2xl font-bold mb-6">Newsletter Subscribers</h1>
 
       {loading ? (
-        <p>Loading...</p>
+        <Loader size="lg" text="Loading subscribers..." />
       ) : subscribers.length === 0 ? (
         <p>No subscribers found.</p>
       ) : (
@@ -134,34 +158,53 @@ export default function AdminUsersPage() {
           <table className="min-w-full bg-white rounded-lg shadow-md">
             <thead className="bg-blue-600 text-white">
               <tr>
-                <th className="py-2 px-4 text-left">Name</th>
                 <th className="py-2 px-4 text-left">Email</th>
                 <th className="py-2 px-4 text-left">Subscribed At</th>
                 <th className="py-2 px-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {subscribers.map(sub => (
+              {subscribers.map(sub => {
+                const formatDate = (dateString?: string) => {
+                  if (!dateString) return "-";
+                  try {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                  } catch {
+                    return dateString;
+                  }
+                };
+                // Handle both subscribeAt and subscribedAt field names
+                const subscribeDate = sub.subscribedAt || (sub as any).subscribeAt;
+                return (
                 <tr key={sub._id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-4">{sub.name || "-"}</td>
                   <td className="py-2 px-4">{sub.email}</td>
-                  <td className="py-2 px-4">{sub.subscribedAt || "-"}</td>
+                  <td className="py-2 px-4">{formatDate(subscribeDate)}</td>
                   <td className="py-2 px-4 flex justify-center gap-2">
                     <button
                       onClick={() => setReplyModal({ open: true, subscriber: sub })}
-                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                      className="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition-colors flex items-center justify-center"
+                      title="Reply to subscriber"
                     >
-                      Reply
+                      <MessageSquare size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(sub._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded transition-colors flex items-center justify-center"
+                      title="Delete subscriber"
                     >
-                      Delete
+                      <Trash2 size={16} />
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "sonner";
+import Loader from "@/components/Loader";
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
@@ -41,6 +43,7 @@ export default function SettingsPage() {
 
   const handleProfileUpdate = async () => {
     if (!user) return;
+    const toastId = toast.loading("Updating profile...");
     const cleanForm = JSON.parse(JSON.stringify(form));
     try {
       const res = await axios.patch(`/api/staff/self/${user.id}`, cleanForm, {
@@ -50,14 +53,21 @@ export default function SettingsPage() {
         },
       });
 
-      if (res.status === 200) {
+      if (res.status >= 200 && res.status < 300) {
         setUser(res.data);
+        toast.success("✅ Profile updated successfully!", { id: toastId });
         setMessage("Profile updated successfully!");
       } else {
+        toast.error("❌ Profile update failed", { id: toastId });
         setMessage("Profile update failed!");
       }
     } catch (err: any) {
-      setMessage(err.response?.data?.error || "Failed to update profile.");
+      const errorMsg = err.response?.data?.error || "Failed to update profile.";
+      toast.error("❌ Failed to update profile", { 
+        id: toastId,
+        description: errorMsg
+      });
+      setMessage(errorMsg);
       console.error(err);
     }
   };
@@ -75,6 +85,7 @@ export default function SettingsPage() {
       return;
     }
 
+    const toastId = toast.loading("Updating password...");
     try {
       const res = await axios.patch(
         `/api/staff/self/password/${user.id}`,
@@ -82,8 +93,14 @@ export default function SettingsPage() {
         { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } }
       );
 
-      setMessage(res.data.message);
-      setPasswordForm({ oldPassword: "", newPassword: "" }); // reset form
+      if (res.status >= 200 && res.status < 300) {
+        toast.success("✅ Password updated successfully!", { id: toastId, description: res.data.message });
+        setMessage(res.data.message);
+        setPasswordForm({ oldPassword: "", newPassword: "" }); // reset form
+      } else {
+        toast.error("❌ Failed to update password", { id: toastId });
+        setMessage("Password update failed!");
+      }
     } catch (err: any) {
       // Map backend Zod errors to messages
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
@@ -98,7 +115,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) return <div className="flex justify-center items-center mt-10"><Loader size="lg" text="Loading settings..." /></div>;
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded-lg">

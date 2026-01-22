@@ -4,17 +4,36 @@ import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 import { json } from "zod";
 
+// Generate slug from title
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
 //Create BlogPost
-export async function createBlogPost(blogData: BlogPost) {
+export async function createBlogPost(blogData: any) {
   const client = await getClientPromise();
   const db = client.db();
-  const blogs =  db.collection<BlogPost>("blogposts");
-  const existingSlug = await db.collection("blogposts").findOne({slug: blogData.slug});
-  if (existingSlug) {
-    throw new Error ("Blog already Exists")
+  const blogs =  db.collection("blogposts");
+  
+  // Generate slug from title if not provided
+  let slug = blogData.slug || generateSlug(blogData.title);
+  
+  // Ensure slug is unique by appending a number if needed
+  let uniqueSlug = slug;
+  let counter = 1;
+  while (await blogs.findOne({ slug: uniqueSlug })) {
+    uniqueSlug = `${slug}-${counter}`;
+    counter++;
   }
+  
   const res = await blogs.insertOne({
     ...blogData,
+    slug: uniqueSlug,
     publishedAt: new Date(),
   });
 
@@ -57,13 +76,23 @@ export async function updateBlogPost(slug: string, updateData: Partial<BlogPost>
   return res;
 }
 
-//  Delete blog post 
+//  Delete blog post by slug
 export async function deleteBlogPost(slug: string) {
   const client = await getClientPromise();
   const db = client.db();
   const blogs = db.collection<BlogPost>("blogposts");
 
   const res = await blogs.deleteOne({ slug });
+  return res.deletedCount > 0;
+}
+
+// Delete blog post by _id
+export async function deleteBlogPostById(id: string) {
+  const client = await getClientPromise();
+  const db = client.db();
+  const blogs = db.collection<BlogPost>("blogposts");
+
+  const res = await blogs.deleteOne({ _id: new ObjectId(id) });
   return res.deletedCount > 0;
 }
 

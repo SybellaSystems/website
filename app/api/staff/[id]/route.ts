@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getStaffMemberOut, updateStaffMember } from '@/lib/models/StaffMember';
+import { getStaffMemberOut, updateStaffMember, deleteStaffMember } from '@/lib/models/StaffMember';
 import { authMiddleware} from '@/app/middleware/auth.middleware';
 import { ZodError, z } from 'zod';
 import { staffMemberSelfUpdateSchema, staffMemberUpdateSchema } from '@/app/schemas/user.schema';
@@ -38,6 +38,25 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: err.format() }, { status: 400 });
   }
     return NextResponse.json({ error: err.message }, { status: 400 });
+  }
+}
+
+// Delete staff member
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const user = await authMiddleware(req, { roles: ["executive", "superadmin"] });
+    if (user instanceof NextResponse) return user;
+
+    const deleted = await deleteStaffMember(params.id);
+
+    if (!deleted) {
+      return NextResponse.json({ success: false, message: "Staff member not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: "Staff member deleted successfully" }, { status: 200 });
+  } catch (err: any) {
+    console.error("Error deleting staff:", err);
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
 }
 

@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { Edit, Trash2, X } from "lucide-react";
+import Loader from "@/components/Loader";
 
 interface Blog {
   _id?: string;
+  slug?: string;
   title: string;
   excerpt: string;
   author: string;
-  slug: string;
   thumbnailUrl: string;
   content?: string;
 }
@@ -42,18 +43,37 @@ export default function ViewBlogsPage() {
     }
   };
 
-  const handleDeleteBlog = async (slug: string) => {
-    if (!confirm("Are you sure you want to delete this blog?")) return;
-    try {
-      await axios.delete(`/api/blogposts/${slug}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
-      toast.success("Blog deleted!");
-      fetchBlogs();
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to delete blog.");
-    }
+  const handleDeleteBlog = async (id: string) => {
+    toast.warning("⚠️ Are you sure you want to delete this blog?", {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          const toastId = toast.loading("Deleting blog...");
+          try {
+            const res = await axios.delete(`/api/blogposts/${id}`, {
+              headers: { Authorization: `Bearer ${adminToken}` },
+            });
+            // Show success if request succeeds
+            if (res.status >= 200 && res.status < 300) {
+              toast.success("✅ Blog deleted successfully!", { id: toastId });
+              fetchBlogs();
+            } else {
+              toast.error("❌ Failed to delete blog.", { id: toastId });
+            }
+          } catch (err: any) {
+            console.error(err);
+            toast.error("❌ Failed to delete blog.", { 
+              id: toastId,
+              description: err.response?.data?.message || 'Please try again'
+            });
+          }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(),
+      },
+    });
   };
 
   const handleEditClick = (blog: Blog) => {
@@ -69,11 +89,14 @@ export default function ViewBlogsPage() {
     }
   };
 
-  const handleUpdateBlog = async (slug: string) => {
+  const handleUpdateBlog = async (id: string) => {
     if (!editingBlog) return;
+    const toastId = toast.loading("Updating blog...");
     try {
-      await axios.patch(
-        `/api/blogposts/${slug}`,
+      // Use slug if available, otherwise use _id
+      const identifier = editingBlog.slug || id;
+      const res = await axios.patch(
+        `/api/blogposts/${identifier}`,
         {
           title: editingBlog.title,
           excerpt: editingBlog.excerpt,
@@ -83,13 +106,20 @@ export default function ViewBlogsPage() {
         },
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
-      toast.success("Blog updated successfully!");
-      setIsModalOpen(false);
-      setEditingBlog(null);
-      fetchBlogs();
+      if (res.status >= 200 && res.status < 300) {
+        toast.success("✅ Blog updated successfully!", { id: toastId });
+        setIsModalOpen(false);
+        setEditingBlog(null);
+        fetchBlogs();
+      } else {
+        toast.error("❌ Failed to update blog", { id: toastId });
+      }
     } catch (err: any) {
       console.error(err);
-      toast.error("Failed to update blog.");
+      toast.error("❌ Failed to update blog", { 
+        id: toastId,
+        description: err.response?.data?.error || err.response?.data?.message || 'Please try again'
+      });
     }
   };
 
@@ -98,14 +128,14 @@ export default function ViewBlogsPage() {
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">📖 View Blogs</h1>
 
       {loading ? (
-        <p>Loading blogs...</p>
+        <Loader size="lg" text="Loading blogs..." />
       ) : blogs.length === 0 ? (
         <p>No blogs found</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogs.map((blog) => (
             <div
-              key={blog.slug}
+              key={blog._id}
               className="bg-white shadow rounded-lg overflow-hidden border hover:shadow-lg transition"
             >
               <img
@@ -132,7 +162,7 @@ export default function ViewBlogsPage() {
                   </button>
                   <button
                     className="flex items-center gap-1 bg-red-100 px-3 py-1 rounded text-red-600 hover:bg-red-200 text-sm"
-                    onClick={() => handleDeleteBlog(blog.slug)}
+                    onClick={() => handleDeleteBlog(blog._id!)}
                   >
                     <Trash2 size={16} /> Delete
                   </button>
@@ -213,7 +243,7 @@ export default function ViewBlogsPage() {
               </button>
               <button
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                onClick={() => handleUpdateBlog(editingBlog.slug)}
+                onClick={() => handleUpdateBlog(editingBlog._id!)}
               >
                 Update
               </button>

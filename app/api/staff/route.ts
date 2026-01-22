@@ -39,15 +39,11 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-
-      const permResult = await permissionMiddleware(req, ["update_staff_member"]);
-      if (permResult instanceof NextResponse) return permResult;
-      const { user } = permResult;
-
-    // const user = await authMiddleware(req, {
-    //   roles: ["executive", "superadmin", "manager"],
-    // });
-    // if (user instanceof NextResponse) return user;
+    // Use role-based auth instead of permission-based for staff updates
+    const user = await authMiddleware(req, {
+      roles: ["executive", "superadmin", "manager"],
+    });
+    if (user instanceof NextResponse) return user;
 
     // Extract data from body
     const body = await req.json();

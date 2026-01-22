@@ -26,14 +26,31 @@ export async function createStaffMember(staffMember: z.infer<typeof staffMemberS
 
     const db = client.db()
 
+    // Build query - only check phone if it's provided and not empty
+    // Escape special regex characters in email for safe matching
+    const escapedEmail = parsed.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const queryConditions: any[] = [
+        { email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } } // Case-insensitive email match
+    ];
+    
+    // Only check phone if it's provided and not empty
+    if (parsed.phone && parsed.phone.trim() !== '') {
+        queryConditions.push({ phone: parsed.phone.trim() });
+    }
+
     const existing = await db.collection("staff_members").findOne({
-        $or: [
-            { email: parsed.email }, { phone: parsed.phone }
-        ]
+        $or: queryConditions
     });
 
     if (existing) {
-        throw new Error("A staff member with this email or phone number already registred");
+        // Provide more specific error message
+        if (existing.email?.toLowerCase() === parsed.email.toLowerCase()) {
+            throw new Error("A staff member with this email already exists");
+        }
+        if (parsed.phone && existing.phone === parsed.phone) {
+            throw new Error("A staff member with this phone number already exists");
+        }
+        throw new Error("A staff member with this email or phone number already exists");
     }
 
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
@@ -238,4 +255,12 @@ export async function updateStaffPassword2fa(email: string, hashedPassword: stri
   return await db
     .collection("staff_members")
     .updateOne({ email }, { $set: { password: hashedPassword } });
+}
+
+// delete staff member
+export async function deleteStaffMember(id: string) {
+  const client = await getClientPromise();
+  const db = client.db();
+  const res = await db.collection("staff_members").deleteOne({ id });
+  return res.deletedCount > 0;
 }

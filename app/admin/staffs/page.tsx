@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
+import Loader from '@/components/Loader'
+import { FormValidator, ValidationErrors } from '@/lib/formValidation'
+import { Pencil, Trash2 } from 'lucide-react'
 
 interface Staff {
   id: string
@@ -25,6 +28,7 @@ export default function AdminStaffPage() {
   })
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [errors, setErrors] = useState<ValidationErrors>({})
 
   const token =
     typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null
@@ -56,9 +60,31 @@ export default function AdminStaffPage() {
     const { name, value } = e.target
     if (editingStaff) {
       setEditingStaff({ ...editingStaff, [name]: value })
+      // Clear error when user starts typing
+      if (errors[name]) {
+        setErrors({ ...errors, [name]: "" })
+      }
     } else {
       setNewStaff({ ...newStaff, [name]: value })
     }
+  }
+
+  const validateEditForm = (): boolean => {
+    if (!editingStaff) return false
+    const newErrors: ValidationErrors = {}
+
+    // Validate name
+    const nameError = FormValidator.validateRequired(editingStaff.names, "Full Name")
+    if (nameError) newErrors.names = nameError
+
+    // Validate phone (optional)
+    if (editingStaff.phone) {
+      const phoneError = FormValidator.validatePhone(editingStaff.phone)
+      if (phoneError) newErrors.phone = phoneError
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleCreateStaff = async (e: React.FormEvent) => {
@@ -78,19 +104,66 @@ export default function AdminStaffPage() {
 
   const handleUpdateStaff = async () => {
     if (!editingStaff) return
+    
+    // Validate form before submission
+    if (!validateEditForm()) {
+      toast.error("Please fix the errors in the form")
+      return
+    }
+
+    const toastId = toast.loading('Updating staff member...')
     try {
       const { id, email, ...updateData } = editingStaff
       const res = await axios.patch(`/api/staff?id=${id}`, updateData, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      toast.success('Staff updated successfully!')
-      setEditingStaff(null)
-      setShowModal(false)
-      fetchStaffs()
+      if (res.status >= 200 && res.status < 300) {
+        toast.success('✅ Staff updated successfully!', { id: toastId })
+        setEditingStaff(null)
+        setShowModal(false)
+        fetchStaffs()
+      } else {
+        toast.error('❌ Failed to update staff', { id: toastId })
+      }
     } catch (err: any) {
       console.error(err)
-      toast.error(err.response?.data?.message || 'Failed to update staff')
+      toast.error('❌ Failed to update staff', { 
+        id: toastId,
+        description: err.response?.data?.message || 'Please try again'
+      })
     }
+  }
+
+  const handleDeleteStaff = async (id: string) => {
+    toast.warning('⚠️ Are you sure you want to delete this staff member?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          const toastId = toast.loading('Deleting staff member...')
+          try {
+            const res = await axios.delete(`/api/staff/${id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            if (res.status >= 200 && res.status < 300) {
+              toast.success('✅ Staff deleted successfully!', { id: toastId })
+              fetchStaffs()
+            } else {
+              toast.error('❌ Failed to delete staff', { id: toastId })
+            }
+          } catch (err: any) {
+            console.error(err)
+            toast.error('❌ Failed to delete staff', { 
+              id: toastId,
+              description: err.response?.data?.message || 'Please try again'
+            })
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => toast.dismiss(),
+      },
+    })
   }
 
   return (
@@ -101,21 +174,19 @@ export default function AdminStaffPage() {
 
       {/* View Staff */}
       {loading ? (
-        <p className="text-gray-600 dark:text-gray-300">
-          Loading staff members...
-        </p>
+        <Loader size="lg" text="Loading staff members..." />
       ) : staffs.length === 0 ? (
         <p>No staff found</p>
       ) : (
         <div className="overflow-x-auto bg-white dark:bg-dark-surface rounded-lg shadow-md">
           <table className="min-w-full">
-            <thead className="bg-gray-100 dark:bg-gray-700">
+            <thead className="bg-blue-600 dark:bg-blue-700">
               <tr>
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-left">Email</th>
-                <th className="px-4 py-2 text-left">Role</th>
-                <th className="px-4 py-2 text-left">Phone</th>
-                <th className="px-4 py-2 text-left">Actions</th>
+                <th className="px-4 py-2 text-left text-white font-semibold">Name</th>
+                <th className="px-4 py-2 text-left text-white font-semibold">Email</th>
+                <th className="px-4 py-2 text-left text-white font-semibold">Role</th>
+                <th className="px-4 py-2 text-left text-white font-semibold">Phone</th>
+                <th className="px-4 py-2 text-left text-white font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -129,15 +200,25 @@ export default function AdminStaffPage() {
                   <td className="px-4 py-2">{staff.role}</td>
                   <td className="px-4 py-2">{staff.phone || '-'}</td>
                   <td className="px-4 py-2">
-                    <button
-                      className="bg-yellow-500 px-3 py-1 rounded text-black hover:bg-yellow-600 text-sm"
-                      onClick={() => {
-                        setEditingStaff(staff)
-                        setShowModal(true)
-                      }}
-                    >
-                      Edit
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors flex items-center justify-center"
+                        onClick={() => {
+                          setEditingStaff(staff)
+                          setShowModal(true)
+                        }}
+                        title="Edit staff member"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white p-2 rounded transition-colors flex items-center justify-center"
+                        onClick={() => handleDeleteStaff(staff.id)}
+                        title="Delete staff member"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -164,8 +245,13 @@ export default function AdminStaffPage() {
                 placeholder="Full Name"
                 value={editingStaff.names}
                 onChange={handleInputChange}
-                className="w-full border p-2 rounded"
+                className={`w-full border p-2 rounded ${
+                  errors.names ? "border-red-500" : ""
+                }`}
               />
+              {errors.names && (
+                <p className="text-red-500 text-sm mt-1">{errors.names}</p>
+              )}
               <input
                 type="email"
                 name="email"
@@ -177,11 +263,16 @@ export default function AdminStaffPage() {
               <input
                 type="text"
                 name="phone"
-                placeholder="Phone Number"
+                placeholder="Phone Number (optional)"
                 value={editingStaff.phone || ''}
                 onChange={handleInputChange}
-                className="w-full border p-2 rounded"
+                className={`w-full border p-2 rounded ${
+                  errors.phone ? "border-red-500" : ""
+                }`}
               />
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              )}
               <select
                 name="role"
                 value={editingStaff.role}

@@ -37,20 +37,36 @@ export async function authMiddleware(req: NextRequest, options?: MiddlewareOptio
     if (!decoded.permissions) {
       const client = await getClientPromise();
       const db = client.db();
-      let queryId: ObjectId;
-      try {
-        queryId = new ObjectId(decoded.id);
-      } catch (e) {
-        console.error("JWT ID is not a valid ObjectId:", decoded.id);
-        return NextResponse.json({ error: "Unauthorized: Invalid token ID format" }, { status: 401 });
-      }
-
-      const foundUser = await db.collection("users").findOne({ _id: queryId });
       
-      if (foundUser) {
-        decoded.permissions = foundUser.permissions || [];
+      // Staff roles that use staff_members collection
+      const staffRoles = ["executive", "superadmin", "manager", "marketing", "qa-tester", "sales", "accountant", "cto"];
+      
+      if (staffRoles.includes(decoded.role)) {
+        // Staff members use string 'id' field, not ObjectId '_id'
+        const foundStaff = await db.collection("staff_members").findOne({ id: decoded.id });
+        
+        if (foundStaff) {
+          decoded.permissions = foundStaff.permissions || [];
+        } else {
+          console.warn(`Valid token for staff ID ${decoded.id}, but staff member not found in DB.`);
+        }
       } else {
-        console.warn(`Valid token for user ID ${decoded.id}, but user not found in DB.`);
+        // Regular users use ObjectId '_id' field
+        let queryId: ObjectId;
+        try {
+          queryId = new ObjectId(decoded.id);
+        } catch (e) {
+          console.error("JWT ID is not a valid ObjectId:", decoded.id);
+          return NextResponse.json({ error: "Unauthorized: Invalid token ID format" }, { status: 401 });
+        }
+
+        const foundUser = await db.collection("users").findOne({ _id: queryId });
+        
+        if (foundUser) {
+          decoded.permissions = foundUser.permissions || [];
+        } else {
+          console.warn(`Valid token for user ID ${decoded.id}, but user not found in DB.`);
+        }
       }
     }
 

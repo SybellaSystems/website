@@ -60,7 +60,8 @@ export const useTokenRefresh = () => {
       
       if (data.accessToken) {
         localStorage.setItem('adminToken', data.accessToken);
-        cookieStore.set('adminToken', data.accessToken);
+        // Cookie is set by server via response.cookies.set() in /api/refresh
+        // No need to set it client-side with cookieStore API
         return true;
       }
       

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 import {
   Calendar,
   User,
@@ -10,12 +11,12 @@ import {
   Eye,
   Plus,
   X,
-  Loader2,
   FileText,
   Image,
   Tag,
   CheckCircle,
 } from 'lucide-react';
+import Loader from '@/components/Loader';
 
 interface Update {
   id?: string;
@@ -56,28 +57,101 @@ export default function UpdatesSection() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this update?')) return;
-    try {
-      await axios.delete(`/api/updates/${id}`);
-      setUpdates((prev) => prev.filter((u) => u.id !== id));
-    } catch {
-      alert('Failed to delete update.');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+    if (!token) {
+      toast.error('❌ Authentication required. Please login again.');
+      return;
     }
+    
+    toast.warning('⚠️ Are you sure you want to delete this update?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          const toastId = toast.loading('Deleting update...');
+          try {
+            const res = await axios.delete(`/api/updates/${id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            // Show success if request succeeds
+            if (res.status >= 200 && res.status < 300) {
+              setUpdates((prev) => prev.filter((u) => u.id !== id));
+              toast.success('✅ Update deleted successfully!', { id: toastId });
+            } else {
+              toast.error('❌ Failed to delete update.', { id: toastId });
+            }
+          } catch (err: any) {
+            console.error(err);
+            toast.error('❌ Failed to delete update.', { 
+              id: toastId,
+              description: err.response?.data?.message || 'Please try again'
+            });
+          }
+        }
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => toast.dismiss()
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+    if (!token) {
+      toast.error('❌ Authentication required. Please login again.');
+      return;
+    }
+    
+    // Ensure category is set and valid
+    if (!formData.category || !['news', 'announcement', 'event', 'other'].includes(formData.category)) {
+      toast.error('❌ Please select a valid category');
+      return;
+    }
+    
+    // Prepare data with default values
+    const submitData = {
+      title: formData.title || '',
+      category: formData.category as 'news' | 'announcement' | 'event' | 'other',
+      description: formData.description || '',
+      author: formData.author || '',
+      thumbnail: formData.thumbnail || '',
+      isActive: formData.isActive !== undefined ? formData.isActive : true,
+    };
+    
+    const toastId = toast.loading(isEditing ? 'Updating update...' : 'Creating update...');
     try {
       if (isEditing && selectedUpdate?.id) {
-        await axios.put(`/api/updates/${selectedUpdate.id}`, formData);
+        const res = await axios.put(`/api/updates/${selectedUpdate.id}`, submitData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.status >= 200 && res.status < 300) {
+          toast.success('✅ Update updated successfully!', { id: toastId });
+          setIsFormOpen(false);
+          setFormData({});
+          fetchUpdates();
+        } else {
+          toast.error('❌ Failed to update', { id: toastId });
+        }
       } else {
-        await axios.post('/api/updates', formData);
+        const res = await axios.post('/api/updates', submitData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.status >= 200 && res.status < 300) {
+          toast.success('✅ Update created successfully!', { id: toastId });
+          setIsFormOpen(false);
+          setFormData({});
+          fetchUpdates();
+        } else {
+          toast.error('❌ Failed to create', { id: toastId });
+        }
       }
-      setIsFormOpen(false);
-      setFormData({});
-      fetchUpdates();
-    } catch {
-      alert('Failed to save update.');
+    } catch (err: any) {
+      console.error(err);
+      toast.error('❌ Failed to save update.', { 
+        id: toastId, 
+        description: err.response?.data?.message || 'Please try again'
+      });
     }
   };
 
@@ -90,7 +164,11 @@ export default function UpdatesSection() {
   const openEditForm = (update: Update) => {
     setIsEditing(true);
     setSelectedUpdate(update);
-    setFormData(update);
+    // Ensure category is set with a default if missing
+    setFormData({
+      ...update,
+      category: update.category || 'news',
+    });
     setIsFormOpen(true);
   };
 
@@ -116,8 +194,7 @@ export default function UpdatesSection() {
 
       {loading ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-          <span className="ml-2 text-gray-600">Loading updates...</span>
+          <Loader size="lg" text="Loading updates..." />
         </div>
       ) : error ? (
         <div className="text-red-600 text-center">{error}</div>
@@ -336,12 +413,14 @@ export default function UpdatesSection() {
                 <select
                   className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-dark-surface text-gray-900 dark:text-white cursor-pointer"
                   value={formData.category || 'news'}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const selectedCategory = e.target.value as 'news' | 'announcement' | 'event' | 'other';
                     setFormData({
                       ...formData,
-                      category: e.target.value as Update['category'],
-                    })
-                  }
+                      category: selectedCategory,
+                    });
+                  }}
+                  required
                 >
                   <option value="news">News</option>
                   <option value="announcement">Announcement</option>

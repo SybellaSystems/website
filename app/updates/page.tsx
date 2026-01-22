@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Calendar, Tag } from "lucide-react";
+import Loader from "@/components/Loader";
 
 interface Update {
   id: string;
@@ -177,7 +178,7 @@ export default function UpdatesPage() {
       {/* Lazy Loading Spinner */}
       {loadingMore && (
         <div className="flex justify-center py-8">
-          <div className="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <Loader size="md" text="Loading more updates..." />
         </div>
       )}
     </section>
