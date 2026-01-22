@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
 import { authMiddleware } from "@/app/middleware/auth.middleware";
 
 export async function POST(req: NextRequest) {
@@ -39,27 +36,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Convert file to base64 for serverless compatibility
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), "public", "uploads", "team");
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = file.name.split(".").pop();
-    const filename = `team-${timestamp}-${randomString}.${fileExtension}`;
-    const filepath = join(uploadsDir, filename);
-
-    // Save file
-    await writeFile(filepath, buffer);
-
-    // Return the public URL
-    const imageUrl = `/uploads/team/${filename}`;
+    const base64 = buffer.toString('base64');
+    
+    // Determine MIME type
+    const mimeType = file.type || 'image/jpeg';
+    
+    // Return base64 data URL (works in serverless environments)
+    const imageUrl = `data:${mimeType};base64,${base64}`;
 
     return NextResponse.json(
       {
