@@ -25,6 +25,7 @@ export default function ProjectsSection() {
   const [editingProject, setEditingProject] = useState<Partial<Project> | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
@@ -43,19 +44,40 @@ export default function ProjectsSection() {
     fetchProjects();
   }, []);
 
-  const handleImageUpload = async (file: File) => {
-    if (!file) return;
-
+  const validateImageFile = (file: File): { valid: boolean; error?: string } => {
     // Validate file type
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
-      toast.error("Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.");
-      return;
+      const errorMsg = "Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.";
+      // toast.error(errorMsg);
+      return { valid: false, error: errorMsg };
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size too large. Maximum size is 5MB.");
+      const errorMsg = "File size too large. Maximum size is 5MB.";
+      toast.error(errorMsg);
+      return { valid: false, error: errorMsg };
+    }
+
+    return { valid: true };
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+
+    // Validate file first
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      // Set form error state
+      setErrors((prev) => ({
+        ...prev,
+        image: validation.error || "Invalid image file",
+      }));
+      // Clear the file input but don't change the preview
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
@@ -75,10 +97,26 @@ export default function ProjectsSection() {
         setEditingProject((prev) => ({ ...prev, image: res.data.imageUrl }));
         setImagePreview(res.data.imageUrl);
         toast.success("Image uploaded successfully!");
+        // Clear any image-related errors
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.image;
+          return newErrors;
+        });
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to upload image");
+      const errorMsg = err.response?.data?.message || "Failed to upload image";
+      toast.error(errorMsg);
+      // Set form error state
+      setErrors((prev) => ({
+        ...prev,
+        image: errorMsg,
+      }));
+      // Clear the file input but don't change the preview
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } finally {
       setUploadingImage(false);
     }
@@ -87,7 +125,22 @@ export default function ProjectsSection() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Create preview
+      // Validate file first before creating preview
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        // Set form error state
+        setErrors((prev) => ({
+          ...prev,
+          image: validation.error || "Invalid image file",
+        }));
+        // Clear the file input but don't change the preview
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+
+      // Create preview only if validation passes
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -98,11 +151,65 @@ export default function ProjectsSection() {
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Validate image (required for new projects)
+    if (!editingProject?.id && !editingProject?.image) {
+      newErrors.image = "Project image is required";
+    }
+
+    // Validate title
+    if (!editingProject?.title || editingProject.title.trim() === "") {
+      newErrors.title = "Title is required";
+    } else if (editingProject.title.trim().length < 3) {
+      newErrors.title = "Title must be at least 3 characters";
+    }
+
+    // Validate overview
+    if (!editingProject?.overview || editingProject.overview.trim() === "") {
+      newErrors.overview = "Overview is required";
+    } else if (editingProject.overview.trim().length < 10) {
+      newErrors.overview = "Overview must be at least 10 characters";
+    }
+
+    // Validate techStack
+    let techStackArray: string[] = [];
+    if (editingProject?.techStack) {
+      if (Array.isArray(editingProject.techStack)) {
+        techStackArray = editingProject.techStack
+          .map((s) => String(s).trim())
+          .filter((s) => s.length > 0);
+      } else {
+        techStackArray = String(editingProject.techStack)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+      }
+    }
+    if (techStackArray.length === 0) {
+      newErrors.techStack = "At least one technology is required";
+    }
+
+    // Validate demo link format if provided
+    if (editingProject?.demoLink && editingProject.demoLink.trim() !== "") {
+      try {
+        new URL(editingProject.demoLink);
+      } catch {
+        newErrors.demoLink = "Please enter a valid URL";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
     if (!editingProject) return;
 
-    if (!editingProject.title || !editingProject.overview) {
-      toast.error("Please fill in title and overview");
+    // Validate form
+    if (!validateForm()) {
+      // toast.error("Please fix the errors in the form");
       return;
     }
 
@@ -141,35 +248,36 @@ export default function ProjectsSection() {
           setProjects((prev) =>
             prev.map((p) => (p.id === editingProject.id ? res.data : p))
           );
-          toast.success("✅ Project updated successfully!", { id: toastId });
+          toast.success("Project updated successfully!", { id: toastId });
         } else {
-          toast.error("❌ Failed to update project", { id: toastId });
+          toast.error("Failed to update project", { id: toastId });
         }
       } else {
         const toastId = toast.loading("Creating project...");
         const res = await axios.post("/api/projects", projectToSave);
         if (res.status >= 200 && res.status < 300) {
           setProjects((prev) => [res.data, ...prev]);
-          toast.success("✅ Project created successfully!", { id: toastId });
+          toast.success("Project created successfully!", { id: toastId });
         } else {
-          toast.error("❌ Failed to create project", { id: toastId });
+          toast.error("Failed to create project", { id: toastId });
         }
       }
 
       setShowForm(false);
       setEditingProject(null);
       setImagePreview("");
+      setErrors({});
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.error || err.message || "❌ Error saving project", { 
+      toast.error(err.response?.data?.error || err.message || "Error saving project", { 
         description: err.response?.data?.message || 'Please try again'
       });
     }
   };
 
   const handleDelete = async (id: string) => {
-    toast.warning("⚠️ Are you sure you want to delete this project?", {
+    toast.warning("Are you sure you want to delete this project?", {
       action: {
         label: "Delete",
         onClick: async () => {
@@ -179,13 +287,13 @@ export default function ProjectsSection() {
             // Show success if request succeeds
             if (res.status >= 200 && res.status < 300) {
               setProjects((prev) => prev.filter((p) => p.id !== id));
-              toast.success("✅ Project deleted successfully!", { id: toastId });
+              toast.success("Project deleted successfully!", { id: toastId });
             } else {
-              toast.error("❌ Failed to delete project", { id: toastId });
+              toast.error("Failed to delete project", { id: toastId });
             }
           } catch (err: any) {
             console.error(err);
-            toast.error(err.response?.data?.error || "❌ Delete failed", { 
+            toast.error(err.response?.data?.error || "Delete failed", { 
               id: toastId,
               description: err.response?.data?.message || 'Please try again'
             });
@@ -202,6 +310,7 @@ export default function ProjectsSection() {
   const openEditModal = (project: Project) => {
     setEditingProject(project);
     setImagePreview(project.image || "");
+    setErrors({});
     setShowForm(true);
   };
 
@@ -216,6 +325,7 @@ export default function ProjectsSection() {
       isActive: true,
     });
     setImagePreview("");
+    setErrors({});
     if (fileInputRef.current) fileInputRef.current.value = "";
     setShowForm(true);
   };
@@ -224,6 +334,7 @@ export default function ProjectsSection() {
     setShowForm(false);
     setEditingProject(null);
     setImagePreview("");
+    setErrors({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -376,7 +487,7 @@ export default function ProjectsSection() {
               {/* Image Upload Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Project Image <span className="text-red-500">*</span>
+                  Project Image {!editingProject.id && <span className="text-red-500">*</span>}
                 </label>
                 <div className="flex items-center gap-4">
                   {imagePreview && (
@@ -396,8 +507,9 @@ export default function ProjectsSection() {
                     />
                     <label
                       htmlFor="project-image-upload"
-                      className={`inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                        uploadingImage ? "opacity-50 cursor-not-allowed" : ""
+                      className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                        uploadingImage ? "opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600" : 
+                        errors.image ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                     >
                       {uploadingImage ? (
@@ -445,6 +557,9 @@ export default function ProjectsSection() {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       JPEG, PNG, WebP, or GIF (Max 5MB)
                     </p>
+                    {errors.image && (
+                      <p className="text-xs text-red-500 mt-1">{errors.image}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -456,13 +571,28 @@ export default function ProjectsSection() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    errors.title 
+                      ? "border-red-500 dark:border-red-500" 
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
                   placeholder="Enter project title"
                   value={editingProject.title || ""}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, title: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setEditingProject({ ...editingProject, title: e.target.value });
+                    // Clear error when user starts typing
+                    if (errors.title) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.title;
+                        return newErrors;
+                      });
+                    }
+                  }}
                 />
+                {errors.title && (
+                  <p className="text-xs text-red-500 mt-1">{errors.title}</p>
+                )}
               </div>
 
               {/* Overview */}
@@ -472,19 +602,34 @@ export default function ProjectsSection() {
                 </label>
                 <textarea
                   rows={3}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    errors.overview 
+                      ? "border-red-500 dark:border-red-500" 
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
                   placeholder="Brief description of the project"
                   value={editingProject.overview || ""}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, overview: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setEditingProject({ ...editingProject, overview: e.target.value });
+                    // Clear error when user starts typing
+                    if (errors.overview) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.overview;
+                        return newErrors;
+                      });
+                    }
+                  }}
                 />
+                {errors.overview && (
+                  <p className="text-xs text-red-500 mt-1">{errors.overview}</p>
+                )}
               </div>
 
               {/* Problem Solved - Optional */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Problem Solved (Optional)
+                  Problem Solved 
                 </label>
                 <textarea
                   rows={3}
@@ -504,39 +649,69 @@ export default function ProjectsSection() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    errors.techStack 
+                      ? "border-red-500 dark:border-red-500" 
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
                   placeholder="React, Node.js, MongoDB (comma separated)"
                   value={
                     Array.isArray(editingProject.techStack)
                       ? editingProject.techStack.join(", ")
                       : editingProject.techStack || ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setEditingProject({
                       ...editingProject,
                       techStack: e.target.value.split(",").map((s) => s.trim()),
-                    })
-                  }
+                    });
+                    // Clear error when user starts typing
+                    if (errors.techStack) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.techStack;
+                        return newErrors;
+                      });
+                    }
+                  }}
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Separate technologies with commas
                 </p>
+                {errors.techStack && (
+                  <p className="text-xs text-red-500 mt-1">{errors.techStack}</p>
+                )}
               </div>
 
               {/* Demo Link - Optional */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Demo Link (Optional)
+                  Demo Link 
                 </label>
                 <input
                   type="url"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    errors.demoLink 
+                      ? "border-red-500 dark:border-red-500" 
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
                   placeholder="https://demo.example.com"
                   value={editingProject.demoLink || ""}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, demoLink: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setEditingProject({ ...editingProject, demoLink: e.target.value });
+                    // Clear error when user starts typing
+                    if (errors.demoLink) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.demoLink;
+                        return newErrors;
+                      });
+                    }
+                  }}
                 />
+                {errors.demoLink && (
+                  <p className="text-xs text-red-500 mt-1">{errors.demoLink}</p>
+                )}
               </div>
 
               {/* Active Status */}

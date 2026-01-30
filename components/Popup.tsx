@@ -37,7 +37,7 @@ export default function SubscriptionPopup() {
         throw new Error(data.error || "Failed to subscribe");
       }
 
-      toast.success("✅ " + (t("popup.success") || "Thank you for subscribing!"), { 
+      toast.success(t("popup.success") || "Thank you for subscribing!", { 
         id: toastId,
         description: data.message || "You'll receive updates in your inbox."
       });
@@ -46,7 +46,7 @@ export default function SubscriptionPopup() {
       setEmail(""); // Clear the email field
     } catch (err: any) {
       console.error(err);
-      toast.error("❌ " + (t("popup.error") || "Failed to subscribe"), { 
+      toast.error(t("popup.error") || "Failed to subscribe", { 
         id: toastId,
         description: err.message || "Please try again later."
       });

@@ -37,7 +37,7 @@ export default function AdminLogin() {
         data = await res.json();
       } catch (err) {
         console.error("Invalid JSON response:", err);
-        toast.error("❌ Unexpected server response.");
+        toast.error("Unexpected server response.");
         setLoading(false);
         return;
       }
@@ -45,14 +45,14 @@ export default function AdminLogin() {
       if (res.ok) {
         localStorage.setItem("adminToken", data.accessToken || "");
         localStorage.setItem("refreshToken", data.refreshToken || "");
-        toast.success("✅ Login successful!");
+        toast.success("Login successful!");
         router.push("/admin");
       } else {
-        toast.error(data.error || "❌ Login failed. Please check your credentials.");
+        toast.error(data.error || "Login failed. Please check your credentials.");
       }
     } catch (err) {
       console.error("Network error:", err);
-      toast.error("⚠️ Network error. Please try again.");
+      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }

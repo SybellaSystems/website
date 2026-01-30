@@ -55,15 +55,15 @@ export default function SettingsPage() {
 
       if (res.status >= 200 && res.status < 300) {
         setUser(res.data);
-        toast.success("✅ Profile updated successfully!", { id: toastId });
+        toast.success("Profile updated successfully!", { id: toastId });
         setMessage("Profile updated successfully!");
       } else {
-        toast.error("❌ Profile update failed", { id: toastId });
+        toast.error("Profile update failed", { id: toastId });
         setMessage("Profile update failed!");
       }
     } catch (err: any) {
       const errorMsg = err.response?.data?.error || "Failed to update profile.";
-      toast.error("❌ Failed to update profile", { 
+      toast.error("Failed to update profile", { 
         id: toastId,
         description: errorMsg
       });
@@ -94,11 +94,11 @@ export default function SettingsPage() {
       );
 
       if (res.status >= 200 && res.status < 300) {
-        toast.success("✅ Password updated successfully!", { id: toastId, description: res.data.message });
+        toast.success("Password updated successfully!", { id: toastId, description: res.data.message });
         setMessage(res.data.message);
         setPasswordForm({ oldPassword: "", newPassword: "" }); // reset form
       } else {
-        toast.error("❌ Failed to update password", { id: toastId });
+        toast.error("Failed to update password", { id: toastId });
         setMessage("Password update failed!");
       }
     } catch (err: any) {

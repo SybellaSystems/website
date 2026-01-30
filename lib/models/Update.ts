@@ -7,7 +7,10 @@ export const updateSchema = z.object({
   title: z.string().min(3, "Title is required"),
   category: z.enum(["news", "announcement", "event", "other"]),
   description: z.string().min(5, "Description is required"),
-  thumbnail: z.string().url().optional(),
+  thumbnail: z.union([
+    z.string().url(),
+    z.string().startsWith("/")
+  ]).optional(),
   author: z.string().optional(),
   isActive: z.boolean().default(true),
   createdAt: z.date().optional(),
