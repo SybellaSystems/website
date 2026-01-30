@@ -145,7 +145,7 @@ export default function AddBlogPage() {
       );
 
       // update toast to success
-      toast.success("🎉 Blog created successfully!", { id: toastId });
+      toast.success("Blog created successfully!", { id: toastId });
 
       // small delay so user sees toast before redirect
       setTimeout(() => {
@@ -153,7 +153,7 @@ export default function AddBlogPage() {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      toast.error("❌ Failed to create blog.", { id: toastId });
+      toast.error("Failed to create blog.", { id: toastId });
     } finally {
       setLoading(false);
     }

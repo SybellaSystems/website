@@ -118,16 +118,16 @@ export default function AdminStaffPage() {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.status >= 200 && res.status < 300) {
-        toast.success('✅ Staff updated successfully!', { id: toastId })
+        toast.success('Staff updated successfully!', { id: toastId })
         setEditingStaff(null)
         setShowModal(false)
         fetchStaffs()
       } else {
-        toast.error('❌ Failed to update staff', { id: toastId })
+        toast.error('Failed to update staff', { id: toastId })
       }
     } catch (err: any) {
       console.error(err)
-      toast.error('❌ Failed to update staff', { 
+      toast.error('Failed to update staff', { 
         id: toastId,
         description: err.response?.data?.message || 'Please try again'
       })
@@ -135,7 +135,7 @@ export default function AdminStaffPage() {
   }
 
   const handleDeleteStaff = async (id: string) => {
-    toast.warning('⚠️ Are you sure you want to delete this staff member?', {
+    toast.warning('Are you sure you want to delete this staff member?', {
       action: {
         label: 'Delete',
         onClick: async () => {
@@ -145,14 +145,14 @@ export default function AdminStaffPage() {
               headers: { Authorization: `Bearer ${token}` },
             })
             if (res.status >= 200 && res.status < 300) {
-              toast.success('✅ Staff deleted successfully!', { id: toastId })
+              toast.success('Staff deleted successfully!', { id: toastId })
               fetchStaffs()
             } else {
-              toast.error('❌ Failed to delete staff', { id: toastId })
+              toast.error('Failed to delete staff', { id: toastId })
             }
           } catch (err: any) {
             console.error(err)
-            toast.error('❌ Failed to delete staff', { 
+            toast.error('Failed to delete staff', { 
               id: toastId,
               description: err.response?.data?.message || 'Please try again'
             })

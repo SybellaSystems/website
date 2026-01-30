@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("✅ Reply sent successfully!", { 
+        toast.success("Reply sent successfully!", { 
           id: toastId,
           description: data.message || "The email has been sent to the subscriber."
         });
@@ -98,14 +98,14 @@ export default function AdminUsersPage() {
         setReplyMessage("");
         setReplySubject("");
       } else {
-        toast.error("❌ Failed to send reply", { 
+        toast.error("Failed to send reply", { 
           id: toastId,
           description: data.message || data.error || "Please try again."
         });
       }
     } catch (err: any) {
       console.error(err);
-      toast.error("❌ Failed to send reply", { 
+      toast.error("Failed to send reply", { 
         id: toastId,
         description: err.message || "Something went wrong. Please try again."
       });
@@ -117,7 +117,7 @@ export default function AdminUsersPage() {
       toast.error("Authentication token not found");
       return;
     }
-    toast.warning("⚠️ Are you sure you want to delete this subscriber?", {
+    toast.warning("Are you sure you want to delete this subscriber?", {
       action: {
         label: "Delete",
         onClick: async () => {
@@ -132,19 +132,19 @@ export default function AdminUsersPage() {
             });
             const data = await res.json();
             if (res.ok && data.success) {
-              toast.success("✅ Subscriber deleted successfully!", { id: toastId });
+              toast.success("Subscriber deleted successfully!", { id: toastId });
               if (token) {
                 fetchSubscribers(token);
               }
             } else {
-              toast.error("❌ " + (data.message || "Failed to delete subscriber"), { 
+              toast.error(data.message || "Failed to delete subscriber", { 
                 id: toastId,
                 description: data.error || 'Please try again'
               });
             }
           } catch (err) {
             console.error(err);
-            toast.error("❌ Something went wrong", { id: toastId });
+            toast.error("Something went wrong", { id: toastId });
           }
         },
       },

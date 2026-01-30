@@ -122,7 +122,7 @@ export default function QADashboard() {
 
     try {
       const res = await axios.post("/api/qa-tester/upload", formData);
-      toast.success("✅ Upload successful!", { 
+      toast.success("Upload successful!", { 
         id: toastId,
         description: `Report ID: ${res.data.id}`
       });
@@ -132,7 +132,7 @@ export default function QADashboard() {
       setSelectedUsers([]);
     } catch (err: any) {
       console.error(err);
-      toast.error("❌ Upload failed", { 
+      toast.error("Upload failed", { 
         id: toastId,
         description: err.response?.data?.message || "Please try again"
       });

@@ -44,7 +44,7 @@ export default function ViewBlogsPage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    toast.warning("⚠️ Are you sure you want to delete this blog?", {
+    toast.warning("Are you sure you want to delete this blog?", {
       action: {
         label: "Delete",
         onClick: async () => {
@@ -55,14 +55,14 @@ export default function ViewBlogsPage() {
             });
             // Show success if request succeeds
             if (res.status >= 200 && res.status < 300) {
-              toast.success("✅ Blog deleted successfully!", { id: toastId });
+              toast.success("Blog deleted successfully!", { id: toastId });
               fetchBlogs();
             } else {
-              toast.error("❌ Failed to delete blog.", { id: toastId });
+              toast.error("Failed to delete blog.", { id: toastId });
             }
           } catch (err: any) {
             console.error(err);
-            toast.error("❌ Failed to delete blog.", { 
+            toast.error("Failed to delete blog.", { 
               id: toastId,
               description: err.response?.data?.message || 'Please try again'
             });
@@ -107,16 +107,16 @@ export default function ViewBlogsPage() {
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (res.status >= 200 && res.status < 300) {
-        toast.success("✅ Blog updated successfully!", { id: toastId });
+        toast.success("Blog updated successfully!", { id: toastId });
         setIsModalOpen(false);
         setEditingBlog(null);
         fetchBlogs();
       } else {
-        toast.error("❌ Failed to update blog", { id: toastId });
+        toast.error("Failed to update blog", { id: toastId });
       }
     } catch (err: any) {
       console.error(err);
-      toast.error("❌ Failed to update blog", { 
+      toast.error("Failed to update blog", { 
         id: toastId,
         description: err.response?.data?.error || err.response?.data?.message || 'Please try again'
       });

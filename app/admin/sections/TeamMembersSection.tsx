@@ -24,6 +24,7 @@ export default function TeamMembersSection() {
     const [imagePreview, setImagePreview] = useState<string>('')
     const [uploadingImage, setUploadingImage] = useState(false)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [errors, setErrors] = useState<{ name?: string; role?: string; image?: string }>({})
     const fileInputRef = useRef<HTMLInputElement>(null)
     const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null
 
@@ -42,19 +43,64 @@ export default function TeamMembersSection() {
 
     useEffect(() => { fetchMembers() }, [])
 
+    // Validation function for required fields only
+    const validateForm = (): boolean => {
+        const newErrors: { name?: string; role?: string; image?: string } = {}
+
+        // Validate name (required)
+        if (!formData.name.trim()) {
+            newErrors.name = 'Name is required'
+        }
+
+        // Validate role (required)
+        if (!formData.role.trim()) {
+            newErrors.role = 'Role is required'
+        }
+
+        // Validate image (required)
+        if (!formData.image) {
+            newErrors.image = 'Profile image is required'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
     const handleImageUpload = async (file: File) => {
         if (!file) return
 
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
         if (!validTypes.includes(file.type)) {
-            toast.error('Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.')
+            // Set form validation error - show form error, not toast
+            setErrors(prev => ({
+                ...prev,
+                image: 'Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.'
+            }))
+            // Clear preview and selected file on validation failure
+            // Only clear if no existing image (create mode), otherwise keep existing image
+            if (!formData.image) {
+                setImagePreview('')
+            }
+            setSelectedFile(null)
+            if (fileInputRef.current) fileInputRef.current.value = ''
             return
         }
 
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
-            toast.error('File size too large. Maximum size is 5MB.')
+            // Set form validation error - show form error, not toast
+            setErrors(prev => ({
+                ...prev,
+                image: 'File size too large. Maximum size is 5MB.'
+            }))
+            // Clear preview and selected file on validation failure
+            // Only clear if no existing image (create mode), otherwise keep existing image
+            if (!formData.image) {
+                setImagePreview('')
+            }
+            setSelectedFile(null)
+            if (fileInputRef.current) fileInputRef.current.value = ''
             return
         }
 
@@ -73,11 +119,29 @@ export default function TeamMembersSection() {
             if (res.data.success) {
                 setFormData(prev => ({ ...prev, image: res.data.imageUrl }))
                 setImagePreview(res.data.imageUrl)
+                // Clear any image-related errors on successful upload
+                setErrors(prev => {
+                    const newErrors = { ...prev }
+                    delete newErrors.image
+                    return newErrors
+                })
                 toast.success('Image uploaded successfully!')
             }
         } catch (err: any) {
             console.error(err)
+            // Clear image error FIRST (unconditionally) - only show toast, not form validation error
+            setErrors(prev => {
+                const newErrors = { ...prev }
+                delete newErrors.image
+                return newErrors
+            })
             toast.error(err.response?.data?.message || 'Failed to upload image')
+            // Clear preview and selected file on upload failure
+            // Restore original image if in update mode, otherwise clear
+            const originalImage = formData.image || ''
+            setImagePreview(originalImage)
+            setSelectedFile(null)
+            if (fileInputRef.current) fileInputRef.current.value = ''
         } finally {
             setUploadingImage(false)
         }
@@ -87,20 +151,13 @@ export default function TeamMembersSection() {
         const file = e.target.files?.[0]
         if (file) {
             setSelectedFile(file)
-            // Create preview
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string)
-            }
-            reader.readAsDataURL(file)
-            // Upload the file
+            // Upload the file (preview will be set only after successful upload)
             handleImageUpload(file)
         }
     }
 
     const handleCreate = async () => {
-        if (!formData.name || !formData.role || !formData.image) {
-            toast.error('Please fill in name, role, and upload an image')
+        if (!validateForm()) {
             return
         }
 
@@ -114,6 +171,7 @@ export default function TeamMembersSection() {
                 setFormData({ name: '', role: '', image: '', linkedin: '', twitter: '', github: '' })
                 setImagePreview('')
                 setSelectedFile(null)
+                setErrors({})
                 if (fileInputRef.current) fileInputRef.current.value = ''
                 fetchMembers()
             }
@@ -125,8 +183,7 @@ export default function TeamMembersSection() {
 
     const handleUpdate = async () => {
         if (!showUpdateModal.member) return
-        if (!formData.name || !formData.role || !formData.image) {
-            toast.error('Please fill in name, role, and image')
+        if (!validateForm()) {
             return
         }
 
@@ -136,14 +193,15 @@ export default function TeamMembersSection() {
                 headers: { Authorization: `Bearer ${token}` }
             })
             if ((res.status >= 200 && res.status < 300) && (res.data?.success !== false)) {
-                toast.success('✅ Team member updated successfully!', { id: toastId })
+                toast.success('Team member updated successfully!', { id: toastId })
                 setShowUpdateModal({ open: false })
                 setImagePreview('')
                 setSelectedFile(null)
+                setErrors({})
                 if (fileInputRef.current) fileInputRef.current.value = ''
                 fetchMembers()
             } else {
-                toast.error('❌ Failed to update team member', { id: toastId })
+                toast.error('Failed to update team member', { id: toastId })
             }
         } catch (err: any) {
             console.error(err)
@@ -152,7 +210,7 @@ export default function TeamMembersSection() {
     }
 
     const handleDelete = async (id: string) => {
-        toast.warning('⚠️ Are you sure you want to delete this team member?', {
+        toast.warning('Are you sure you want to delete this team member?', {
             action: {
                 label: 'Delete',
                 onClick: async () => {
@@ -161,17 +219,17 @@ export default function TeamMembersSection() {
                         const res = await axios.delete(`/api/team/${id}`, { headers: { Authorization: `Bearer ${token}` } })
                         // Show success if request succeeds (status 200-299) and API confirms success
                         if ((res.status >= 200 && res.status < 300) && (res.data?.success !== false)) {
-                            toast.success('✅ Team member deleted successfully!', { id: toastId })
+                            toast.success('Team member deleted successfully!', { id: toastId })
                             fetchMembers()
                         } else {
-                            toast.error('❌ Failed to delete team member', { 
+                            toast.error('Failed to delete team member', { 
                                 id: toastId,
                                 description: res.data?.message || 'Please try again'
                             })
                         }
                     } catch (err: any) {
                         console.error(err)
-                        toast.error('❌ Failed to delete team member', { 
+                        toast.error('Failed to delete team member', { 
                             id: toastId,
                             description: err.response?.data?.message || 'Please try again'
                         })
@@ -195,6 +253,7 @@ export default function TeamMembersSection() {
             github: m.github || ''
         })
         setImagePreview(m.image)
+        setErrors({})
         setShowUpdateModal({ open: true, member: m })
     }
 
@@ -202,6 +261,7 @@ export default function TeamMembersSection() {
         setFormData({ name: '', role: '', image: '', linkedin: '', twitter: '', github: '' })
         setImagePreview('')
         setSelectedFile(null)
+        setErrors({})
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
@@ -317,7 +377,11 @@ export default function TeamMembersSection() {
 
             {/* Create Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4" onClick={() => setShowCreateModal(false)}>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4" onClick={() => {
+                    setShowCreateModal(false)
+                    resetForm()
+                    setErrors({})
+                }}>
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Add Team Member</h2>
@@ -325,6 +389,7 @@ export default function TeamMembersSection() {
                                 onClick={() => {
                                     setShowCreateModal(false)
                                     resetForm()
+                                    setErrors({})
                                 }}
                                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                             >
@@ -358,7 +423,11 @@ export default function TeamMembersSection() {
                                         />
                                         <label
                                             htmlFor="image-upload-create"
-                                            className={`inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                                                errors.image 
+                                                    ? 'border-red-500 dark:border-red-500' 
+                                                    : 'border-gray-300 dark:border-gray-600'
+                                            } ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             {uploadingImage ? (
                                                 <>
@@ -378,6 +447,11 @@ export default function TeamMembersSection() {
                                             )}
                                         </label>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">JPEG, PNG, WebP, or GIF (Max 5MB)</p>
+                                        {errors.image && (
+                                            <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                                <span>⚠️</span> {errors.image}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -389,11 +463,23 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                        errors.name 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                                            : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
+                                    }`}
                                     placeholder="Enter full name"
                                     value={formData.name}
-                                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, name: e.target.value }))
+                                        if (errors.name) setErrors(prev => ({ ...prev, name: undefined }))
+                                    }}
                                 />
+                                {errors.name && (
+                                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <span>⚠️</span> {errors.name}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Role */}
@@ -403,11 +489,23 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                        errors.role 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                                            : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
+                                    }`}
                                     placeholder="e.g., Software Developer, Designer"
                                     value={formData.role}
-                                    onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, role: e.target.value }))
+                                        if (errors.role) setErrors(prev => ({ ...prev, role: undefined }))
+                                    }}
                                 />
+                                {errors.role && (
+                                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <span>⚠️</span> {errors.role}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Social Links - Optional */}
@@ -454,6 +552,7 @@ export default function TeamMembersSection() {
                                 onClick={() => {
                                     setShowCreateModal(false)
                                     resetForm()
+                                    setErrors({})
                                 }}
                                 className="px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
                             >
@@ -472,7 +571,11 @@ export default function TeamMembersSection() {
 
             {/* Update Modal */}
             {showUpdateModal.open && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4" onClick={() => setShowUpdateModal({ open: false })}>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4" onClick={() => {
+                    setShowUpdateModal({ open: false })
+                    resetForm()
+                    setErrors({})
+                }}>
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Update Team Member</h2>
@@ -480,6 +583,7 @@ export default function TeamMembersSection() {
                                 onClick={() => {
                                     setShowUpdateModal({ open: false })
                                     resetForm()
+                                    setErrors({})
                                 }}
                                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                             >
@@ -513,7 +617,11 @@ export default function TeamMembersSection() {
                                         />
                                         <label
                                             htmlFor="image-upload-update"
-                                            className={`inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                                                errors.image 
+                                                    ? 'border-red-500 dark:border-red-500' 
+                                                    : 'border-gray-300 dark:border-gray-600'
+                                            } ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             {uploadingImage ? (
                                                 <>
@@ -533,6 +641,11 @@ export default function TeamMembersSection() {
                                             )}
                                         </label>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">JPEG, PNG, WebP, or GIF (Max 5MB)</p>
+                                        {errors.image && (
+                                            <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                                <span>⚠️</span> {errors.image}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -544,11 +657,23 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                        errors.name 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                                            : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
+                                    }`}
                                     placeholder="Enter full name"
                                     value={formData.name}
-                                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, name: e.target.value }))
+                                        if (errors.name) setErrors(prev => ({ ...prev, name: undefined }))
+                                    }}
                                 />
+                                {errors.name && (
+                                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <span>⚠️</span> {errors.name}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Role */}
@@ -558,11 +683,23 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                        errors.role 
+                                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                                            : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
+                                    }`}
                                     placeholder="e.g., Software Developer, Designer"
                                     value={formData.role}
-                                    onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                                    onChange={e => {
+                                        setFormData(prev => ({ ...prev, role: e.target.value }))
+                                        if (errors.role) setErrors(prev => ({ ...prev, role: undefined }))
+                                    }}
                                 />
+                                {errors.role && (
+                                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <span>⚠️</span> {errors.role}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Social Links - Optional */}
@@ -609,6 +746,7 @@ export default function TeamMembersSection() {
                                 onClick={() => {
                                     setShowUpdateModal({ open: false })
                                     resetForm()
+                                    setErrors({})
                                 }}
                                 className="px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
                             >

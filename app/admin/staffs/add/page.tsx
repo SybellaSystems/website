@@ -77,7 +77,7 @@ export default function AddStaffPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success(res.data.message || "🎉 Staff created successfully!", {
+      toast.success(res.data.message || "Staff created successfully!", {
         id: toastId,
       });
 
@@ -86,7 +86,7 @@ export default function AddStaffPage() {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || "❌ Failed to create staff";
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to create staff";
       toast.error(errorMessage, {
         id: toastId,
         description: err.response?.data?.errors ? "Please check the form fields" : undefined
