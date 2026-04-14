@@ -1,41 +1,11 @@
-'use client'
-import Hero from '../components/Hero'
-import Services from '../components/Services'
-import Projects from '../components/Projects'
-import Journey from '../components/Journey'
-import ContactForm from '../components/ContactForm'
-import OgeraDemo from '../components/OgeraDemo'
-import Chatbot from '../components/Chatbot'
-import { logger } from '../lib/logger'
-import { useEffect } from 'react'
-import TeamSlider from '@/components/Slider'
-import USPSection from '@/components/Usp'
-import EcosystemSolutions from '@/components/Ecosystem'
-import SubscriptionPopup from '@/components/Popup'
-import AdminLogin from '@/app/signin/page'
+import type { Metadata } from "next";
+import HomeClient from "@/components/HomeClient";
 
-export default function Page() {
-    useEffect(() => {
-        logger.info('Home page loaded', {
-            page: 'home',
-            timestamp: new Date().toISOString()
-        });
-    }, []);
+export const metadata: Metadata = {
+  title: "Sybella Systems — Engineering Africa's Digital Future",
+  description: "Premium software engineering, SaaS development, and cloud solutions across Africa. Creators of Ogera — the continent's leading student employment platform.",
+};
 
-    return (
-        <div>
-            <Hero />
-            <Services />
-            <Projects />
-            <TeamSlider />
-            <USPSection />
-            <OgeraDemo />
-            <Journey />
-            <EcosystemSolutions />
-            <ContactForm />
-            <Chatbot />
-            <SubscriptionPopup />
-            {/* <AdminLogin /> */}
-        </div>
-    )
+export default function HomePage() {
+  return <HomeClient />;
 }

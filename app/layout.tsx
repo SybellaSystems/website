@@ -1,151 +1,53 @@
-import './globals.css'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import { Metadata } from 'next'
-import Script from 'next/script'
-import { I18nProvider } from '../contexts/I18nContext'
-import ClientWrapper from './ClientWrapper'
-import { AppToaster } from '@/components/Toaster' // 👈 added toaster
+import type { Metadata } from "next";
+import "./globals.css";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Sybella Systems - Transforming Africa Through Innovation',
-  description:
-    'Pioneering AI-driven digital solutions across education, healthcare, retail, and beyond. Building the future of African technology, one innovation at a time.',
-  keywords: [
-    'Sybella Systems',
-    'Africa technology',
-    'digital transformation',
-    'AI solutions',
-    'education technology',
-    'healthcare technology',
-    'retail technology',
-    'hospitality technology',
-    'real estate technology',
-    'transport logistics',
-    'HR management',
-    'inventory billing',
-    'government solutions',
-    'NGO solutions',
-    'Kigali Rwanda',
-    'African innovation',
-  ],
-  icons: {
-    icon: '/images/sybella.png',
-  },
-  authors: [{ name: 'Sybella Systems' }],
-  creator: 'Sybella Systems',
-  publisher: 'Sybella Systems',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  title: { default: "Sybella Systems — Africa's Premium Software Company", template: "%s | Sybella Systems" },
+  description: "Sybella Systems builds world-class software, custom ERP systems, and digital platforms across Africa. Creators of Ogera — the continent's premier student employment platform.",
+  keywords: ["cloud solutions Rwanda", "custom ERP developers Lagos", "premium SaaS development Nairobi", "software company Africa", "Ogera student jobs Africa", "Sybella Systems Kigali"],
+  authors: [{ name: "Sybella Systems", url: "https://sybellasystems.co.rw" }],
+  creator: "Sybella Systems",
+  publisher: "Sybella Systems",
+  metadataBase: new URL("https://sybellasystems.co.rw"),
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://sybellasystems.com',
-    siteName: 'Sybella Systems',
-    title: 'Sybella Systems - Transforming Africa Through Innovation',
-    description:
-      'Pioneering AI-driven digital solutions across education, healthcare, retail, and beyond. Building the future of African technology, one innovation at a time.',
-    images: [
-      {
-        url: '/images/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Sybella Systems - Transforming Africa Through Innovation',
-      },
-    ],
+    type: "website",
+    locale: "en_US",
+    url: "https://sybellasystems.co.rw",
+    siteName: "Sybella Systems",
+    title: "Sybella Systems — Africa's Premium Software Company",
+    description: "Engineering Africa's digital future. Custom software, SaaS platforms, and Ogera — connecting Africa's brightest students with opportunity.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Sybella Systems" }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Sybella Systems - Transforming Africa Through Innovation',
-    description:
-      'Pioneering AI-driven digital solutions across education, healthcare, retail, and beyond.',
-    images: ['/images/twitter-image.jpg'],
-    creator: '@sybellasystems',
-  },
-  alternates: {
-    canonical: 'https://sybellasystems.co.rw',
-    languages: {
-      'en-US': 'https://sybellasystems.co.rw',
-      'fr-FR': 'https://sybellasystems.co.rw/fr',
-      'sw-KE': 'https://sybellasystems.co.rw/sw',
-      'rw-RW': 'https://sybellasystems.co.rw/rw',
-    },
-  },
-  verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
-  },
-}
+  twitter: { card: "summary_large_image", title: "Sybella Systems", description: "Engineering Africa's digital future.", images: ["/og-image.png"] },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
+  icons: { icon: "/LOGO WITH NO BG.png", apple: "/apple-touch-icon.png" },
+  manifest: "/manifest.json",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#1e3a8a" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        {/* Structured Data */}
-        <Script
-          id="structured-data"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-        >
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: 'Sybella Systems',
-            url: 'https://sybellasystems.co.rw',
-            logo: 'https://sybellasystems.co.rw/images/sybella.png',
-            sameAs: [
-              'https://twitter.com/sybellasystems',
-              'https://www.linkedin.com/company/sybellasystems',
-              'https://www.facebook.com/sybellasystems',
-            ],
-            contactPoint: {
-              '@type': 'ContactPoint',
-              telephone: '+250700000000',
-              contactType: 'customer support',
-              areaServed: 'RW',
-              availableLanguage: ['English', 'French', 'Kinyarwanda'],
-            },
-          })}
-        </Script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Sybella Systems",
+          "url": "https://sybellasystems.co.rw",
+          "logo": "https://sybellasystems.co.rw/logo.svg",
+          "description": "Africa's premier software engineering company",
+          "address": { "@type": "PostalAddress", "addressLocality": "Kigali", "addressCountry": "RW" },
+          "sameAs": ["https://linkedin.com/company/sybella-systems", "https://twitter.com/sybellasystems"],
+        }) }} />
       </head>
-      <body className="antialiased bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text transition-colors duration-300">
-        <I18nProvider>
-          <ClientWrapper>{children}</ClientWrapper>
-        </I18nProvider>
-
-        {/* ✅ Global Toaster (always available) */}
-        <AppToaster />
-
-        {/* Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'GA_MEASUREMENT_ID');
-          `}
-        </Script>
+      <body>
+        <Nav />
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
-  )
+  );
 }

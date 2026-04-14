@@ -1,9 +1,6 @@
-# *
 User-agent: *
 Allow: /
-
-# Host
-Host: https://sybellasystems.co.rw
-
-# Sitemaps
+Disallow: /admin/
+Disallow: /api/private/
+Disallow: /_next/
 Sitemap: https://sybellasystems.co.rw/sitemap.xml
