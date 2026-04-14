@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer";
 
 export const metadata: Metadata = {
   title: { default: "Sybella Systems — Africa's Premium Software Company", template: "%s | Sybella Systems" },

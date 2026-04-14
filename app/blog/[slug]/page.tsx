@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ChatWidget from "@/components/ChatWidget";
-import { mockBlogs } from "@/lib/mockBlogs";
+import ChatWidget from "../../components/ChatWidget";
+import { mockBlogs } from "../../lib/mockBlogs";
 
 
 interface BlogPostProps {

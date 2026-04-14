@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {BlogCard} from "../../components/BlogCard";
-import {ChatWidget} from ../../components/ChatWidget
+import {ChatWidget} from "../../components/ChatWidget";
 import { mockBlogs } from "../../lib/mockBlogs";
 
 export default function BlogPage() {
