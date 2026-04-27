@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import Header from '../components/Header';
+import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 import AdminHeader from '../components/AdminHeader';
 
@@ -36,8 +36,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
 
   return (
     <>
-      {/* Only show headers/footers if not on admin or signin/signup pages */}
-      {isAdminRoute ? <AdminHeader /> : !isAuthRoute && <Header />}
+      {isAdminRoute ? <AdminHeader /> : !isAuthRoute && <Nav />}
       <main className="min-h-screen">{children}</main>
       {!isAdminRoute && !isAuthRoute && <Footer />}
     </>

@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useState, ReactNode } from 'react'
 
+
 type Locale = 'en' | 'fr' | 'sw' | 'rw'
 
 interface I18nContextType {
