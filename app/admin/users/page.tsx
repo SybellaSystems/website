@@ -156,16 +156,18 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Newsletter Subscribers</h1>
+    <div className="p-8 bg-gray-100 dark:bg-dark-bg min-h-screen text-gray-900 dark:text-gray-100">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+        Newsletter Subscribers
+      </h1>
 
       {loading ? (
         <Loader size="lg" text="Loading subscribers..." />
       ) : subscribers.length === 0 ? (
-        <p>No subscribers found.</p>
+        <p className="text-gray-600 dark:text-gray-300">No subscribers found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
+          <table className="min-w-full bg-white dark:bg-dark-surface rounded-lg shadow-md">
             <thead className="bg-blue-600 text-white">
               <tr>
                 <th className="py-2 px-4 text-left">Email</th>
@@ -193,9 +195,14 @@ export default function AdminUsersPage() {
                 // Handle both subscribeAt and subscribedAt field names
                 const subscribeDate = sub.subscribedAt || (sub as any).subscribeAt;
                 return (
-                <tr key={sub._id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-4">{sub.email}</td>
-                  <td className="py-2 px-4">{formatDate(subscribeDate)}</td>
+                <tr
+                  key={sub._id}
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/80"
+                >
+                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">{sub.email}</td>
+                  <td className="py-2 px-4 text-gray-800 dark:text-gray-200">
+                    {formatDate(subscribeDate)}
+                  </td>
                   <td className="py-2 px-4 flex justify-center gap-2">
                     <button
                       onClick={() => setReplyModal({ open: true, subscriber: sub })}
@@ -223,25 +230,27 @@ export default function AdminUsersPage() {
       {/* Reply Modal */}
       {replyModal.open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
-            <h2 className="text-xl font-bold mb-4">Reply to {replyModal.subscriber?.email}</h2>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg w-96 p-6 relative">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+              Reply to {replyModal.subscriber?.email}
+            </h2>
             <input
               type="text"
               placeholder="Subject"
-              className="w-full border px-3 py-2 rounded mb-3"
+              className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded mb-3 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
               value={replySubject}
               onChange={e => setReplySubject(e.target.value)}
             />
             <textarea
               placeholder="Message"
-              className="w-full border px-3 py-2 rounded mb-3 h-32 resize-none"
+              className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded mb-3 h-32 resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
               value={replyMessage}
               onChange={e => setReplyMessage(e.target.value)}
             />
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setReplyModal({ open: false })}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-900"
               >
                 Cancel
               </button>

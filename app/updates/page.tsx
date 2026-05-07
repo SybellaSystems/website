@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { Calendar, Tag } from "lucide-react";
 import Loader from "@/components/Loader";
+
+const LIMIT = 6;
 
 interface Update {
   id: string;
@@ -18,19 +20,19 @@ interface Update {
 
 export default function UpdatesPage() {
   const [updates, setUpdates] = useState<Update[]>([]);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const isFetchingRef = useRef(false);
+  const pageRef = useRef(1);
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   //Fetch updates by page
-  const fetchUpdates = async (pageNumber = 1) => {
+  const fetchUpdates = useCallback(async (pageNumber = 1) => {
     if (isFetchingRef.current) return;
     
     try {
@@ -40,19 +42,32 @@ export default function UpdatesPage() {
       else setLoadingMore(true);
 
       const res = await axios.get(
-        `api/updates?page=${pageNumber}&limit=6`
+        `/api/updates?page=${pageNumber}&limit=${LIMIT}`
       );
 
       const data = Array.isArray(res.data) ? res.data : [];
 
-      if (data.length === 0) {
+      if (pageNumber === 1) {
+        setUpdates(data);
+        setHasMore(data.length >= LIMIT);
+      } else if (data.length === 0) {
         setHasMore(false);
       } else {
         setUpdates((prev) => {
           const existingIds = new Set(prev.map(u => u.id));
           const newUpdates = data.filter((u: Update) => !existingIds.has(u.id));
+
+          // Stop infinite fetch loops when API returns duplicates or short pages.
+          if (newUpdates.length === 0 || data.length < LIMIT) {
+            setHasMore(false);
+          }
+
           return [...prev, ...newUpdates];
         });
+      }
+
+      if (data.length > 0) {
+        pageRef.current = pageNumber;
       }
     } catch (error) {
       console.error("Error fetching updates:", error);
@@ -61,7 +76,7 @@ export default function UpdatesPage() {
       setLoadingMore(false);
       isFetchingRef.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUpdates();
@@ -72,25 +87,20 @@ export default function UpdatesPage() {
       if (
         window.innerHeight + window.scrollY >=
           document.body.offsetHeight - 200 &&
-        !loadingMore &&
         !isFetchingRef.current &&
         hasMore
       ) {
-        setPage((prev) => prev + 1);
+        fetchUpdates(pageRef.current + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loadingMore, hasMore]);
+  }, [fetchUpdates, hasMore]);
 
-  useEffect(() => {
-    if (page > 1) fetchUpdates(page);
-  }, [page]);
-
-  if (loading && page === 1) {
+  if (loading) {
     return (
-      <div className="text-center py-16 text-gray-700 dark:text-gray-200">
+      <div className="min-h-screen flex items-center justify-center text-center py-16 text-secondary">
         Loading...
       </div>
     );
@@ -98,30 +108,42 @@ export default function UpdatesPage() {
 
   if (updates.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-700 dark:text-gray-200">
+      <div className="min-h-screen flex items-center justify-center text-center py-16 text-secondary">
         No updates available
       </div>
     );
   }
 
   return (
-    <section className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-12">
+    <section className="relative overflow-hidden border-t border-dim py-16 px-4 sm:px-6 lg:px-8">
+      <div className="grid-pattern absolute inset-0 opacity-20 pointer-events-none" />
+      <div
+        className="absolute inset-0 opacity-[0.12] pointer-events-none"
+        style={{
+          backgroundImage: "url('/globe.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "120px 120px",
+        }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_60%)] pointer-events-none" />
+
       {/* Page Heading */}
-      <div className="max-w-7xl mx-auto text-center mb-10 px-6">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-indigo-700 dark:text-yellow-400">
+      <div className="max-w-7xl mx-auto text-center mb-10 mt-8 relative">
+        <div className="tag mx-auto mb-5 w-fit">Updates</div>
+        <h1 className="font-display text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
           Latest Updates
         </h1>
-        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">
+        <p className="text-base md:text-lg text-secondary">
           Stay informed with our latest news and announcements
         </p>
       </div>
 
       {/* Updates Grid */}
-      <div className="w-full px-4 sm:px-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="max-w-7xl mx-auto relative grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {updates.map((update, index) => (
           <div
             key={update.id}
-            className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden"
+            className="card flex flex-col overflow-hidden"
           >
             {/* Image */}
             <div className="w-full h-40 overflow-hidden">
@@ -134,12 +156,12 @@ export default function UpdatesPage() {
 
             <div className="p-4 flex flex-col flex-1">
               {/* Header */}
-              <h3 className="text-lg font-semibold mb-1 text-indigo-700 dark:text-yellow-400 line-clamp-2">
+              <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                 {update.title}
               </h3>
 
               {/* Metadata */}
-              <div className="flex items-center gap-3 mb-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3 mb-2 text-xs text-secondary">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   <span>
@@ -152,13 +174,13 @@ export default function UpdatesPage() {
               </div>
 
               {/* Description */}
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 line-clamp-3">
+              <p className="text-sm text-secondary mb-2 line-clamp-3">
                 {update.description}
               </p>
 
               {/* Expandable Details */}
               {expandedIndex === index && (
-                <p className="text-sm text-gray-600 dark:text-gray-200 mb-2 transition-all duration-300">
+                <p className="text-sm text-secondary mb-2 transition-all duration-300">
                   Details by {update.author}
                 </p>
               )}
@@ -166,7 +188,7 @@ export default function UpdatesPage() {
               {/* Read More Button */}
               <button
                 onClick={() => toggleExpand(index)}
-                className="self-start mt-auto bg-indigo-600 dark:bg-yellow-400 text-white dark:text-gray-900 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-indigo-700 dark:hover:bg-yellow-500 transition-colors duration-300"
+                className="btn-primary self-start mt-auto"
               >
                 {expandedIndex === index ? "Show Less" : "Read More"}
               </button>
@@ -177,7 +199,7 @@ export default function UpdatesPage() {
 
       {/* Lazy Loading Spinner */}
       {loadingMore && (
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-8 relative">
           <Loader size="md" text="Loading more updates..." />
         </div>
       )}

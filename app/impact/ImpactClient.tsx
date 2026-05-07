@@ -35,23 +35,33 @@ export default function ImpactClient() {
     setError("");
 
     try {
-      const response = await fetch("/api/send-email", {
+      const formData = {
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        message: form.message,
+        phone: "",
+      };
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          company: form.company,
-          message: form.message,
-        }),
+        body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        setSent(true);
-        setForm({ name: "", email: "", company: "", message: "" });
-      } else {
-        setError("Failed to send message. Please try again.");
+      if (!res.ok) {
+        let msg = "Failed to send message. Please try again.";
+        try {
+          const data = await res.json();
+          if (data?.error) msg = data.error;
+        } catch {
+          /* use default */
+        }
+        setError(msg);
+        return;
       }
+
+      setSent(true);
+      setForm({ name: "", email: "", company: "", message: "" });
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {

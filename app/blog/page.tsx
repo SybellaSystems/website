@@ -79,18 +79,21 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="grid-pattern absolute inset-0 opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_60%)] pointer-events-none" />
       {/* Header */}
-      <div className="bg-white dark:bg-dark-surface shadow-sm">
+      <div className="border-b border-dim relative">
         <div className="container mx-auto px-6 py-12 text-center">
-          <h1 className="text-4xl font-bold text-dark-blue dark:text-white mb-4">{t('blog.title')}</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <div className="tag mx-auto mb-5 mt-10 w-fit">Blog</div>
+          <h1 className="text-4xl font-bold mb-4">{t('blog.title')}</h1>
+          <p className="text-lg text-secondary max-w-3xl mx-auto">
             {t('blog.subtitle')}
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12">
+      <div className="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12 relative">
         {/* Main Content */}
         <div className="lg:w-2/3 space-y-8">
           {loading ? (
@@ -98,14 +101,14 @@ export default function BlogPage() {
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : blogPosts.length === 0 ? (
-            <p>No blogs found</p>
+            <p className="text-secondary">No blogs found</p>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {blogPosts.map((post) => (
                   <article
                     key={post.slug}
-                    className="bg-white dark:bg-dark-surface rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col"
+                    className="card overflow-hidden flex flex-col"
                   >
                     <div className="h-48 w-full overflow-hidden rounded-t-xl">
                       <img
@@ -117,7 +120,7 @@ export default function BlogPage() {
 
                     <div className="p-6 flex flex-col flex-1 justify-between">
                       <div>
-                        <div className="flex items-center space-x-3 text-xs text-gray-400 dark:text-gray-400 mb-2">
+                        <div className="flex items-center space-x-3 text-xs text-secondary mb-2">
                           <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
                           <span>•</span>
                           <span>{post.readTime} min read</span>
@@ -125,11 +128,11 @@ export default function BlogPage() {
                           <span>By {post.author}</span>
                         </div>
 
-                        <h2 className="text-lg sm:text-xl font-semibold text-dark-blue dark:text-white mb-2 hover:text-accent transition-colors">
+                        <h2 className="text-lg sm:text-xl font-semibold mb-2 hover:text-[var(--blue-bright)] transition-colors">
                           {post.title}
                         </h2>
 
-                        <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm sm:text-base line-clamp-3">
+                        <p className="text-secondary mb-4 text-sm sm:text-base line-clamp-3">
                           {post.excerpt}
                         </p>
                       </div>
@@ -139,7 +142,7 @@ export default function BlogPage() {
                           {post.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full hover:bg-accent hover:text-white cursor-pointer transition-colors"
+                              className="px-2 py-1 mb-5 bg-[var(--blue-dim)] text-[var(--blue-bright)] text-xs rounded-full border border-[rgba(59,130,246,0.25)] cursor-pointer transition-colors hover:bg-[rgba(59,130,246,0.25)]"
                             >
                               {tag}
                             </span>
@@ -148,7 +151,7 @@ export default function BlogPage() {
 
                         <button
                           onClick={() => openModal(post.slug)}
-                          className="text-accent text-sm font-semibold hover:text-green-600 transition-colors"
+                          className="btn-primary text-xs"
                         >
                           {t('blog.readMore')}
                         </button>
@@ -163,20 +166,20 @@ export default function BlogPage() {
                 <button
                   onClick={handlePrev}
                   disabled={page === 1}
-                  className={`px-4 py-2 rounded-lg text-white ${
-                    page === 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-accent hover:bg-green-600'
+                  className={`btn-ghost ${
+                    page === 1 ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   Previous
                 </button>
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-secondary">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   onClick={handleNext}
                   disabled={page === totalPages}
-                  className={`px-4 py-2 rounded-lg text-white ${
-                    page === totalPages ? 'bg-gray-400 cursor-not-allowed' : 'bg-accent hover:bg-green-600'
+                  className={`btn-primary ${
+                    page === totalPages ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   Next
@@ -189,23 +192,23 @@ export default function BlogPage() {
         {/* Sidebar */}
         <div className="lg:w-1/3 space-y-8">
           {/* Popular Posts */}
-          <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-md">
-            <h3 className="text-xl font-bold text-dark-blue dark:text-white mb-4">{t('blog.popularPosts.title')}</h3>
+          <div className="card p-6 rounded-xl">
+            <h3 className="text-xl font-bold mb-4">{t('blog.popularPosts.title')}</h3>
             <div className="space-y-4">
               {blogPosts.slice(0, 3).map((post) => (
                 <div
                   key={post.slug}
-                  className="flex space-x-3 items-center hover:bg-gray-50 dark:hover:bg-dark-surface p-2 rounded-lg cursor-pointer transition-colors"
+                  className="flex space-x-3 items-center hover:bg-[var(--surface-2)] p-2 rounded-lg cursor-pointer transition-colors"
                   onClick={() => openModal(post.slug)}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-accent to-yellow-400 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-16 h-16 bg-[var(--blue-dim)] rounded-lg border border-[rgba(59,130,246,0.25)] flex items-center justify-center flex-shrink-0">
                     <span className="text-white text-lg">📝</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm text-dark-blue dark:text-white hover:text-accent transition-colors">
+                    <h4 className="font-semibold text-sm hover:text-[var(--blue-bright)] transition-colors">
                       {post.title}
                     </h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-xs text-secondary mt-1">
                       {new Date(post.publishedAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -215,14 +218,14 @@ export default function BlogPage() {
           </div>
 
           {/* Tags */}
-          <div className="bg-white dark:bg-dark-surface p-6 rounded-xl shadow-md">
-            <h3 className="text-xl font-bold text-dark-blue dark:text-white mb-4">{t('blog.tags.title')}</h3>
+          <div className="card p-6 rounded-xl">
+            <h3 className="text-xl font-bold mb-4">{t('blog.tags.title')}</h3>
             <div className="flex flex-wrap gap-2">
               {['Digital Transformation', 'AI', 'Healthcare', 'Education', 'E-commerce', 'Africa', 'Innovation', 'Technology'].map(
                 (tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-accent hover:text-white cursor-pointer transition-colors"
+                    className="px-3 py-1 bg-[var(--blue-dim)] text-[var(--blue-bright)] text-sm rounded-full border border-[rgba(59,130,246,0.25)] hover:bg-[rgba(59,130,246,0.25)] cursor-pointer transition-colors"
                   >
                     {tag}
                   </span>
@@ -235,11 +238,11 @@ export default function BlogPage() {
 
       {/* Modal */}
 {modalOpen && activePost && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white dark:bg-dark-surface rounded-xl w-11/12 max-w-3xl max-h-[50vh] flex flex-col relative shadow-xl">
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div className="card rounded-xl w-11/12 max-w-3xl max-h-[50vh] flex flex-col relative">
       <button
         onClick={closeModal}
-        className="absolute top-4 right-4 z-10 text-gray-600 dark:text-gray-300 text-lg font-bold hover:text-red-500 bg-white dark:bg-dark-surface rounded-full w-8 h-8 flex items-center justify-center shadow-md"
+        className="absolute top-4 right-4 z-10 text-secondary text-lg font-bold hover:text-[var(--blue-bright)] bg-[var(--surface)] rounded-full w-8 h-8 flex items-center justify-center border border-dim"
       >
         &times;
       </button>
@@ -253,11 +256,11 @@ export default function BlogPage() {
             className="w-full h-64 object-cover rounded-lg mb-4"
           />
           
-          <h2 className="text-2xl font-bold text-dark-blue dark:text-white mb-2">
+          <h2 className="text-2xl font-bold mb-2">
             {activePost.title}
           </h2>
           
-          <div className="flex items-center space-x-3 text-sm text-gray-400 dark:text-gray-400 mb-4">
+          <div className="flex items-center space-x-3 text-sm text-secondary mb-4">
             <span>{new Date(activePost.publishedAt).toLocaleDateString()}</span>
             <span>•</span>
             <span>{activePost.readTime} min read</span>
@@ -269,14 +272,14 @@ export default function BlogPage() {
             {activePost.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"
+                className="px-2 py-1 bg-[var(--blue-dim)] text-[var(--blue-bright)] text-xs rounded-full border border-[rgba(59,130,246,0.25)]"
               >
                 {tag}
               </span>
             ))}
           </div>
           
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+          <p className="text-secondary leading-relaxed whitespace-pre-wrap">
             {activePost.content}
           </p>
         </div>

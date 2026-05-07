@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import HomeClient from "@/components/HomeClient";
+import TechnologyClient from "./TechnologyClient";
 
 export const metadata: Metadata = {
-  title: "Sybella Systems — Engineering Africa's Digital Future",
-  description: "Sybella Systems — Award-winning software engineering company in Africa. Custom ERP systems, SaaS development, and Ogera, Africa's leading student employment platform. Trusted by enterprise companies across Rwanda, Kenya, Nigeria, and beyond.",
-  keywords: ["software engineering Africa", "custom ERP Rwanda", "SaaS development", "student employment platform"],
+  title: "Technology Services | Sybella Systems",
+  description: "Explore Sybella Systems technology services: custom ERP platforms, SaaS product engineering, web and mobile development, and cloud delivery support for African enterprises.",
+  keywords: ["custom ERP Africa", "SaaS engineering", "enterprise software development", "cloud delivery"],
 };
 
-export default function HomePage() {
-  return <HomeClient />;
+export default function TechnologyPage() {
+  return <TechnologyClient />;
 }

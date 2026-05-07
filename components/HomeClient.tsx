@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import Projects from '../components/Projects'
 import Journey from '../components/Journey'
+import TeamSlider from '@/components/Slider'
+import SubscriptionPopup from '@/components/Popup'
+import ContactForm from '../components/ContactForm'
 
 
 
@@ -222,8 +225,14 @@ export default function HomeClient() {
         </div>
       </section>
        
-       {/* Project section data fectched from the backend API */}
-      {/* <div><Projects /></div> */}
+        {/* Project section data fectched from the backend API  */}
+       <div><Projects /></div> 
+
+       {/* Team Slider section */}
+       <div><TeamSlider /></div>
+       
+       {/* Subscription popup */}
+       <div><SubscriptionPopup /></div>
 
       {/* ── OGERA HIGHLIGHT ── */}
       <section 
@@ -294,8 +303,8 @@ export default function HomeClient() {
             ))}
           </div>
 
-       {/* milestones Journey data fetched from backend API*/}
-      {/* <div><Journey /></div> */}
+      {/* milestones Journey data fetched from backend API */}
+       <div><Journey /></div> 
 
           {/* CTA block */}
           <div className="fade-up cta-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 2 }}>

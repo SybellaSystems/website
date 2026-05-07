@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import Script from "next/script";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
 import Providers from "./providers";
+import ClientWrapper from "./ClientWrapper";
+import { AppToaster } from "@/components/Toaster";
 
 
 const spaceGrotesk = Space_Grotesk({
@@ -100,9 +100,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <Providers>
-          <Nav />
-          <main>{children}</main>
-          <Footer />
+          <ClientWrapper>{children}</ClientWrapper>
+          <AppToaster />
         </Providers>
         
 

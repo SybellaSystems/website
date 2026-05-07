@@ -9,12 +9,14 @@ import AdminHeader from '../components/AdminHeader';
 export default function ClientWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Define excluded routes where we don't want Header/Footer
+  // Hide site Nav + Footer only on sign-in and admin (all other routes unchanged)
   const isAdminRoute = pathname.startsWith('/admin');
-  const isAuthRoute = pathname.startsWith('/signin') || pathname.startsWith('/signup');
+  const isSignInRoute =
+    pathname === '/signin' || pathname.startsWith('/signin/');
+  const hideSiteChrome = isAdminRoute || isSignInRoute;
 
   useEffect(() => {
-    if (isAdminRoute || isAuthRoute) return;
+    if (hideSiteChrome) return;
 
     let visitorId = document.cookie
       .split('; ')
@@ -32,13 +34,14 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
       body: JSON.stringify({ pageUrl: pathname, visitorId }),
     }).catch(console.error);
 
-  }, [pathname, isAdminRoute, isAuthRoute]);
+  }, [pathname, hideSiteChrome]);
 
   return (
     <>
-      {isAdminRoute ? <AdminHeader /> : !isAuthRoute && <Nav />}
-      <main className="min-h-screen">{children}</main>
-      {!isAdminRoute && !isAuthRoute && <Footer />}
+      {isAdminRoute && <AdminHeader />} 
+      {!hideSiteChrome && <Nav />}
+      <main>{children}</main>
+      {!hideSiteChrome && <Footer />}
     </>
   );
 }

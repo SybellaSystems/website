@@ -8,6 +8,8 @@ const links = [
   { href: "/ogera", label: "Ogera" },
   { href: "/technology", label: "Technology" },
   { href: "/impact", label: "Impact" },
+  { href: "/updates", label: "Updates" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export default function Nav() {
