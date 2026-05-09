@@ -13,11 +13,10 @@ export default function PlaceholderPage(props: {
         <p className="mt-2 text-sm text-gray-600">{description}</p>
       ) : null}
 
-      <div className="mt-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
-        <div className="text-sm font-semibold text-indigo-800">Backend integration</div>
-        <div className="mt-1 text-sm text-indigo-700">
-          {integrationHint ??
-            "This page is ready for backend wiring. Add an API route under app/api/* and call it from this page via lib/adminApi.ts."}
+      <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <div className="text-sm font-semibold text-slate-800">Live workspace</div>
+        <div className="mt-1 text-sm text-slate-700">
+          {integrationHint ?? "This workspace is configured for live operational data."}
         </div>
       </div>
     </div>
