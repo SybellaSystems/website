@@ -11,6 +11,7 @@ import {
   Users,
   UserCog,
   ClipboardList,
+<<<<<<< HEAD
   ChevronDown,
   ChevronRight,
   Building2,
@@ -30,6 +31,11 @@ import {
   ShieldCheck,
   Plug,
   Sparkles,
+=======
+  DollarSign,
+  ChevronDown,
+  ChevronRight,
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -119,6 +125,7 @@ export default function Sidebar() {
         { name: "Updates", href: "/admin/sections?tab=updates" },
       ],
     },
+<<<<<<< HEAD
     {
       name: "Operate",
       icon: LayoutDashboard,
@@ -362,6 +369,88 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
+=======
+    // { name: "Updates", href: "/admin/updates", icon: ClipboardList, roles: ["executive"] },
+  ];
+
+  return (
+    <aside className="w-64 h-screen bg-white border-r flex flex-col p-6 shadow-sm">
+      <nav className="flex flex-col gap-1 flex-grow">
+        {menuItems
+          .filter((item) => role && item.roles.includes(role))
+          .map((item) => {
+            const isActive = item.href ? pathname === item.href : false;
+            const isChildActive = item.children?.some(
+              (child) => pathname === child.href
+            );
+
+            if (item.children) {
+              return (
+                <div key={item.name}>
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
+                    className={`flex items-center justify-between w-full px-4 py-2 rounded-lg transition ${
+                      isChildActive
+                        ? "bg-indigo-600 text-white shadow"
+                        : "text-gray-700 hover:bg-indigo-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon
+                        className={`h-5 w-5 ${
+                          isChildActive ? "text-white" : "text-indigo-600"
+                        }`}
+                      />
+                      <span>{item.name}</span>
+                    </div>
+                    {openDropdown === item.name ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+
+                  {openDropdown === item.name && (
+                    <div className="ml-8 mt-2 flex flex-col gap-1">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`px-3 py-2 rounded-lg text-sm ${
+                            pathname === child.href
+                              ? "bg-indigo-100 text-indigo-700"
+                              : "text-gray-600 hover:bg-indigo-50"
+                          }`}
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href!}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow"
+                    : "text-gray-700 hover:bg-indigo-50"
+                }`}
+              >
+                <item.icon
+                  className={`h-5 w-5 ${
+                    isActive ? "text-white" : "text-indigo-600"
+                  }`}
+                />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
       </nav>
     </aside>
   );

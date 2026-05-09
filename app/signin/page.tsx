@@ -63,6 +63,7 @@ export default function AdminLogin() {
       {/* LEFT COLUMN: Sign In Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-16">
         <div className="max-w-md w-full p-8 space-y-6">
+<<<<<<< HEAD
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm font-bold">
               A
@@ -74,6 +75,10 @@ export default function AdminLogin() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Sign in</h1>
           <p className="text-gray-600">Use your admin credentials.</p>
+=======
+          <h1 className="text-4xl font-bold text-gray-900">Sign in</h1>
+          <p className="text-gray-600">Sign in to your Account</p>
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* E-mail Input */}
@@ -86,7 +91,11 @@ export default function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@gmail.com"
                 required
+<<<<<<< HEAD
                 className="w-full border border-gray-300 rounded-md p-3 focus:ring-indigo-500 focus:border-indigo-500"
+=======
+                className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
               />
             </div>
 
@@ -99,9 +108,15 @@ export default function AdminLogin() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+<<<<<<< HEAD
                   placeholder="••••••••"
                   required
                   className="w-full border border-gray-300 rounded-md p-3 pr-10 focus:ring-indigo-500 focus:border-indigo-500"
+=======
+                  placeholder="@##*%" 
+                  required
+                  className="w-full border border-gray-300 rounded-md p-3 pr-10 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
                 />
                 <button
                   type="button"
@@ -121,7 +136,11 @@ export default function AdminLogin() {
       type="checkbox"
       checked={rememberMe}
       onChange={(e) => setRememberMe(e.target.checked)}
+<<<<<<< HEAD
       className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+=======
+      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
     />
     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
       Remember me
@@ -131,7 +150,11 @@ export default function AdminLogin() {
   {/* Forgot password link */}
   <Link
     href="/forgot-password"
+<<<<<<< HEAD
     className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+=======
+    className="text-sm font-medium text-blue-600 hover:text-blue-800"
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
   >
     Forgot password?
   </Link>
@@ -143,7 +166,11 @@ export default function AdminLogin() {
             {/* Submit Button */}
             <button
               type="submit"
+<<<<<<< HEAD
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+=======
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
               disabled={loading}
             >
               {loading ? "Signing in..." : "Sign in"}
@@ -153,6 +180,7 @@ export default function AdminLogin() {
       </div>
 
       {/* RIGHT COLUMN */}
+<<<<<<< HEAD
       <div className="hidden lg:flex lg:w-1/2 relative bg-indigo-600 p-16 text-white flex-col justify-center overflow-hidden">
         <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-indigo-700/50 rounded-full translate-x-1/3 -translate-y-1/3"></div>
 
@@ -170,6 +198,26 @@ export default function AdminLogin() {
               <div>
                 <p className="text-sm text-gray-500 leading-none">Admin Portal</p>
                 <p className="text-xl font-extrabold text-gray-900">Secure access</p>
+=======
+      <div className="hidden lg:flex lg:w-1/2 relative bg-blue-600 p-16 text-white flex-col justify-center overflow-hidden">
+        <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-blue-700/50 rounded-full translate-x-1/3 -translate-y-1/3"></div>
+
+        <div className="relative z-10 space-y-10">
+          <div className="bg-white p-8 rounded-xl shadow-2xl text-black space-y-4 max-w-sm">
+            <h2 className="text-2xl font-extrabold text-blue-700">
+              Welcome to Admin Sybella Portal
+            </h2>
+            <p className="text-gray-600 text-sm">Africa innovation</p>
+            <Link href="#" className="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700">
+              Learn more
+            </Link>
+
+            <div className="border border-gray-200 p-3 rounded-lg flex items-center mt-4 w-3/4">
+              <span className="text-lg font-bold text-gray-900 mr-2">📈</span>
+              <div>
+                <p className="text-sm text-gray-500 leading-none">Sybella</p>
+                <p className="text-2xl font-extrabold text-gray-900">1+ Years</p>
+>>>>>>> 8de9b24de294f15f15fc3cafec3ae240d3f8c2a4
               </div>
             </div>
           </div>
