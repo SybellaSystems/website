@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { FEATURE_KEY_SET } from "@/lib/supabase/feature-keys";
 
 const TITLES: Record<string, string> = {
   tasks: "Tasks",
@@ -49,6 +51,9 @@ export default function FeaturePage({
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newNotes, setNewNotes] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const isKnownFeature = FEATURE_KEY_SET.has(feature);
 
   const loadItems = async () => {
     setLoading(true);
@@ -67,8 +72,41 @@ export default function FeaturePage({
   };
 
   useEffect(() => {
+    if (!isKnownFeature) {
+      setLoading(false);
+      setItems([]);
+      return;
+    }
     loadItems();
   }, [feature]);
+
+  useEffect(() => {
+    if (!isKnownFeature) return;
+
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      .channel(`feature-items-${feature}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "feature_items",
+          filter: `feature_key=eq.${feature}`,
+        },
+        () => {
+          loadItems();
+        }
+      )
+      .subscribe((status) => {
+        setSubscribed(status === "SUBSCRIBED");
+      });
+
+    return () => {
+      setSubscribed(false);
+      supabase.removeChannel(channel);
+    };
+  }, [feature, isKnownFeature]);
 
   const handleCreate = async () => {
     if (!newTitle.trim()) {
@@ -139,9 +177,19 @@ export default function FeaturePage({
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+      {!isKnownFeature ? (
+        <p className="mt-2 text-sm text-red-600">
+          Unknown feature route. Use one of the configured admin feature pages from the sidebar.
+        </p>
+      ) : null}
       <p className="mt-2 text-sm text-gray-600">
-        This page now persists its items to Supabase without touching existing Mongo-backed modules.
+        Live data from Supabase. Changes sync in real time.
       </p>
+      {isKnownFeature ? (
+        <p className="mt-1 text-xs text-gray-500">
+          Realtime status: {subscribed ? "connected" : "connecting..."}
+        </p>
+      ) : null}
 
       <div className="mt-5 grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
         <input
@@ -160,7 +208,7 @@ export default function FeaturePage({
         <button
           type="button"
           onClick={handleCreate}
-          disabled={creating}
+          disabled={creating || !isKnownFeature}
           className="w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
         >
           {creating ? "Saving..." : "Add item"}

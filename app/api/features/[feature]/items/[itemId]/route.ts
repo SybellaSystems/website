@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { FEATURE_KEY_SET } from "@/lib/supabase/feature-keys";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,10 @@ export async function PATCH(
   { params }: { params: { feature: string; itemId: string } }
 ) {
   try {
+    if (!FEATURE_KEY_SET.has(params.feature)) {
+      return NextResponse.json({ error: "Unknown feature key" }, { status: 404 });
+    }
+
     const body = await req.json();
     const parsed = updateItemSchema.parse(body);
     const supabase = getSupabaseServerClient();
@@ -43,6 +48,10 @@ export async function DELETE(
   { params }: { params: { feature: string; itemId: string } }
 ) {
   try {
+    if (!FEATURE_KEY_SET.has(params.feature)) {
+      return NextResponse.json({ error: "Unknown feature key" }, { status: 404 });
+    }
+
     const supabase = getSupabaseServerClient();
     const { error } = await supabase
       .from("feature_items")

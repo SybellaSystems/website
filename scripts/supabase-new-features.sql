@@ -5,7 +5,14 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.feature_items (
   id uuid primary key default gen_random_uuid(),
-  feature_key text not null,
+  feature_key text not null check (
+    feature_key in (
+      'tasks','goals','approvals','calendar',
+      'checkins','announcements','wiki','reports',
+      'accountability','progress','trust','burnout','timeline',
+      'alerts','integrations','ai-assistant','audit','os'
+    )
+  ),
   title text not null check (char_length(title) >= 2),
   notes text not null default '',
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'blocked', 'done')),
@@ -16,6 +23,7 @@ create table if not exists public.feature_items (
 
 create index if not exists idx_feature_items_feature_key on public.feature_items(feature_key);
 create index if not exists idx_feature_items_created_at on public.feature_items(created_at desc);
+create index if not exists idx_feature_items_updated_at on public.feature_items(updated_at desc);
 
 create or replace function public.set_feature_items_updated_at()
 returns trigger
