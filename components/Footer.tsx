@@ -272,7 +272,7 @@ const Footer = () => {
         <div className="border-t border-gray-600 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div className="text-gray-300 dark:text-dark-text-secondary text-sm">
-              © 2025 Sybella Systems. {t('footer.copyright')}
+              © 2026 Sybella Systems. {t('footer.copyright')} | Release: admin-ui-v2
             </div>
             <div className="flex space-x-6 text-sm">
               <Link
