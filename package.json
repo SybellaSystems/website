@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@supabase/supabase-js": "^2.105.4",
     "apexcharts": "^5.3.5",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
