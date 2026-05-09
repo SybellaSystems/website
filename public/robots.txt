@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://sybellasystems.co.rw
+
+# Sitemaps
+Sitemap: https://sybellasystems.co.rw/sitemap.xml
