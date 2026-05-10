@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, { params }: { params: { feature: st
   try {
     if (!isFeatureKey(params.feature)) return NextResponse.json({ error: "Unknown feature key" }, { status: 404 });
     const actor = parseWorkspaceActor(req.headers);
-    if (!hasRole("manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
+    if (!hasRole("operations-manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
 
     const formData = await req.formData();
     const file = formData.get("file");

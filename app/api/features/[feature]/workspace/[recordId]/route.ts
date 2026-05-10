@@ -16,7 +16,7 @@ const updateSchema = z.object({
   starts_at: z.string().datetime().optional().nullable(),
   linked_module: z.string().optional().nullable(),
   linked_record_id: z.string().uuid().optional().nullable(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 const commentSchema = z.object({
@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { feature: s
   try {
     if (!isFeatureKey(params.feature)) return NextResponse.json({ error: "Unknown feature key" }, { status: 404 });
     const actor = parseWorkspaceActor(req.headers);
-    if (!hasRole("manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
+    if (!hasRole("operations-manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
 
     const body = await req.json();
     const supabase = getSupabaseServerClient();
@@ -103,7 +103,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { feature: 
   try {
     if (!isFeatureKey(params.feature)) return NextResponse.json({ error: "Unknown feature key" }, { status: 404 });
     const actor = parseWorkspaceActor(req.headers);
-    if (!hasRole("manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
+    if (!hasRole("operations-manager", actor.role)) return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 });
 
     const supabase = getSupabaseServerClient();
     const { error } = await supabase

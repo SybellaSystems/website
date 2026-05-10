@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { ADMIN_ROLES } from "@/lib/rbac/roles";
 
 
-export const PREDIFINEDROLES = ["executive", "manager", "sales", "accountant", "superadmin", "cto"] as const;
+export const PREDIFINEDROLES = ADMIN_ROLES;
 
 
 export const staffMemberSchema = z.object({

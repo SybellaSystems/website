@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { jwtDecode } from "jwt-decode";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
@@ -25,15 +24,9 @@ import {
   Users,
   Workflow,
 } from "lucide-react";
+import { type AdminRole } from "@/lib/rbac/roles";
 
-type Role =
-  | "executive"
-  | "manager"
-  | "accountant"
-  | "sales"
-  | "marketing"
-  | "qa-tester"
-  | "superadmin";
+type Role = AdminRole;
 
 type NavItem = {
   label: string;
@@ -51,16 +44,34 @@ type NavGroup = {
 };
 
 const ALL_ROLES: Role[] = [
-  "executive",
-  "manager",
-  "accountant",
-  "sales",
-  "marketing",
+  "founder",
+  "ceo",
+  "managing-director",
+  "operations-manager",
+  "project-manager",
+  "product-manager",
+  "technical-lead",
+  "developer",
+  "designer",
   "qa-tester",
+  "marketing",
+  "sales",
+  "customer-support",
+  "accountant",
+  "finance-manager",
+  "hr-manager",
+  "recruiter",
+  "legal-counsel",
+  "business-analyst",
+  "content-manager",
+  "social-media-manager",
+  "intern",
+  "viewer",
+  "executive",
   "superadmin",
 ];
 
-const EXEC_ONLY: Role[] = ["executive", "superadmin"];
+const EXEC_ONLY: Role[] = ["superadmin", "founder", "ceo", "managing-director", "executive"];
 
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -69,6 +80,9 @@ const NAV_GROUPS: NavGroup[] = [
     icon: LayoutDashboard,
     items: [
       { label: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ALL_ROLES },
+      { label: "Team Management", href: "/admin/team-management", icon: Users, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "hr-manager"] },
+      { label: "HR Dashboard", href: "/admin/hr-dashboard", icon: Users, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "hr-manager", "recruiter"] },
+      { label: "Employee Profiles", href: "/admin/employee-profiles", icon: Users, roles: ALL_ROLES },
       { label: "Activity Feed", href: "/admin/timeline", icon: Activity, roles: ALL_ROLES, badge: "Live" },
       { label: "Notifications", href: "/admin/alerts", icon: Bell, roles: EXEC_ONLY },
     ],
@@ -79,10 +93,13 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Workflow,
     items: [
       { label: "Tasks", href: "/admin/tasks", icon: FolderKanban, roles: ALL_ROLES },
+      { label: "Projects Mgmt", href: "/admin/projects-management", icon: Briefcase, roles: ALL_ROLES },
+      { label: "Product Roadmap", href: "/admin/product-roadmap", icon: Briefcase, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "product-manager", "project-manager", "technical-lead"] },
       { label: "Projects", href: "/admin/projects", icon: Briefcase, roles: ALL_ROLES },
       { label: "Calendar", href: "/admin/calendar", icon: CalendarDays, roles: ALL_ROLES },
       { label: "Approvals", href: "/admin/approvals", icon: CircleDot, roles: ALL_ROLES },
       { label: "Reports", href: "/admin/reports", icon: FileStack, roles: ALL_ROLES },
+      { label: "Meetings", href: "/admin/meetings-scheduling", icon: CalendarDays, roles: ALL_ROLES },
     ],
   },
   {
@@ -90,9 +107,11 @@ const NAV_GROUPS: NavGroup[] = [
     title: "People",
     icon: Users,
     items: [
-      { label: "Staff", href: "/admin/staffs", icon: Users, roles: ["executive", "manager", "superadmin"] },
-      { label: "Teams", href: "/admin/team", icon: Users, roles: ["executive", "manager", "superadmin"] },
+      { label: "Staff", href: "/admin/staffs", icon: Users, roles: ["executive", "operations-manager", "hr-manager", "superadmin"] },
+      { label: "Teams", href: "/admin/team", icon: Users, roles: ["executive", "operations-manager", "hr-manager", "superadmin"] },
       { label: "Check-ins", href: "/admin/checkins", icon: Sparkles, roles: ALL_ROLES },
+      { label: "Recruitment", href: "/admin/recruitment-pipeline", icon: Users, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "hr-manager", "recruiter"] },
+      { label: "Support Tickets", href: "/admin/support-tickets", icon: Bell, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "customer-support"] },
     ],
   },
   {
@@ -103,6 +122,8 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Internal Wiki", href: "/admin/wiki", icon: BookOpen, roles: ALL_ROLES },
       { label: "AI Insights", href: "/admin/ai-assistant", icon: Bot, roles: ALL_ROLES, badge: "AI" },
       { label: "Announcements", href: "/admin/announcements", icon: Megaphone, roles: ALL_ROLES },
+      { label: "Content Ops", href: "/admin/content-management", icon: BookOpen, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "content-manager", "social-media-manager", "marketing"] },
+      { label: "Internal Messaging", href: "/admin/internal-messaging", icon: Bot, roles: ALL_ROLES },
     ],
   },
   {
@@ -112,42 +133,28 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Integrations", href: "/admin/integrations", icon: Workflow, roles: EXEC_ONLY },
       { label: "Security & Audit", href: "/admin/audit", icon: ShieldCheck, roles: EXEC_ONLY },
+      { label: "Permissions", href: "/admin/permissions-manager", icon: ShieldCheck, roles: EXEC_ONLY },
+      { label: "Finance", href: "/admin/financial-dashboard", icon: FileStack, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "finance-manager", "accountant"] },
+      { label: "Sales Analytics", href: "/admin/sales-analytics", icon: Activity, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "sales"] },
+      { label: "Marketing Campaigns", href: "/admin/marketing-campaigns", icon: Megaphone, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "marketing", "social-media-manager"] },
+      { label: "Legal Documents", href: "/admin/legal-documents", icon: ShieldCheck, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "legal-counsel"] },
+      { label: "Performance", href: "/admin/performance-analytics", icon: Activity, roles: EXEC_ONLY },
+      { label: "Activity Monitor", href: "/admin/activity-monitoring", icon: Activity, roles: EXEC_ONLY },
+      { label: "QA Workflows", href: "/admin/qa-workflows", icon: CircleDot, roles: ["superadmin", "founder", "ceo", "managing-director", "executive", "qa-tester", "technical-lead"] },
     ],
   },
 ];
 
-export default function Sidebar() {
-  const [role, setRole] = useState<Role | null>(null);
+export default function Sidebar({ role }: { role: Role }) {
   const [collapsed, setCollapsed] = useState(false);
   const [openGroup, setOpenGroup] = useState<string>("main");
-  const router = useRouter();
   const pathname = usePathname();
-
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      router.push("/signin");
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode<{ role?: Role }>(token);
-      if (decoded.role) {
-        setRole(decoded.role);
-      } else {
-        setRole("manager");
-      }
-    } catch (err) {
-      console.error("Invalid token:", err);
-      setRole("manager");
-    }
-  }, [router]);
 
   const visibleGroups = useMemo(
     () =>
       NAV_GROUPS.map((group) => ({
         ...group,
-        items: group.items.filter((item) => (role ? item.roles.includes(role) : false)),
+        items: group.items.filter((item) => item.roles.includes(role)),
       })).filter((group) => group.items.length > 0),
     [role]
   );

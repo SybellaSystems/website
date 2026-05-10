@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { getStaffMemberOut } from "@/lib/models/StaffMember";
+import { readAdminTokenFromRequest } from "@/lib/auth/admin-session";
+import { verifyAccessToken } from "@/app/utils/jwt";
 
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = readAdminTokenFromRequest(req);
+    if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const token = authHeader.split(" ")[1];
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as { id: string };
+    const payload = verifyAccessToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const staff = await getStaffMemberOut(payload.id);
     if (!staff) {
@@ -25,7 +28,7 @@ export async function GET(req: NextRequest) {
       phone: staff.phone,
       permissions: staff.permissions,
     });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

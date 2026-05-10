@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Activity, AlertTriangle, GitBranch, Layers3, ShieldCheck, Users } from "lucide-react";
-import axios from "axios";
+import { Activity, AlertTriangle, Database, Layers3, ShieldCheck, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 import {
   BarChart,
@@ -20,140 +19,79 @@ import {
 } from "recharts";
 
 export default function AdminDashboard() {
-  const router = useRouter();
-
   const [stats, setStats] = useState({
-    users: 24,
     projects: 0,
-    announcements: 0,
-    blocked: 3,
-    subscribed: 0,
+    updates: 0,
+    teamMembers: 0,
+    contacts: 0,
+    subscribers: 0,
+    blocked: 0,
+    workspaceTotal: 0,
   });
-  const [livePulse, setLivePulse] = useState(0);
-  const [activityFeed, setActivityFeed] = useState<string[]>([
-    "Release train synced to Kigali workspace",
-    "Engineering retrospective published in Knowledge Hub",
-    "3 blockers escalated for approval",
-  ]);
+  const [activityFeed, setActivityFeed] = useState<string[]>([]);
+  const [featureMetrics, setFeatureMetrics] = useState<Array<{ team: string; workload: number }>>([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
+    const fetchOverview = async () => {
+      const res = await axios.get("/api/admin/overview", { withCredentials: true });
+      setStats({
+        projects: res.data.projects ?? 0,
+        updates: res.data.updates ?? 0,
+        teamMembers: res.data.teamMembers ?? 0,
+        contacts: res.data.contacts ?? 0,
+        subscribers: res.data.subscribers ?? 0,
+        blocked: res.data.workspaceBlockedRecords ?? 0,
+        workspaceTotal: res.data.workspaceTotalRecords ?? 0,
+      });
 
-    // Redirect if not logged in
-    if (!token) {
-      router.push("/signin");
-      return;
-    }
+      const workloads = Object.entries(res.data.workspaceByFeature ?? {})
+        .slice(0, 6)
+        .map(([key, value]) => ({ team: key, workload: Number(value) || 0 }));
+      setFeatureMetrics(workloads);
 
-    // Fetch projects
-    const fetchProjects = async () => {
-      try {
-        const res = await axios.get("/api/projects");
-
-        setStats((prev) => ({
-          ...prev,
-          projects: Array.isArray(res.data)
-            ? res.data.length
-            : res.data?.projects?.length || 0,
-        }));
-      } catch (err) {
-        console.error("Fetching Projects error:", err);
-      }
+      setActivityFeed([
+        `${res.data.projects ?? 0} total active projects in pipeline`,
+        `${res.data.updates ?? 0} update entries across news and announcements`,
+        `${res.data.workspaceBlockedRecords ?? 0} blocked records need intervention`,
+      ]);
     };
 
-    // Fetch blogs
-    const fetchBlogs = async () => {
-      try {
-        const res = await axios.get("/api/blogposts");
-
-        setStats((prev) => ({
-          ...prev,
-          announcements: res.data?.data?.length || 0,
-        }));
-      } catch (err) {
-        console.error("Failed while fetching announcements:", err);
-      }
-    };
-
-    // Fetch subscribers
-    const fetchSubscribers = async () => {
-      try {
-        const res = await axios.get("/api/subscribe", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setStats((prev) => ({
-          ...prev,
-          subscribed: res.data?.subscribers?.length || 0,
-        }));
-      } catch (err) {
-        console.error("Error fetching subscribers:", err);
-      }
-    };
-
-    fetchProjects();
-    fetchBlogs();
-    fetchSubscribers();
-  }, [router]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLivePulse((prev) => prev + 1);
-      setStats((prev) => ({
-        ...prev,
-        blocked: Math.max(0, prev.blocked + (Math.random() > 0.6 ? 1 : -1)),
-      }));
-      const feedEvent =
-        Math.random() > 0.5
-          ? "New PR link attached to Sprint board"
-          : "Team check-in updated with a blocker status";
-      setActivityFeed((prev) => [feedEvent, ...prev].slice(0, 5));
-    }, 9000);
-    return () => clearInterval(interval);
+    fetchOverview().catch((error) => console.error("Failed to load overview:", error));
   }, []);
 
   const velocityData = [
-    { sprint: "S1", completed: 21, created: 23 },
-    { sprint: "S2", completed: 18, created: 22 },
-    { sprint: "S3", completed: 27, created: 25 },
-    { sprint: "S4", completed: 24 + (livePulse % 3), created: 26 },
-  ];
-
-  const workloadData = [
-    { team: "Platform", workload: 76 },
-    { team: "Product", workload: 63 },
-    { team: "Growth", workload: 52 },
-    { team: "Support", workload: 39 },
+    { sprint: "Projects", completed: stats.projects, created: stats.projects + 3 },
+    { sprint: "Updates", completed: stats.updates, created: stats.updates + 2 },
+    { sprint: "Team", completed: stats.teamMembers, created: stats.teamMembers + 1 },
+    { sprint: "Subscribers", completed: stats.subscribers, created: stats.subscribers + 4 },
   ];
 
   const executiveCards = [
     {
-      title: "Active Workforce",
-      value: `${stats.users} online`,
-      note: "Across Rwanda, Kenya and remote contributors",
+      title: "Projects",
+      value: `${stats.projects}`,
+      note: "Current project entities in MongoDB",
       icon: Users,
       tone: "from-indigo-600 to-cyan-500",
     },
     {
       title: "Execution Risk",
       value: `${stats.blocked} blockers`,
-      note: "Auto-escalated to approvals queue",
+      note: "Supabase workspace blocked records",
       icon: AlertTriangle,
       tone: "from-rose-600 to-orange-500",
     },
     {
-      title: "Deployments",
-      value: "8 this week",
-      note: "2 pending quality sign-off",
-      icon: GitBranch,
+      title: "Subscribers",
+      value: `${stats.subscribers}`,
+      note: "Newsletter audience in production list",
+      icon: Database,
       tone: "from-emerald-600 to-teal-500",
     },
     {
       title: "Compliance",
-      value: "97.4%",
-      note: "Audit trail and policy acknowledgements",
+      value: `${stats.workspaceTotal}`,
+      note: "Total tracked operational records",
       icon: ShieldCheck,
       tone: "from-violet-600 to-indigo-500",
     },
@@ -175,7 +113,7 @@ export default function AdminDashboard() {
           </div>
           <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm">
             <div className="text-indigo-100">Live sync cycle</div>
-            <div className="mt-1 text-2xl font-semibold">{livePulse}</div>
+            <div className="mt-1 text-2xl font-semibold">{stats.workspaceTotal}</div>
           </div>
         </div>
       </section>
@@ -241,7 +179,7 @@ export default function AdminDashboard() {
           <span className="text-xs text-slate-500">Capacity planning view</span>
         </div>
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={workloadData}>
+          <BarChart data={featureMetrics}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="team" />
             <YAxis />

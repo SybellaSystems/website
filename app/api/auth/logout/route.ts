@@ -1,0 +1,10 @@
+import { NextResponse } from "next/server";
+import { ADMIN_ACCESS_COOKIE, ADMIN_REFRESH_COOKIE } from "@/lib/auth/cookies";
+
+export async function POST() {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(ADMIN_ACCESS_COOKIE, "", { path: "/", maxAge: 0 });
+  response.cookies.set(ADMIN_REFRESH_COOKIE, "", { path: "/", maxAge: 0 });
+  return response;
+}
+

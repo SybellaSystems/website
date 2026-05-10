@@ -2,259 +2,195 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import Loader from "@/components/Loader";
-import { MessageSquare, Trash2 } from "lucide-react";
+import { ADMIN_ROLES } from "@/lib/rbac/roles";
 
-
-
-interface Subscriber {
-  _id: string;
+type TeamAccount = {
+  id: string;
+  names: string;
   email: string;
-  name?: string;
-  subscribedAt?: string;
-  subscribeAt?: string; // Support both field names for compatibility
-}
+  role: string;
+  isActive: boolean;
+  departmentId?: string;
+  supervisorId?: string;
+  inviteStatus?: string;
+};
 
 export default function AdminUsersPage() {
-  // const [token, setToken] = useState<string | null>(null);
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [users, setUsers] = useState<TeamAccount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [replyModal, setReplyModal] = useState<{ open: boolean; subscriber?: Subscriber }>({ open: false });
-  const [replyMessage, setReplyMessage] = useState("");
-  const [replySubject, setReplySubject] = useState("");
-  const [token, setToken] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    names: "",
+    email: "",
+    role: "developer",
+    departmentId: "",
+    supervisorId: "",
+    permissionsCsv: "",
+  });
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("adminToken");
-    console.log("Value retrieved from localStorage:", storedToken);
-    setToken(storedToken);
-  }, []);
-
-  const fetchSubscribers = async (accessToken: string) => {
+  const loadUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/newsletter", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          // Use the token passed as an argument!
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const res = await fetch("/api/admin/team/accounts", { credentials: "include" });
       const data = await res.json();
-
-      if (data.success && data.subscribers && Array.isArray(data.subscribers)) {
-        setSubscribers(data.subscribers);
-      } else {
-        toast.error("No subscribers found");
-      }
-    } catch (err) {
-      console.error("Error occurred", err);
-      toast.error("Failed to fetch subscribers");
+      if (!res.ok) throw new Error(data.error || "Failed to fetch accounts");
+      setUsers(data.users || []);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch accounts");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) {
-      fetchSubscribers(token);
-    }
-  }, [token]);
+    loadUsers();
+  }, []);
 
+  const createAccount = async () => {
+    const permissions = form.permissionsCsv
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
 
-  const handleReply = async () => {
-    if (!replyModal.subscriber) return;
-    if (!token) {
-      toast.error("Authentication token not found");
+    const res = await fetch("/api/admin/team/accounts", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        names: form.names,
+        email: form.email,
+        role: form.role,
+        departmentId: form.departmentId || undefined,
+        supervisorId: form.supervisorId || undefined,
+        permissions,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      toast.error(data.error || "Failed to create account");
       return;
     }
-    if (!replySubject.trim() || !replyMessage.trim()) {
-      toast.error("Please fill in both subject and message");
-      return;
-    }
-    
-    const toastId = toast.loading("Sending reply...");
-    try {
-      const res = await fetch("/api/newsletter/reply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          id: replyModal.subscriber._id,
-          subject: replySubject,
-          message: replyMessage,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Reply sent successfully!", { 
-          id: toastId,
-          description: data.message || "The email has been sent to the subscriber."
-        });
-        setReplyModal({ open: false });
-        setReplyMessage("");
-        setReplySubject("");
-      } else {
-        toast.error("Failed to send reply", { 
-          id: toastId,
-          description: data.message || data.error || "Please try again."
-        });
-      }
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to send reply", { 
-        id: toastId,
-        description: err.message || "Something went wrong. Please try again."
-      });
-    }
+
+    toast.success("Account created and invitation prepared.");
+    setForm({
+      names: "",
+      email: "",
+      role: "developer",
+      departmentId: "",
+      supervisorId: "",
+      permissionsCsv: "",
+    });
+    await loadUsers();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!token) {
-      toast.error("Authentication token not found");
+  const patchUser = async (id: string, payload: Record<string, unknown>) => {
+    const res = await fetch(`/api/admin/team/accounts/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast.error(data.error || "Update failed");
       return;
     }
-    toast.warning("Are you sure you want to delete this subscriber?", {
-      action: {
-        label: "Delete",
-        onClick: async () => {
-          const toastId = toast.loading("Deleting subscriber...");
-          try {
-            const res = await fetch(`/api/newsletter/${id}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            const data = await res.json();
-            if (res.ok && data.success) {
-              toast.success("Subscriber deleted successfully!", { id: toastId });
-              if (token) {
-                fetchSubscribers(token);
-              }
-            } else {
-              toast.error(data.message || "Failed to delete subscriber", { 
-                id: toastId,
-                description: data.error || 'Please try again'
-              });
-            }
-          } catch (err) {
-            console.error(err);
-            toast.error("Something went wrong", { id: toastId });
-          }
-        },
-      },
-      cancel: {
-        label: "Cancel",
-        onClick: () => toast.dismiss(),
-      },
-    });
+    toast.success("User updated");
+    await loadUsers();
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Newsletter Subscribers</h1>
+    <div className="space-y-6 p-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h1 className="text-2xl font-semibold text-slate-900">Team Management & RBAC</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Create accounts, assign department-aware roles, and manage secure activation workflows.
+        </p>
 
-      {loading ? (
-        <Loader size="lg" text="Loading subscribers..." />
-      ) : subscribers.length === 0 ? (
-        <p>No subscribers found.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
-            <thead className="bg-blue-600 text-white">
-              <tr>
-                <th className="py-2 px-4 text-left">Email</th>
-                <th className="py-2 px-4 text-left">Subscribed At</th>
-                <th className="py-2 px-4 text-center">Actions</th>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <input className="h-10 rounded-lg border border-slate-200 px-3 text-sm" placeholder="Full name" value={form.names} onChange={(e) => setForm((p) => ({ ...p, names: e.target.value }))} />
+          <input className="h-10 rounded-lg border border-slate-200 px-3 text-sm" placeholder="Work email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} />
+          <select className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}>
+            {ADMIN_ROLES.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+          <input className="h-10 rounded-lg border border-slate-200 px-3 text-sm" placeholder="Department ID" value={form.departmentId} onChange={(e) => setForm((p) => ({ ...p, departmentId: e.target.value }))} />
+          <input className="h-10 rounded-lg border border-slate-200 px-3 text-sm" placeholder="Supervisor User ID" value={form.supervisorId} onChange={(e) => setForm((p) => ({ ...p, supervisorId: e.target.value }))} />
+          <input
+            className="h-10 rounded-lg border border-slate-200 px-3 text-sm"
+            placeholder="Extra permissions (comma separated)"
+            value={form.permissionsCsv}
+            onChange={(e) => setForm((p) => ({ ...p, permissionsCsv: e.target.value }))}
+          />
+        </div>
+        <button onClick={createAccount} className="mt-4 h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white hover:bg-indigo-700">
+          Create team account
+        </button>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Active Team Accounts</h2>
+        {loading ? <div className="mt-3 text-sm text-slate-500">Loading accounts...</div> : null}
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead>
+              <tr className="text-left text-slate-500">
+                <th className="px-2 py-2">Name</th>
+                <th className="px-2 py-2">Email</th>
+                <th className="px-2 py-2">Role</th>
+                <th className="px-2 py-2">Department</th>
+                <th className="px-2 py-2">Invite</th>
+                <th className="px-2 py-2">Status</th>
+                <th className="px-2 py-2">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {subscribers.map(sub => {
-                const formatDate = (dateString?: string) => {
-                  if (!dateString) return "-";
-                  try {
-                    const date = new Date(dateString);
-                    return date.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    });
-                  } catch {
-                    return dateString;
-                  }
-                };
-                // Handle both subscribeAt and subscribedAt field names
-                const subscribeDate = sub.subscribedAt || (sub as any).subscribeAt;
-                return (
-                <tr key={sub._id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-4">{sub.email}</td>
-                  <td className="py-2 px-4">{formatDate(subscribeDate)}</td>
-                  <td className="py-2 px-4 flex justify-center gap-2">
-                    <button
-                      onClick={() => setReplyModal({ open: true, subscriber: sub })}
-                      className="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition-colors flex items-center justify-center"
-                      title="Reply to subscriber"
+            <tbody className="divide-y divide-slate-100">
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td className="px-2 py-2 font-medium text-slate-900">{user.names}</td>
+                  <td className="px-2 py-2 text-slate-700">{user.email}</td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={user.role}
+                      className="h-9 rounded-md border border-slate-200 px-2"
+                      onChange={(event) => patchUser(user.id, { role: event.target.value })}
                     >
-                      <MessageSquare size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(sub._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded transition-colors flex items-center justify-center"
-                      title="Delete subscriber"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                      {ADMIN_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2 text-slate-700">{user.departmentId || "-"}</td>
+                  <td className="px-2 py-2 text-slate-700">{user.inviteStatus || "accepted"}</td>
+                  <td className="px-2 py-2">
+                    <span className={["rounded-full px-2 py-1 text-xs", user.isActive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"].join(" ")}>
+                      {user.isActive ? "Active" : "Suspended"}
+                    </span>
+                  </td>
+                  <td className="px-2 py-2">
+                    <div className="flex gap-2">
+                      {user.isActive ? (
+                        <button className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs text-rose-700" onClick={() => patchUser(user.id, { action: "suspend" })}>
+                          Suspend
+                        </button>
+                      ) : (
+                        <button className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-700" onClick={() => patchUser(user.id, { action: "reactivate" })}>
+                          Reactivate
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
-                );
-              })}
+              ))}
             </tbody>
           </table>
         </div>
-      )}
-
-      {/* Reply Modal */}
-      {replyModal.open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
-            <h2 className="text-xl font-bold mb-4">Reply to {replyModal.subscriber?.email}</h2>
-            <input
-              type="text"
-              placeholder="Subject"
-              className="w-full border px-3 py-2 rounded mb-3"
-              value={replySubject}
-              onChange={e => setReplySubject(e.target.value)}
-            />
-            <textarea
-              placeholder="Message"
-              className="w-full border px-3 py-2 rounded mb-3 h-32 resize-none"
-              value={replyMessage}
-              onChange={e => setReplyMessage(e.target.value)}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setReplyModal({ open: false })}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReply}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </section>
     </div>
   );
 }

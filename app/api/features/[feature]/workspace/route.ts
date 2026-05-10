@@ -16,7 +16,7 @@ const createRecordSchema = z.object({
   starts_at: z.string().datetime().optional().nullable(),
   linked_module: z.string().optional().nullable(),
   linked_record_id: z.string().uuid().optional().nullable(),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
 });
 
 export async function GET(_req: NextRequest, { params }: { params: { feature: string } }) {
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest, { params }: { params: { feature: st
     }
 
     const actor = parseWorkspaceActor(req.headers);
-    if (!hasRole("manager", actor.role)) {
+    if (!hasRole("operations-manager", actor.role)) {
       return NextResponse.json({ error: "Insufficient permissions to create records." }, { status: 403 });
     }
 

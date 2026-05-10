@@ -33,7 +33,26 @@ type WorkspacePayload = {
 };
 
 const FEATURE_META: Record<string, { title: string; purpose: string; action: string; tone: string }> = {
+  "team-management": { title: "Team Management", purpose: "Accounts, teams and reporting lines", action: "Create team profile", tone: "from-indigo-700 to-violet-700" },
+  "hr-dashboard": { title: "HR Dashboard", purpose: "People operations and workforce health", action: "Log HR event", tone: "from-rose-600 to-pink-700" },
+  "employee-profiles": { title: "Employee Profiles", purpose: "Role-based employee data and performance", action: "Create employee profile", tone: "from-cyan-600 to-blue-700" },
   tasks: { title: "Task Orchestration", purpose: "Sprint delivery and dependency control", action: "Create task", tone: "from-indigo-600 to-blue-600" },
+  "projects-management": { title: "Project Command", purpose: "Portfolio oversight and delivery governance", action: "Create project stream", tone: "from-blue-700 to-indigo-800" },
+  "financial-dashboard": { title: "Finance Console", purpose: "Financial control, budgets and spend health", action: "Create finance checkpoint", tone: "from-emerald-700 to-teal-700" },
+  "sales-analytics": { title: "Sales Analytics", purpose: "Revenue pipeline and conversion tracking", action: "Log sales signal", tone: "from-green-700 to-lime-700" },
+  "marketing-campaigns": { title: "Campaign Studio", purpose: "Campaign execution and attribution", action: "Create campaign record", tone: "from-fuchsia-700 to-purple-700" },
+  "legal-documents": { title: "Legal Desk", purpose: "Legal obligations and contract governance", action: "Register legal document", tone: "from-slate-800 to-gray-900" },
+  "performance-analytics": { title: "Performance Analytics", purpose: "Company performance telemetry", action: "Add performance indicator", tone: "from-teal-700 to-cyan-700" },
+  "notifications-center": { title: "Notifications Center", purpose: "Alerts, escalations and digest operations", action: "Publish alert", tone: "from-amber-700 to-orange-700" },
+  "internal-messaging": { title: "Internal Messaging", purpose: "Cross-team conversation and context", action: "Create message thread", tone: "from-sky-700 to-indigo-700" },
+  "meetings-scheduling": { title: "Meeting Scheduler", purpose: "Plan meetings with ownership and outcomes", action: "Schedule meeting", tone: "from-blue-600 to-cyan-600" },
+  "permissions-manager": { title: "Permissions Manager", purpose: "RBAC grants and access boundaries", action: "Create permission policy", tone: "from-violet-700 to-indigo-900" },
+  "activity-monitoring": { title: "Activity Monitoring", purpose: "Operational activity and anomaly visibility", action: "Log monitoring event", tone: "from-zinc-700 to-slate-900" },
+  "recruitment-pipeline": { title: "Recruitment Pipeline", purpose: "Candidate lifecycle and hiring flow", action: "Create candidate record", tone: "from-pink-700 to-rose-700" },
+  "support-tickets": { title: "Support Tickets", purpose: "Support triage and ticket lifecycle", action: "Open support ticket", tone: "from-orange-700 to-red-700" },
+  "content-management": { title: "Content Management", purpose: "Editorial planning and publishing workflows", action: "Add content item", tone: "from-indigo-600 to-fuchsia-700" },
+  "product-roadmap": { title: "Product Roadmap", purpose: "Roadmap strategy and milestone alignment", action: "Create roadmap item", tone: "from-cyan-700 to-indigo-800" },
+  "qa-workflows": { title: "QA Workflows", purpose: "Testing execution and quality outcomes", action: "Add QA scenario", tone: "from-emerald-700 to-green-800" },
   goals: { title: "Goals Workspace", purpose: "Objective ownership and measurable outcomes", action: "Add objective", tone: "from-emerald-600 to-teal-600" },
   approvals: { title: "Approval Desk", purpose: "Leadership signoff workflows", action: "Request approval", tone: "from-violet-600 to-fuchsia-600" },
   calendar: { title: "Execution Calendar", purpose: "Schedule planning and due-date control", action: "Schedule item", tone: "from-cyan-600 to-sky-600" },
@@ -64,7 +83,7 @@ export default function OperationalWorkspace({ params }: { params: { feature: st
   const [description, setDescription] = useState("");
   const [selected, setSelected] = useState<WorkspaceRecord | null>(null);
   const [comment, setComment] = useState("");
-  const [role, setRole] = useState<WorkspaceRole>("manager");
+  const [role, setRole] = useState<WorkspaceRole>("viewer");
   const [actorName, setActorName] = useState("Operations User");
 
   const loadWorkspace = async () => {
@@ -91,7 +110,7 @@ export default function OperationalWorkspace({ params }: { params: { feature: st
         setActorName(decoded.fullName || decoded.name || "Operations User");
       }
     } catch {
-      setRole("manager");
+      setRole("viewer");
     }
     loadWorkspace();
   }, [feature, knownFeature]);
@@ -220,6 +239,24 @@ export default function OperationalWorkspace({ params }: { params: { feature: st
   };
 
   const featureIntelligence = () => {
+    if (feature === "team-management") {
+      return <div className="text-xs text-slate-600">Org operations: records can represent hires, role changes, supervisor mappings and access reviews.</div>;
+    }
+    if (feature === "permissions-manager") {
+      return <div className="text-xs text-violet-700">Security critical: track every permission decision with linked approvals and audit references.</div>;
+    }
+    if (feature === "hr-dashboard") {
+      return <div className="text-xs text-slate-600">People operations: monitor onboarding, leave, performance and workforce stability in one queue.</div>;
+    }
+    if (feature === "employee-profiles") {
+      return <div className="text-xs text-slate-600">Profile repository: map records to employee IDs and use attachments for contracts or reviews.</div>;
+    }
+    if (feature === "financial-dashboard") {
+      return <div className="text-xs text-emerald-700">Finance controls: prioritize critical records for budget alerts and payment exceptions.</div>;
+    }
+    if (feature === "recruitment-pipeline") {
+      return <div className="text-xs text-rose-700">Recruiting mode: move candidates through stages and link each to hiring team decisions.</div>;
+    }
     if (feature === "tasks") {
       const inSprint = records.filter((r) => r.status === "in_progress").length;
       return <div className="text-xs text-slate-600">Sprint throughput monitor: {inSprint} active cards linked to delivery.</div>;

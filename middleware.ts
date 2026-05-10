@@ -1,9 +1,23 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { ADMIN_ACCESS_COOKIE } from '@/lib/auth/cookies';
 
 // Security middleware for all routes
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  const pathname = request.nextUrl.pathname;
+  const token = request.cookies.get(ADMIN_ACCESS_COOKIE)?.value;
+
+  if (pathname.startsWith("/admin") && !token) {
+    const signInUrl = new URL("/signin", request.url);
+    signInUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  if (pathname.startsWith("/signin") && token) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  const response = NextResponse.next();
 
   // Security headers
   response.headers.set('X-DNS-Prefetch-Control', 'on')
@@ -32,12 +46,12 @@ export function middleware(request: NextRequest) {
   // response.headers.set('Content-Security-Policy', csp)
 
   // Rate limiting (basic implementation)
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
-  const userAgent = request.headers.get('user-agent') || 'unknown'
+  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const userAgent = request.headers.get('user-agent') || 'unknown';
   
   // Log security events
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[SECURITY] Request from ${ip} to ${request.nextUrl.pathname}`)
+    console.log(`[SECURITY] Request from ${ip} to ${request.nextUrl.pathname} - ${userAgent}`)
   }
 
   return response

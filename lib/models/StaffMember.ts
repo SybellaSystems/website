@@ -14,6 +14,7 @@ import {
 import { logger } from '@/lib/logger'
 import bcrypt from 'bcryptjs';
 import { createAccessToken, createRefreshToken } from '@/app/utils/jwt'
+import crypto from "crypto";
 
 
 // post staff member
@@ -229,6 +230,8 @@ export async function loginStaff(input: unknown) {
 
     const staff = await db.collection("staff_members").findOne({ email: parsed.email });
     if(!staff) throw new Error ("Invalid Email or Password");
+    if (staff.isActive === false) throw new Error("Account is suspended");
+    if (staff.inviteStatus === "pending") throw new Error("Please complete onboarding from invitation email");
 
     const passwordMatch  = await bcrypt.compare(parsed.password, staff.password);
     if (!passwordMatch) throw new Error ("Invalid Email or Password");
@@ -238,6 +241,80 @@ export async function loginStaff(input: unknown) {
 
     return { accessToken, refreshToken }
 
+}
+
+export async function createStaffInviteAccount(input: {
+  names: string;
+  email: string;
+  role: string;
+  departmentId?: string;
+  supervisorId?: string;
+  permissions?: string[];
+  createdBy: string;
+}) {
+  const client = await getClientPromise();
+  const db = client.db();
+  const existing = await db.collection("staff_members").findOne({ email: input.email.toLowerCase() });
+  if (existing) throw new Error("A user with this email already exists");
+
+  const temporaryPassword = crypto.randomBytes(8).toString("hex");
+  const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+  const inviteToken = crypto.randomBytes(32).toString("hex");
+  const now = new Date();
+
+  const account = {
+    id: crypto.randomUUID(),
+    names: input.names.trim(),
+    email: input.email.toLowerCase().trim(),
+    password: hashedPassword,
+    role: input.role,
+    permissions: input.permissions || [],
+    isActive: true,
+    departmentId: input.departmentId || null,
+    supervisorId: input.supervisorId || null,
+    inviteToken,
+    inviteStatus: "pending",
+    inviteExpiresAt: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 3),
+    createdBy: input.createdBy,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await db.collection("staff_members").insertOne(account);
+
+  return {
+    id: account.id,
+    inviteToken,
+    temporaryPassword,
+    email: account.email,
+    names: account.names,
+  };
+}
+
+export async function setupInvitedStaffPassword(inviteToken: string, password: string) {
+  const client = await getClientPromise();
+  const db = client.db();
+  const account = await db.collection("staff_members").findOne({ inviteToken });
+  if (!account) throw new Error("Invalid invite token");
+  if (account.inviteStatus === "accepted") throw new Error("Invitation already used");
+  if (account.inviteExpiresAt && new Date(account.inviteExpiresAt).getTime() < Date.now()) {
+    throw new Error("Invitation link expired");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await db.collection("staff_members").updateOne(
+    { inviteToken },
+    {
+      $set: {
+        password: hashedPassword,
+        inviteStatus: "accepted",
+        updatedAt: new Date(),
+      },
+      $unset: { inviteToken: "", inviteExpiresAt: "" },
+    }
+  );
+
+  return { success: true };
 }
 
 
