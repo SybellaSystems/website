@@ -1,40 +1,125 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  LayoutDashboard,
-  Phone,
-  FileText,
-  Users,
-  UserCog,
-  ClipboardList,
-  ChevronDown,
-  ChevronRight,
-  Building2,
-  CheckSquare,
-  Target,
-  Inbox,
-  CalendarDays,
-  MessageSquare,
-  Megaphone,
-  BookOpen,
   Activity,
-  TrendingUp,
-  Award,
-  HeartPulse,
-  GitBranch,
   Bell,
+  BookOpen,
+  Bot,
+  Briefcase,
+  CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleDot,
+  FileStack,
+  FolderKanban,
+  LayoutDashboard,
+  Megaphone,
   ShieldCheck,
-  Plug,
   Sparkles,
+  Users,
+  Workflow,
 } from "lucide-react";
 
+type Role =
+  | "executive"
+  | "manager"
+  | "accountant"
+  | "sales"
+  | "marketing"
+  | "qa-tester"
+  | "superadmin";
+
+type NavItem = {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles: Role[];
+  badge?: string;
+};
+
+type NavGroup = {
+  key: string;
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: NavItem[];
+};
+
+const ALL_ROLES: Role[] = [
+  "executive",
+  "manager",
+  "accountant",
+  "sales",
+  "marketing",
+  "qa-tester",
+  "superadmin",
+];
+
+const EXEC_ONLY: Role[] = ["executive", "superadmin"];
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    key: "main",
+    title: "Main",
+    icon: LayoutDashboard,
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ALL_ROLES },
+      { label: "Activity Feed", href: "/admin/timeline", icon: Activity, roles: ALL_ROLES, badge: "Live" },
+      { label: "Notifications", href: "/admin/alerts", icon: Bell, roles: EXEC_ONLY },
+    ],
+  },
+  {
+    key: "operations",
+    title: "Operations",
+    icon: Workflow,
+    items: [
+      { label: "Tasks", href: "/admin/tasks", icon: FolderKanban, roles: ALL_ROLES },
+      { label: "Projects", href: "/admin/projects", icon: Briefcase, roles: ALL_ROLES },
+      { label: "Calendar", href: "/admin/calendar", icon: CalendarDays, roles: ALL_ROLES },
+      { label: "Approvals", href: "/admin/approvals", icon: CircleDot, roles: ALL_ROLES },
+      { label: "Reports", href: "/admin/reports", icon: FileStack, roles: ALL_ROLES },
+    ],
+  },
+  {
+    key: "people",
+    title: "People",
+    icon: Users,
+    items: [
+      { label: "Staff", href: "/admin/staffs", icon: Users, roles: ["executive", "manager", "superadmin"] },
+      { label: "Teams", href: "/admin/team", icon: Users, roles: ["executive", "manager", "superadmin"] },
+      { label: "Check-ins", href: "/admin/checkins", icon: Sparkles, roles: ALL_ROLES },
+    ],
+  },
+  {
+    key: "knowledge",
+    title: "Knowledge",
+    icon: BookOpen,
+    items: [
+      { label: "Internal Wiki", href: "/admin/wiki", icon: BookOpen, roles: ALL_ROLES },
+      { label: "AI Insights", href: "/admin/ai-assistant", icon: Bot, roles: ALL_ROLES, badge: "AI" },
+      { label: "Announcements", href: "/admin/announcements", icon: Megaphone, roles: ALL_ROLES },
+    ],
+  },
+  {
+    key: "system",
+    title: "System",
+    icon: ShieldCheck,
+    items: [
+      { label: "Integrations", href: "/admin/integrations", icon: Workflow, roles: EXEC_ONLY },
+      { label: "Security & Audit", href: "/admin/audit", icon: ShieldCheck, roles: EXEC_ONLY },
+    ],
+  },
+];
+
 export default function Sidebar() {
-  const [role, setRole] = useState<string | null>(null);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string>("main");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -46,322 +131,130 @@ export default function Sidebar() {
     }
 
     try {
-      const decoded: any = jwtDecode(token);
-      setRole(decoded.role);
+      const decoded = jwtDecode<{ role?: Role }>(token);
+      if (decoded.role) {
+        setRole(decoded.role);
+      } else {
+        setRole("manager");
+      }
     } catch (err) {
       console.error("Invalid token:", err);
+      setRole("manager");
     }
   }, [router]);
 
-  const toggleDropdown = (menu: string) => {
-    setOpenDropdown(openDropdown === menu ? null : menu);
-  };
+  const visibleGroups = useMemo(
+    () =>
+      NAV_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => (role ? item.roles.includes(role) : false)),
+      })).filter((group) => group.items.length > 0),
+    [role]
+  );
 
-  const menuItems: {
-    name: string;
-    href?: string;
-    icon: any;
-    roles: string[];
-    children?: { name: string; href: string }[];
-  }[] = [
-    {
-      name: "Dashboard",
-      href: "/admin",
-      icon: LayoutDashboard,
-      roles: [
-        "executive",
-        "manager",
-        "accountant",
-        "sales",
-        "marketing",
-        "qa-tester",
-        "superadmin",
-      ],
-    },
-    {
-      name: "Contacts",
-      href: "/admin/contacts",
-      icon: Phone,
-      roles: ["executive", "marketing", "superadmin"],
-    },
-    {
-      name: "Blogs",
-      icon: FileText,
-      roles: ["executive", "marketing", "superadmin"],
-      children: [
-        { name: "Add Blog", href: "/admin/blogs/add" },
-        { name: "View Blogs", href: "/admin/blogs" },
-      ],
-    },
-    {
-      name: "Users",
-      href: "/admin/users",
-      icon: Users,
-      roles: ["executive", "superadmin"],
-    },
-    {
-      name: "Staff",
-      icon: UserCog,
-      roles: ["executive", "manager", "superadmin"],
-      children: [
-        { name: "Add Staff", href: "/admin/staffs/add" },
-        { name: "View Staff", href: "/admin/staffs" },
-      ],
-    },
-    {
-      name: "Sections",
-      icon: ClipboardList,
-      roles: ["executive", "marketing", "manager", "superadmin"],
-      children: [
-        { name: "Milestones", href: "/admin/sections?tab=milestones" },
-        { name: "Team Members", href: "/admin/sections?tab=team_members" },
-        { name: "Projects", href: "/admin/sections?tab=projects" },
-        { name: "Updates", href: "/admin/sections?tab=updates" },
-      ],
-    },
-    {
-      name: "Operate",
-      icon: LayoutDashboard,
-      roles: ["executive", "manager", "accountant", "sales", "marketing", "qa-tester", "superadmin"],
-      children: [
-        { name: "Tasks", href: "/admin/tasks" },
-        { name: "Goals", href: "/admin/goals" },
-        { name: "Approvals", href: "/admin/approvals" },
-        { name: "Calendar", href: "/admin/calendar" },
-      ],
-    },
-    {
-      name: "People Ops",
-      icon: Users,
-      roles: ["executive", "manager", "marketing", "qa-tester", "superadmin"],
-      children: [
-        { name: "Team", href: "/admin/team" },
-        { name: "Check-ins", href: "/admin/checkins" },
-        { name: "Announcements", href: "/admin/announcements" },
-      ],
-    },
-    {
-      name: "Knowledge",
-      icon: BookOpen,
-      roles: ["executive", "manager", "marketing", "qa-tester", "superadmin"],
-      children: [
-        { name: "Wiki", href: "/admin/wiki" },
-        { name: "Reports", href: "/admin/reports" },
-        { name: "Updates", href: "/admin/updates" },
-      ],
-    },
-    {
-      name: "Insight",
-      icon: TrendingUp,
-      roles: ["executive", "manager", "accountant", "sales", "marketing", "qa-tester", "superadmin"],
-      children: [
-        { name: "Accountability", href: "/admin/accountability" },
-        { name: "Progress & KPIs", href: "/admin/progress" },
-        { name: "Trust Scores", href: "/admin/trust" },
-        { name: "Burnout Watch", href: "/admin/burnout" },
-        { name: "Timeline", href: "/admin/timeline" },
-      ],
-    },
-    {
-      name: "System",
-      icon: ShieldCheck,
-      roles: ["executive", "superadmin"],
-      children: [
-        { name: "Alerts", href: "/admin/alerts" },
-        { name: "Integrations", href: "/admin/integrations" },
-        { name: "AI Assistant", href: "/admin/ai-assistant" },
-        { name: "Audit Log", href: "/admin/audit" },
-      ],
-    },
-    // { name: "Updates", href: "/admin/updates", icon: ClipboardList, roles: ["executive"] },
-  ];
-
-  const visibleItems = menuItems.filter((item) => role && item.roles.includes(role));
+  useEffect(() => {
+    const activeGroup = visibleGroups.find((group) =>
+      group.items.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    );
+    if (activeGroup) setOpenGroup(activeGroup.key);
+  }, [pathname, visibleGroups]);
 
   return (
-    <aside className="w-72 h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="border-b border-gray-200 px-4 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
-            <Building2 className="h-5 w-5" />
+    <aside
+      className={[
+        "hidden h-screen shrink-0 border-r border-white/50 bg-white/70 backdrop-blur-xl md:flex md:flex-col",
+        collapsed ? "w-[88px]" : "w-[290px]",
+      ].join(" ")}
+    >
+      <div className="border-b border-slate-200/80 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 text-white shadow-lg shadow-indigo-500/30">
+              <Workflow className="h-5 w-5" />
+            </div>
+            {!collapsed ? (
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-slate-900">Sybella OS</div>
+                <div className="truncate text-xs text-slate-500">Realtime company command center</div>
+              </div>
+            ) : null}
           </div>
-          <div className="leading-tight">
-            <div className="text-sm font-bold text-gray-900">Admin Portal</div>
-            <div className="text-xs text-gray-500">Management console</div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-slate-900"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-6">
-          <div>
-            <div className="px-2 text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
-              Main
-            </div>
-            <div className="mt-2 space-y-1">
-              {visibleItems
-                .filter((i) => ["Dashboard"].includes(i.name))
-                .map((item) => {
-                  const isActive = item.href ? pathname === item.href : false;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href!}
-                      className={[
-                        "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-                        isActive
-                          ? "bg-indigo-600 text-white shadow-sm"
-                          : "text-gray-700 hover:bg-indigo-50",
-                      ].join(" ")}
-                    >
-                      <item.icon className={["h-5 w-5", isActive ? "text-white" : "text-indigo-600"].join(" ")} />
-                      <span className="font-medium">{item.name}</span>
-                    </Link>
-                  );
-                })}
-            </div>
-          </div>
+      <nav className="flex-1 space-y-3 overflow-y-auto p-3">
+        {visibleGroups.map((group) => {
+          const expanded = !collapsed && openGroup === group.key;
+          const GroupIcon = group.icon;
 
-          <div>
-            <div className="px-2 text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
-              Content
-            </div>
-            <div className="mt-2 space-y-1">
-              {visibleItems
-                .filter((i) => ["Contacts", "Blogs", "Sections", "Operate", "Knowledge", "Insight", "System"].includes(i.name))
-                .map((item) => {
-                  const isActive = item.href ? pathname === item.href : false;
-                  const isChildActive = item.children?.some((child) => pathname === child.href);
+          return (
+            <div key={group.key} className="rounded-xl border border-slate-200/70 bg-white/80">
+              <button
+                type="button"
+                onClick={() => setOpenGroup((prev) => (prev === group.key ? "" : group.key))}
+                className="flex w-full items-center justify-between px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <GroupIcon className="h-4 w-4 text-indigo-600" />
+                  {!collapsed ? <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{group.title}</span> : null}
+                </div>
+                {!collapsed ? (
+                  expanded ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />
+                ) : null}
+              </button>
 
-                  if (item.children) {
-                    const expanded = openDropdown === item.name || Boolean(isChildActive);
-                    return (
-                      <div key={item.name}>
-                        <button
-                          type="button"
-                          onClick={() => toggleDropdown(item.name)}
+              <AnimatePresence initial={false}>
+                {(expanded || collapsed) && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-1 px-2 pb-2"
+                  >
+                    {group.items.map((item) => {
+                      const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                      const ItemIcon = item.icon;
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
                           className={[
-                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-                            isChildActive ? "bg-indigo-600 text-white shadow-sm" : "text-gray-700 hover:bg-indigo-50",
+                            "group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition-all",
+                            active
+                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/30"
+                              : "text-slate-700 hover:bg-slate-100",
                           ].join(" ")}
                         >
-                          <div className="flex items-center gap-3">
-                            <item.icon className={["h-5 w-5", isChildActive ? "text-white" : "text-indigo-600"].join(" ")} />
-                            <span className="font-medium">{item.name}</span>
-                          </div>
-                          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </button>
-
-                        {expanded && (
-                          <div className="ml-6 mt-1 space-y-1">
-                            {item.children.map((child) => {
-                              const active = pathname === child.href;
-                              return (
-                                <Link
-                                  key={child.href}
-                                  href={child.href}
-                                  className={[
-                                    "block rounded-md px-3 py-2 text-sm transition",
-                                    active ? "bg-indigo-100 text-indigo-700" : "text-gray-600 hover:bg-indigo-50",
-                                  ].join(" ")}
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href!}
-                      className={[
-                        "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-                        isActive ? "bg-indigo-600 text-white shadow-sm" : "text-gray-700 hover:bg-indigo-50",
-                      ].join(" ")}
-                    >
-                      <item.icon className={["h-5 w-5", isActive ? "text-white" : "text-indigo-600"].join(" ")} />
-                      <span className="font-medium">{item.name}</span>
-                    </Link>
-                  );
-                })}
+                          <ItemIcon className={["h-4 w-4 shrink-0", active ? "text-white" : "text-indigo-600"].join(" ")} />
+                          {!collapsed ? (
+                            <>
+                              <span className="truncate font-medium">{item.label}</span>
+                              {item.badge ? (
+                                <span className={["ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold", active ? "bg-white/25 text-white" : "bg-indigo-100 text-indigo-700"].join(" ")}>
+                                  {item.badge}
+                                </span>
+                              ) : null}
+                            </>
+                          ) : null}
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
-
-          <div>
-            <div className="px-2 text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
-              People
-            </div>
-            <div className="mt-2 space-y-1">
-              {visibleItems
-                .filter((i) => ["Users", "Staff", "People Ops"].includes(i.name))
-                .map((item) => {
-                  const isActive = item.href ? pathname === item.href : false;
-                  const isChildActive = item.children?.some((child) => pathname === child.href);
-
-                  if (item.children) {
-                    const expanded = openDropdown === item.name || Boolean(isChildActive);
-                    return (
-                      <div key={item.name}>
-                        <button
-                          type="button"
-                          onClick={() => toggleDropdown(item.name)}
-                          className={[
-                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-                            isChildActive ? "bg-indigo-600 text-white shadow-sm" : "text-gray-700 hover:bg-indigo-50",
-                          ].join(" ")}
-                        >
-                          <div className="flex items-center gap-3">
-                            <item.icon className={["h-5 w-5", isChildActive ? "text-white" : "text-indigo-600"].join(" ")} />
-                            <span className="font-medium">{item.name}</span>
-                          </div>
-                          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </button>
-
-                        {expanded && (
-                          <div className="ml-6 mt-1 space-y-1">
-                            {item.children.map((child) => {
-                              const active = pathname === child.href;
-                              return (
-                                <Link
-                                  key={child.href}
-                                  href={child.href}
-                                  className={[
-                                    "block rounded-md px-3 py-2 text-sm transition",
-                                    active ? "bg-indigo-100 text-indigo-700" : "text-gray-600 hover:bg-indigo-50",
-                                  ].join(" ")}
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href!}
-                      className={[
-                        "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-                        isActive ? "bg-indigo-600 text-white shadow-sm" : "text-gray-700 hover:bg-indigo-50",
-                      ].join(" ")}
-                    >
-                      <item.icon className={["h-5 w-5", isActive ? "text-white" : "text-indigo-600"].join(" ")} />
-                      <span className="font-medium">{item.name}</span>
-                    </Link>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </nav>
     </aside>
   );
