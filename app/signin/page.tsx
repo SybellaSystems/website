@@ -113,6 +113,14 @@ export default function AdminLogin() {
           margin-bottom: 0.5rem;
           text-align: center;
         }
+          .form-heading-team {
+          font-family: 'Syne', sans-serif;
+          font-size: 1.9rem;
+          font-weight: 800;
+          color: #fff;
+          margin-bottom: 0.5rem;
+          text-align: center;
+        }
 
         .form-subheading {
           color: rgba(255,255,255,0.7);
@@ -206,8 +214,9 @@ export default function AdminLogin() {
       <div className="login-root">
         <div className="login-card">
 
+          <h1 className="form-heading-team">SYBELLA SYSTEMS TEAM PLATFORM</h1>
           <h1 className="form-heading">Log in</h1>
-          <p className="form-subheading">Access your admin dashboard</p>
+          <p className="form-subheading">Access our admin dashboard</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
