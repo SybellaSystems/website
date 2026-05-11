@@ -4,21 +4,23 @@ import React from "react";
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800 px-6">
-      <div className=" mx-auto py-12 px-6">
+      <div className="max-w-4xl mx-auto py-12 px-6">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-center mb-4 text-[#1C3C8C]">
-          Terms of Service of Sybella Systems
-        </h1>
-        {/* <p className="text-center text-sm text-[#6B7280] mb-10">
-          Effective Date: (Insert Date)
-        </p> */}
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-center mb-4 text-[#1C3C8C]">
+            Terms of Service of Sybella Systems
+          </h1>
+          <p className="text-center text-sm text-[#6B7280]">
+            Effective Date: May 11, 2026 | Last Updated: May 11, 2026
+          </p>
+        </header>
 
         {/* Sections */}
-        <section className="space-y-8">
+        <section className="space-y-8 text-sm md:text-base leading-relaxed">
           {/* 1. Interpretation */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Interpretation
+              1. Interpretation
             </h2>
             <p>
               These Terms of Service ("Terms") govern your access to and use of
@@ -31,25 +33,25 @@ const TermsOfService = () => {
           {/* 2. Definitions */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Definitions
+              2. Definitions
             </h2>
-            <ul className="list-disc list-inside space-y-1 ml-4">
+            <ul className="list-disc list-inside space-y-2 ml-4">
               <li>
-                <strong>Services:</strong> The software solutions, applications,
-                and platforms provided by Sybella Systems designed to empower
-                African communities, facilitate education, enhance business
-                operations, and promote meaningful employment opportunities.
+                <strong>Services:</strong> Software solutions, cloud platforms,
+                AI-powered tools, and digital applications provided by Sybella
+                Systems.
               </li>
               <li>
                 <strong>User:</strong> Any individual or entity that accesses,
-                registers, or uses our Services, including but not limited to
-                customers, partners, and visitors.
+                registers, or uses our Services.
               </li>
               <li>
-                <strong>Content:</strong> All information, text, graphics,
-                images, audio, video, and other materials that are posted,
-                uploaded, or transmitted through our Services, whether by Users
-                or by us.
+                <strong>Content:</strong> All information, text, graphics, and
+                code transmitted through our Services.
+              </li>
+              <li>
+                <strong>Data:</strong> Personal or transactional information 
+                processed through our systems, including AI-driven insights.
               </li>
             </ul>
           </div>
@@ -57,270 +59,203 @@ const TermsOfService = () => {
           {/* 3. Acknowledgment */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Acknowledgment
+              3. Acknowledgment
             </h2>
             <p>
-              By using our Services, you acknowledge that you have read,
-              understood, and agree to be bound by these Terms. You represent
-              and warrant that you are of legal age to enter into these Terms or
-              that you have obtained the consent of a parent or guardian.
+              By using our Services, you acknowledge that you have read and
+              understand these Terms. You warrant that you are of legal age or
+              have obtained parental/guardian consent.
             </p>
           </div>
 
           {/* 4. User Accounts */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              User Accounts
+              4. User Accounts
             </h2>
-            <p>
-              To access certain features of our Services, you may be required to
-              create a user account. You agree to:
-            </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>
-                Provide accurate, current, and complete information during the
-                registration process.
-              </li>
-              <li>Maintain the security of your password and account.</li>
-              <li>
-                Notify us immediately of any unauthorized use of your account or
-                any other breach of security.
-              </li>
-              <li>
-                Be responsible for all activities that occur under your account.
-              </li>
+              <li>Provide accurate and complete information.</li>
+              <li>Maintain the security of your credentials.</li>
+              <li>Notify us immediately of unauthorized access.</li>
+              <li>Accept responsibility for all activities under your account.</li>
             </ul>
           </div>
 
-          {/* 5. Content */}
+          {/* 5. Content Ownership */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Content
+              5. Content
             </h2>
             <p>
-              You are solely responsible for any Content you post or transmit
-              through our Services. You retain ownership of all rights to your
-              Content, subject to the rights granted to us in these Terms. By
-              posting Content, you grant us a worldwide, non-exclusive,
-              royalty-free, sublicenseable, and transferable license to use,
-              reproduce, modify, publish, and distribute such Content.
+              You retain ownership of your Content. You grant us a
+              worldwide, royalty-free license to use and distribute such Content 
+              solely to provide and improve our Services.
             </p>
           </div>
 
-          {/* 6. Our Right to Post Content */}
+          {/* 6. AI & Emerging Technologies */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Our Right to Post Content
+              6. AI & Emerging Technologies
             </h2>
             <p>
-              We reserve the right to post, modify, or remove Content from our
-              Services at our discretion. This includes the right to use your
-              Content to improve our Services, develop new features, and conduct
-              research. We may also analyze usage patterns and trends to enhance
-              user experience.
+              Our Services include AI, blockchain, and cloud computing. You 
+              consent to automated processing and analytics. We commit to 
+              ethical AI practices and transparency in algorithmic decisions.
             </p>
           </div>
 
-          {/* 7. Content Restrictions */}
+          {/* 7. Data Privacy & Security */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Content Restrictions
+              7. Data Privacy & Security
             </h2>
-            <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>
-                Illegal, harmful, threatening, abusive, harassing, defamatory,
-                obscene, or otherwise objectionable content.
-              </li>
-              <li>
-                Infringing upon the intellectual property rights of others.
-              </li>
-              <li>Containing viruses, malware, or any other harmful code.</li>
-              <li>Misleading or deceptive content.</li>
+            <p>
+              We comply with GDPR and Rwanda Data Protection Laws. While we 
+              employ high-level encryption, you are responsible for maintaining 
+              the confidentiality of your login information.
+            </p>
+          </div>
+
+          {/* 8. Content Restrictions */}
+          <div>
+            <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
+              8. Content Restrictions
+            </h2>
+            <ul className="list-disc list-inside space-y-1 ml-4 text-red-700">
+              <li>Illegal, harmful, or abusive content.</li>
+              <li>Intellectual property infringement.</li>
+              <li>Viruses, malware, or malicious code.</li>
+              <li>Deceptive information or deepfakes intended to mislead.</li>
             </ul>
           </div>
 
-          {/* 8. Content Backups */}
+          {/* 9. Backups & Reliability */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Content Backups
+              9. Backups & Reliability
             </h2>
             <p>
-              While we strive to maintain backups of all Content, we are not
-              responsible for any loss or deletion of your Content. It is your
-              responsibility to maintain your own backups. We recommend that you
-              regularly back up your Content and data.
+              We use redundant systems but cannot guarantee zero data loss. 
+              Users are encouraged to maintain independent backups of critical data.
             </p>
           </div>
 
-          {/* 9. Copyright Policy */}
+          {/* 10. Intellectual Property */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Copyright Policy
+              10. Intellectual Property
             </h2>
             <p>
-              We respect the intellectual property rights of others. If you
-              believe that your work has been copied in a way that constitutes
-              copyright infringement, please contact us with the necessary
-              details, including your contact information, a description of the
-              work, and a description of where the alleged infringement is
-              located.
+              All proprietary technologies, including AI models and source code, 
+              remain the property of Sybella Systems.
             </p>
           </div>
 
-          {/* 10. Intellectual Property Infringement */}
+          {/* 11. Feedback */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Intellectual Property Infringement
+              11. Feedback
             </h2>
             <p>
-              You may not use our Services to infringe upon the intellectual
-              property rights of others. We take allegations of infringement
-              seriously and will investigate such claims. We reserve the right
-              to remove Content that infringes on the rights of others and may
-              terminate the accounts of repeat infringers.
+              Any feedback provided grants us a perpetual license to use that 
+              input for innovation without further compensation to you.
             </p>
           </div>
 
-          {/* 11. Your Feedback to Us */}
+          {/* 12. Third-Party Links */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Your Feedback to Us
+              12. Third-Party Links
             </h2>
             <p>
-              We welcome your feedback, suggestions, and ideas regarding our
-              Services. By submitting feedback, you grant us a perpetual,
-              irrevocable, and royalty-free license to use your feedback for any
-              purpose, including improvements to our Services. We appreciate
-              your input and may use it in future updates.
-            </p>
-          </div>
-
-          {/* 12. Links to Other Websites */}
-          <div>
-            <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Links to Other Websites
-            </h2>
-            <p>
-              Our Services may contain links to third-party websites or services
-              that are not owned or controlled by us. We are not responsible for
-              the content, privacy policies, or practices of these websites. We
-              encourage you to read the terms of service and privacy policies of
-              any third-party websites you visit.
+              We are not responsible for the content or security of third-party 
+              websites linked within our platform.
             </p>
           </div>
 
           {/* 13. Termination */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Termination
+              13. Termination
             </h2>
             <p>
-              We reserve the right to terminate or suspend your access to our
-              Services at any time, for any reason, without prior notice. Upon
-              termination, your right to use our Services will immediately
-              cease. We may also take legal action if necessary to enforce these
-              Terms.
+              We reserve the right to suspend or terminate accounts for 
+              violations of these Terms or system abuse.
             </p>
           </div>
 
           {/* 14. Limitation of Liability */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Limitation of Liability
+              14. Limitation of Liability
             </h2>
             <p>
-              To the fullest extent permitted by law, we shall not be liable for
-              any indirect, incidental, special, consequential, or punitive
-              damages arising from your use of our Services. This includes, but
-              is not limited to, loss of profits, data, or goodwill.
+              Sybella Systems is not liable for indirect, incidental, or 
+              consequential damages arising from your use of the Services.
             </p>
           </div>
 
-          {/* 15. "AS IS" and "AS AVAILABLE" Disclaimer */}
+          {/* 15. Disclaimer */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              "AS IS" and "AS AVAILABLE" Disclaimer
+              15. Disclaimer
             </h2>
             <p>
-              Our Services are provided on an "AS IS" and "AS AVAILABLE" basis.
-              We make no representations or warranties of any kind regarding the
-              operation of our Services, the accuracy of the information
-              provided, or the availability of any specific features. Your use
-              of our Services is at your own risk.
+              Services are provided "AS IS." We make no warranties regarding 
+              uninterrupted uptime or 100% accuracy of AI outputs.
             </p>
           </div>
 
-          {/* 16. Governing Law of Rwanda */}
+          {/* 16. Governing Law */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Governing Law of Rwanda
+              16. Governing Law
             </h2>
             <p>
-              These Terms shall be governed by and construed in accordance with
-              the laws of the Republic of Rwanda, without regard to its conflict
-              of law principles. Any legal action or proceeding arising out of
-              or relating to these Terms shall be brought exclusively in the
-              courts located in Rwanda.
+              These Terms are governed by the laws of the Republic of Rwanda.
             </p>
           </div>
 
           {/* 17. Dispute Resolution */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Dispute Resolution
+              17. Dispute Resolution
             </h2>
             <p>
-              Any disputes arising out of or relating to these Terms shall be
-              resolved through binding arbitration in accordance with the rules
-              of the Rwanda Arbitration Centre. The arbitration shall take place
-              in Kigali, Rwanda, and the proceedings shall be conducted in
-              English.
+              Disputes will be resolved through good-faith negotiation. If 
+              unresolved, they shall be submitted to the competent courts in 
+              Kigali, Rwanda.
             </p>
           </div>
 
-          {/* 18. Severability and Waiver */}
+          {/* 18. Changes to Terms */}
           <div>
             <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Severability and Waiver
+              18. Changes to Terms
             </h2>
             <p>
-              If any provision of these Terms is found to be unenforceable, the
-              remaining provisions shall remain in full effect. Our failure to
-              enforce any right or provision of these Terms shall not be deemed
-              a waiver of such right or provision.
+              We may update these Terms to reflect evolving technology or 
+              regulatory changes. Continued use of Services after updates 
+              constitutes acceptance of new Terms.
             </p>
           </div>
 
-          {/* 19. Changes to Terms */}
-          <div>
-            <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Changes to These Terms of Service
+          {/* 19. Contact */}
+          <div className="pt-8 border-t border-gray-200 text-center">
+            <h2 className="text-xl font-semibold text-[#1C3C8C] mb-2">
+              Questions?
             </h2>
             <p>
-              We reserve the right to modify these Terms at any time. Any
-              changes will be effective immediately upon posting on our website.
-              Your continued use of our Services after changes constitutes
-              acceptance of the new Terms. We encourage you to review these
-              Terms periodically for any updates.
-            </p>
-          </div>
-
-          {/* 20. Contact Us */}
-          <div>
-            <h2 className="text-2xl font-semibold text-[#1C3C8C] mb-2">
-              Contact Us
-            </h2>
-            <p>
-              If you have any questions or concerns about these Terms, please
-              contact us at{" "}
-              <span className="text-[#28A745] font-semibold">
-                (Insert Contact Information)
-              </span>
-              . We value your feedback and are here to assist you with any
-              inquiries you may have.
+              Contact us at: <strong>legal@sybellasystems.co.rw</strong>
             </p>
           </div>
         </section>
+
+        {/* Footer Note */}
+        <footer className="mt-16 text-center text-xs text-gray-400">
+          &copy; {new Date().getFullYear()} Sybella Systems. All Rights Reserved.
+        </footer>
       </div>
     </div>
   );
