@@ -28,26 +28,18 @@ const Projects = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        logger.info("Fetching projects from API", { endpoint: "/api/projects" });
-        const res = await fetch("/api/projects");
-
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
-
-        const data = await res.json();
-        setProjects(Array.isArray(data) ? data : [data]);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Failed to load projects.");
-        logger.error("Project fetch failed", { error: err });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+  fetch("/api/admin/projects")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    })
+    .then(setProjects)
+    .catch(err => {
+      console.error(err);
+      // Optionally show toast
+    })
+    .finally(() => setLoading(false));
+}, []);
 
   const handleEarlyAccessClick = (title: string): void => {
     logger.userInteraction("Early access button clicked", {
