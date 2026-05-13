@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Script from "next/script";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css";
 import Providers from "./providers";
 import ClientWrapper from "./ClientWrapper";
@@ -103,6 +104,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ClientWrapper>{children}</ClientWrapper>
           <AppToaster />
         </Providers>
+        <Analytics />
         
 
         {/* Organization Schema */}
