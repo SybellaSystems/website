@@ -103,17 +103,51 @@ export default function ProjectsPage() {
   const projects = staticProjects;
 
   return (
-    <section className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-16">
-      <div className="max-w-5xl mx-auto text-center mb-16 px-4">
-        <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-indigo-700 dark:text-yellow-400 leading-tight">
-          Projects
-        </h1>
-        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-          Explore our latest projects and innovations.
-        </p>
+    <section className="relative overflow-hidden border-t border-dim py-16 px-4 sm:px-6 lg:px-8">
+      <div className="grid-pattern absolute inset-0 opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.14),transparent_65%)] pointer-events-none" />
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: "url('/globe.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "120px 120px",
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto relative">
+        <div className="mb-12 md:mb-14 mt-8 text-center">
+          <div className="tag mx-auto mb-5 w-fit">Projects</div>
+          <h1 className="font-display text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            Introducing Our Projects
+          </h1>
+          <p className="text-base md:text-lg text-secondary max-w-3xl mx-auto">
+            Explore our latest solutions and innovations built to solve real
+            challenges across industries.
+          </p>
+        </div>
+
+        <div className="relative mb-10 overflow-hidden rounded-md border border-[rgba(59,130,246,0.22)]">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "url('/globe.svg')",
+              backgroundRepeat: "repeat",
+              backgroundSize: "150px 150px",
+              opacity: 0.12,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(16,185,129,0.25)] via-[rgba(59,130,246,0.2)] to-[rgba(30,41,59,0.45)]" />
+          <div className="relative px-6 py-10 md:px-10 md:py-14 text-center">
+            <p className="text-sm md:text-base text-secondary max-w-3xl mx-auto">
+              We design software products that are modern, scalable, and user
+              focused, with a strong foundation in performance and reliability.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="mx-auto px-6 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="max-w-7xl mx-auto relative grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => {
           // Safely get category and match icon
           const category = typeof project.category === "string" ? project.category.toLowerCase() : "";
@@ -122,15 +156,16 @@ export default function ProjectsPage() {
           return (
             <div
               key={project.id}
-              className="group relative bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-3xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 flex flex-col items-start gap-4 cursor-pointer"
+              className="card group relative overflow-hidden p-6 md:p-7 flex flex-col items-start gap-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-white dark:bg-gray-900 shadow-md mb-4">
-                <IconComponent size={36} className="text-indigo-600 dark:text-yellow-400" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.15),transparent_55%)] pointer-events-none" />
+              <div className="relative flex items-center justify-center w-14 h-14 rounded-md bg-[var(--blue-dim)] border border-[rgba(59,130,246,0.3)]">
+                <IconComponent size={26} className="text-[var(--blue-bright)]" />
               </div>
-              <h3 className="text-2xl font-semibold text-indigo-700 dark:text-yellow-400 group-hover:underline decoration-2 decoration-indigo-500 dark:decoration-yellow-400">
+              <h3 className="relative text-xl md:text-2xl font-semibold text-primary">
                 {project.title}
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 text-lg">
+              <p className="relative text-secondary text-sm md:text-base leading-relaxed">
                 {project.overview}
               </p>
             </div>

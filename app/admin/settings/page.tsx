@@ -117,24 +117,27 @@ export default function SettingsPage() {
 
   if (loading) return <div className="flex justify-center items-center mt-10"><Loader size="lg" text="Loading settings..." /></div>;
 
+  const inputClass =
+    "w-full p-2 border rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded-lg">
-      <h1 className="text-2xl font-semibold mb-6">Settings</h1>
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-dark-surface shadow rounded-lg border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Settings</h1>
 
       {/* Profile Info */}
       <div className="space-y-4">
-        <h2 className="text-lg font-medium">My Profile</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white">My Profile</h2>
 
-        <div className="bg-gray-50 p-4 rounded border mb-4">
+        <div className="bg-gray-50 dark:bg-slate-900/50 p-4 rounded border border-gray-200 dark:border-gray-600 mb-4 text-gray-800 dark:text-gray-200">
           <p>
-            <strong>Role:</strong> {user.role}
+            <strong className="text-gray-900 dark:text-white">Role:</strong> {user.role}
           </p>
 
           {/* Permissions */}
           {user.permissions?.length > 0 && (
             <div className="mt-2">
-              <p className="font-semibold mb-2">Permissions:</p>
-              <ul className="list-disc list-inside text-gray-700">
+              <p className="font-semibold mb-2 text-gray-900 dark:text-white">Permissions:</p>
+              <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
                 {user.permissions.map((perm: string, idx: number) => (
                   <li key={idx}>{perm}</li>
                 ))}
@@ -144,21 +147,21 @@ export default function SettingsPage() {
         </div>
 
         <input
-          className="w-full p-2 border rounded"
+          className={inputClass}
           type="text"
           placeholder="Name"
           value={form.names}
           onChange={(e) => setForm({ ...form, names: e.target.value })}
         />
         <input
-          className="w-full p-2 border rounded"
+          className={inputClass}
           type="email"
           placeholder="Email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <input
-          className="w-full p-2 border rounded"
+          className={inputClass}
           type="text"
           placeholder="Phone Number"
           value={form.phone}
@@ -172,20 +175,20 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      <hr className="my-6" />
+      <hr className="my-6 border-gray-200 dark:border-gray-600" />
 
       {/* Password Section */}
       <div className="space-y-4">
-        <h2 className="text-lg font-medium">Change Password</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white">Change Password</h2>
         <input
-          className="w-full p-2 border rounded"
+          className={inputClass}
           type="password"
           placeholder="Current Password"
           value={passwordForm.oldPassword}
           onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
         />
         <input
-          className="w-full p-2 border rounded"
+          className={inputClass}
           type="password"
           placeholder="New Password"
           value={passwordForm.newPassword}
@@ -207,7 +210,9 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {message && <p className="mt-4 text-center text-blue-600">{message}</p>}
+      {message && (
+        <p className="mt-4 text-center text-blue-700 dark:text-blue-400 font-medium">{message}</p>
+      )}
     </div>
   );
 }

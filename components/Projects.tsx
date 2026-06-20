@@ -79,40 +79,63 @@ const Projects = () => {
   return (
     <section
       id="projects"
-      className="py-16 bg-dark-blue dark:bg-dark-surface relative overflow-hidden"
+      className="relative overflow-hidden border-t border-dim py-16 px-4 sm:px-6 lg:px-8"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-dark-blue/40 to-transparent pointer-events-none"></div>
+      <div className="grid-pattern absolute inset-0 opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.14),transparent_65%)] pointer-events-none" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('/window.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "420px auto",
+          backgroundPosition: "center top",
+          opacity: 0.6,
+        }}
+      />
 
-      <div className="container mx-auto px-6 text-center relative z-10">
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-12">
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-12 md:mb-14">
+          <div className="tag mx-auto mb-5 w-fit">Projects</div>
+          <h2 className="font-display text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            {t("projects.intro.title")}
+          </h2>
+        </div>
+
+        <h2 className="sr-only">
           {t("projects.intro.title")}
         </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="relative rounded-2xl shadow-xl p-8 bg-gradient-to-r from-green-400 to-yellow-400 transform hover:-translate-y-2 hover:shadow-2xl transition duration-300"
+              className="card relative overflow-hidden p-6 md:p-7 flex flex-col transition-all duration-300"
             >
+              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_55%)] pointer-events-none" />
               {/* Icon */}
-              <div className="flex justify-center mb-6">
-                <Rocket className="w-12 h-12 text-white" />
+              <div className="relative flex justify-center mb-5">
+                <div className="flex items-center justify-center w-14 h-14 rounded-md bg-[var(--blue-dim)] border border-[rgba(59,130,246,0.28)]">
+                  <Rocket className="w-7 h-7 text-[var(--blue-bright)]" />
+                </div>
               </div>
 
               {/* Title */}
-              <h3 className="text-2xl font-bold text-white mb-4">
+              <h3 className="relative text-xl md:text-2xl font-semibold text-primary mb-3 text-center">
                 {project.title}
               </h3>
 
               {/* Overview */}
-              <p className="text-white/90 mb-4">{project.overview}</p>
+              <p className="relative text-secondary mb-4 text-sm md:text-base text-center">
+                {project.overview}
+              </p>
 
               {/* Tech Stack */}
               <div className="flex flex-wrap justify-center gap-2 mb-4">
-                {project.techStack.map((tech, i) => (
+                {(project.techStack || []).map((tech, i) => (
                   <span
                     key={i}
-                    className="text-xs bg-white/20 text-white px-2 py-1 rounded-full"
+                    className="text-xs bg-[var(--blue-dim)] text-[var(--blue-bright)] px-2.5 py-1 rounded-full border border-[rgba(59,130,246,0.2)]"
                   >
                     {tech}
                   </span>
@@ -125,7 +148,7 @@ const Projects = () => {
                   href={project.demoLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-sm font-medium text-white hover:underline mb-4"
+                  className="inline-flex items-center justify-center text-sm font-medium text-[var(--blue-bright)] hover:underline mb-4"
                 >
                   {t("projects.learnMore")}
                   <ExternalLink className="w-4 h-4 ml-2" />
@@ -133,10 +156,10 @@ const Projects = () => {
               )}
 
               {/* Button */}
-              <div>
+              <div className="mt-auto text-center">
                 <button
                   onClick={() => handleEarlyAccessClick(project.title)}
-                  className="px-8 py-3 bg-dark-blue text-white font-semibold rounded-xl shadow-lg hover:bg-dark-blue/90 transition"
+                  className="btn-primary"
                 >
                   {project.callToAction || t("projects.requestAccess")}
                 </button>

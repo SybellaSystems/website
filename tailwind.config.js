@@ -3,6 +3,10 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        display: ['var(--font-display)', 'sans-serif'],
+        body: ['var(--font-body)', 'sans-serif'],
+      },
       colors: {
         primary: '#1e3a8a', // Dark blue from the design
         accent: '#16a34a', // Green from the design

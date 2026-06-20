@@ -507,7 +507,7 @@ export default function ProjectsSection() {
                     />
                     <label
                       htmlFor="project-image-upload"
-                      className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                      className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-800 dark:text-gray-200 ${
                         uploadingImage ? "opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600" : 
                         errors.image ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
@@ -571,7 +571,7 @@ export default function ProjectsSection() {
                 </label>
                 <input
                   type="text"
-                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                  className={`w-full border rounded-lg px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                     errors.title 
                       ? "border-red-500 dark:border-red-500" 
                       : "border-gray-300 dark:border-gray-600"
@@ -602,7 +602,7 @@ export default function ProjectsSection() {
                 </label>
                 <textarea
                   rows={3}
-                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                  className={`w-full border rounded-lg px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                     errors.overview 
                       ? "border-red-500 dark:border-red-500" 
                       : "border-gray-300 dark:border-gray-600"
@@ -633,7 +633,7 @@ export default function ProjectsSection() {
                 </label>
                 <textarea
                   rows={3}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                   placeholder="What problem does this project solve?"
                   value={editingProject.problemSolved || ""}
                   onChange={(e) =>
@@ -649,7 +649,7 @@ export default function ProjectsSection() {
                 </label>
                 <input
                   type="text"
-                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                  className={`w-full border rounded-lg px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                     errors.techStack 
                       ? "border-red-500 dark:border-red-500" 
                       : "border-gray-300 dark:border-gray-600"
@@ -690,7 +690,7 @@ export default function ProjectsSection() {
                 </label>
                 <input
                   type="url"
-                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                  className={`w-full border rounded-lg px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                     errors.demoLink 
                       ? "border-red-500 dark:border-red-500" 
                       : "border-gray-300 dark:border-gray-600"

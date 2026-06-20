@@ -159,17 +159,22 @@ export default function AddBlogPage() {
     }
   };
 
+  const fieldClass =
+    "w-full border p-3 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none dark:bg-slate-800 dark:text-gray-100 dark:border-gray-600 dark:placeholder:text-gray-400";
+  const labelClass =
+    "flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-8">
-        <h1 className="text-3xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8 text-gray-900">
+      <div className="max-w-3xl mx-auto bg-white dark:bg-dark-surface shadow-xl rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+        <h1 className="text-3xl font-bold text-indigo-700 dark:text-indigo-400 mb-6 flex items-center gap-2">
           ➕ Add New Blog
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <Type size={16} /> Title
             </label>
             <input
@@ -179,13 +184,13 @@ export default function AddBlogPage() {
               value={form.title}
               onChange={handleChange}
               required
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           {/* Excerpt */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <FileText size={16} /> Expert
             </label>
             <input
@@ -194,13 +199,13 @@ export default function AddBlogPage() {
               placeholder="Short summary of the blog"
               value={form.expert}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           {/* Content */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <FileText size={16} /> Content
             </label>
             <textarea
@@ -209,13 +214,13 @@ export default function AddBlogPage() {
               value={form.content}
               onChange={handleChange}
               rows={6}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={`${fieldClass} resize-y min-h-[120px]`}
             />
           </div>
 
           {/* Author */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <User size={16} /> Author
             </label>
             <input
@@ -224,13 +229,13 @@ export default function AddBlogPage() {
               placeholder="Author name"
               value={form.author}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           {/* Tags */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <Tags size={16} /> Tags
             </label>
             <input
@@ -239,13 +244,13 @@ export default function AddBlogPage() {
               placeholder="Comma separated (e.g. tech, react, ai)"
               value={form.tags}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           {/* Read Time */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <Clock size={16} /> Read Time (minutes)
             </label>
             <input
@@ -253,13 +258,13 @@ export default function AddBlogPage() {
               name="readTime"
               value={form.readTime}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           {/* Thumbnail */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className={labelClass}>
               <Image size={16} /> Thumbnail
             </label>
             
@@ -276,13 +281,13 @@ export default function AddBlogPage() {
 
             {/* File Upload */}
             <div className="mb-3">
-              <label className={`flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+              <label className={`flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-gray-800 dark:text-gray-200 ${
                 form.thumbnailUrl && !uploadedImageUrl 
                   ? "border-gray-200 cursor-not-allowed opacity-50" 
                   : "border-gray-300 hover:border-indigo-400"
               }`}>
                 <Upload size={20} className="text-gray-500" />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   {uploadingImage ? "Uploading..." : "Upload image from computer"}
                 </span>
                 <input
@@ -312,7 +317,7 @@ export default function AddBlogPage() {
                   value={form.thumbnailUrl}
                   onChange={handleChange}
                   disabled={!!uploadedImageUrl}
-                  className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className={`${fieldClass} disabled:bg-gray-100 disabled:text-gray-700 dark:disabled:bg-slate-900 dark:disabled:text-gray-400 disabled:cursor-not-allowed`}
                 />
                 {uploadedImageUrl && (
                   <button

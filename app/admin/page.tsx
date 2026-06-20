@@ -105,10 +105,10 @@ export default function AdminDashboard() {
   const COLORS = ["#6366F1", "#22C55E"];
 
   return (
-    <div className="p-6">
+    <div className="p-6 text-gray-900 dark:text-gray-100">
       <HeartBeat />
       {/* Header */}
-      <h1 className="text-2xl font-bold">Welcome to Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome to Admin Dashboard</h1>
       <p className="mt-2 text-gray-600 dark:text-gray-300">
         Manage users, blogs, contacts, and staff from here.
       </p>
@@ -118,24 +118,24 @@ export default function AdminDashboard() {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow flex items-center gap-4">
           <Users className="text-indigo-500 w-8 h-8" />
           <div>
-            <p className="text-gray-500 text-sm">Total Users</p>
-            <h2 className="text-xl font-bold">{stats.users}</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Total Users</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{stats.users}</h2>
           </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow flex items-center gap-4">
           <Folder className="text-green-500 w-8 h-8" />
           <div>
-            <p className="text-gray-500 text-sm">Projects</p>
-            <h2 className="text-xl font-bold">{stats.projects}</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Projects</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{stats.projects}</h2>
           </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow flex items-center gap-4">
           <Newspaper className="text-amber-500 w-8 h-8" />
           <div>
-            <p className="text-gray-500 text-sm">Blogs</p>
-            <h2 className="text-xl font-bold">{stats.blogs}</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Blogs</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{stats.blogs}</h2>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
         {/* Pie Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
-          <h2 className="text-lg font-semibold mb-4">Subscribed Users</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Subscribed Users</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
 
         {/* Bar Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
-          <h2 className="text-lg font-semibold mb-4">System Overview</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">System Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barData}>
               <CartesianGrid strokeDasharray="3 3" />

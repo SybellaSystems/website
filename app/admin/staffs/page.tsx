@@ -176,7 +176,7 @@ export default function AdminStaffPage() {
       {loading ? (
         <Loader size="lg" text="Loading staff members..." />
       ) : staffs.length === 0 ? (
-        <p>No staff found</p>
+        <p className="text-gray-600 dark:text-gray-300">No staff found</p>
       ) : (
         <div className="overflow-x-auto bg-white dark:bg-dark-surface rounded-lg shadow-md">
           <table className="min-w-full">
@@ -193,13 +193,13 @@ export default function AdminStaffPage() {
               {staffs.map((staff) => (
                 <tr
                   key={staff.id}
-                  className="border-b hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800/80 transition-colors"
                 >
-                  <td className="px-4 py-2">{staff.names}</td>
-                  <td className="px-4 py-2">{staff.email}</td>
-                  <td className="px-4 py-2">{staff.role}</td>
-                  <td className="px-4 py-2">{staff.phone || '-'}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{staff.names}</td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{staff.email}</td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{staff.role}</td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{staff.phone || '-'}</td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-gray-200">
                     <div className="flex items-center gap-2">
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors flex items-center justify-center"
@@ -230,8 +230,8 @@ export default function AdminStaffPage() {
       {/* Modal */}
       {showModal && editingStaff && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Edit Staff</h2>
+          <div className="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-lg w-full max-w-md border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Edit Staff</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -245,7 +245,7 @@ export default function AdminStaffPage() {
                 placeholder="Full Name"
                 value={editingStaff.names}
                 onChange={handleInputChange}
-                className={`w-full border p-2 rounded ${
+                className={`w-full border p-2 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 border-gray-300 dark:border-gray-600 ${
                   errors.names ? "border-red-500" : ""
                 }`}
               />
@@ -258,7 +258,7 @@ export default function AdminStaffPage() {
                 placeholder="Email"
                 value={editingStaff.email}
                 disabled
-                className="w-full border p-2 rounded bg-gray-100"
+                className="w-full border p-2 rounded bg-gray-100 dark:bg-slate-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600"
               />
               <input
                 type="text"
@@ -266,7 +266,7 @@ export default function AdminStaffPage() {
                 placeholder="Phone Number (optional)"
                 value={editingStaff.phone || ''}
                 onChange={handleInputChange}
-                className={`w-full border p-2 rounded ${
+                className={`w-full border p-2 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 border-gray-300 dark:border-gray-600 ${
                   errors.phone ? "border-red-500" : ""
                 }`}
               />
@@ -277,7 +277,7 @@ export default function AdminStaffPage() {
                 name="role"
                 value={editingStaff.role}
                 onChange={handleInputChange}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               >
                 <option value="executive">Executive</option>
                 <option value="superadmin">Super Admin</option>

@@ -44,12 +44,8 @@ export async function POST(request: NextRequest) {
 
     await new Promise(resolve => setTimeout(resolve, 1000))
     const newContact = await createContact({
-      name,
-      email,
-      message,
-      company,
-      phone,
-      createdAt: new Date()
+      ...sanitizedData,
+      createdAt: new Date(),
     })
 
     if (!newContact) {

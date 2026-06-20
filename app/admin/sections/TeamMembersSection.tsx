@@ -423,7 +423,7 @@ export default function TeamMembersSection() {
                                         />
                                         <label
                                             htmlFor="image-upload-create"
-                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-800 dark:text-gray-200 ${
                                                 errors.image 
                                                     ? 'border-red-500 dark:border-red-500' 
                                                     : 'border-gray-300 dark:border-gray-600'
@@ -463,7 +463,7 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all bg-white text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                                         errors.name 
                                             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
                                             : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
@@ -489,7 +489,7 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all bg-white text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                                         errors.role 
                                             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
                                             : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
@@ -516,7 +516,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">LinkedIn</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://linkedin.com/in/username"
                                         value={formData.linkedin}
                                         onChange={e => setFormData(prev => ({ ...prev, linkedin: e.target.value }))}
@@ -527,7 +527,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">Twitter</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://twitter.com/username"
                                         value={formData.twitter}
                                         onChange={e => setFormData(prev => ({ ...prev, twitter: e.target.value }))}
@@ -538,7 +538,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">GitHub</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://github.com/username"
                                         value={formData.github}
                                         onChange={e => setFormData(prev => ({ ...prev, github: e.target.value }))}
@@ -617,7 +617,7 @@ export default function TeamMembersSection() {
                                         />
                                         <label
                                             htmlFor="image-upload-update"
-                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                                            className={`inline-flex items-center px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-800 dark:text-gray-200 ${
                                                 errors.image 
                                                     ? 'border-red-500 dark:border-red-500' 
                                                     : 'border-gray-300 dark:border-gray-600'
@@ -657,7 +657,7 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all bg-white text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                                         errors.name 
                                             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
                                             : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
@@ -683,7 +683,7 @@ export default function TeamMembersSection() {
                                 </label>
                                 <input
                                     type="text"
-                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-100 ${
+                                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:outline-none transition-all bg-white text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400 ${
                                         errors.role 
                                             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
                                             : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent'
@@ -710,7 +710,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">LinkedIn</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://linkedin.com/in/username"
                                         value={formData.linkedin}
                                         onChange={e => setFormData(prev => ({ ...prev, linkedin: e.target.value }))}
@@ -721,7 +721,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">Twitter</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://twitter.com/username"
                                         value={formData.twitter}
                                         onChange={e => setFormData(prev => ({ ...prev, twitter: e.target.value }))}
@@ -732,7 +732,7 @@ export default function TeamMembersSection() {
                                     <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">GitHub</label>
                                     <input
                                         type="url"
-                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                                         placeholder="https://github.com/username"
                                         value={formData.github}
                                         onChange={e => setFormData(prev => ({ ...prev, github: e.target.value }))}

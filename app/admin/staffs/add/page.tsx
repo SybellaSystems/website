@@ -96,17 +96,20 @@ export default function AddStaffPage() {
     }
   };
 
+  const fieldClass =
+    "w-full border p-3 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none dark:bg-slate-800 dark:text-gray-100 dark:border-gray-600 dark:placeholder:text-gray-400";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8 text-gray-900">
+      <div className="max-w-3xl mx-auto bg-white dark:bg-dark-surface rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <h1 className="text-3xl font-bold text-indigo-700 dark:text-indigo-400 mb-6 flex items-center gap-2">
           ➕ Add New Staff
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
               <User size={16} /> Full Name
             </label>
             <input
@@ -115,9 +118,7 @@ export default function AddStaffPage() {
               placeholder="Enter full name"
               value={form.names}
               onChange={handleChange}
-              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
-                errors.names ? "border-red-500" : ""
-              }`}
+              className={`${fieldClass} ${errors.names ? "border-red-500" : ""}`}
             />
             {errors.names && (
               <p className="text-red-500 text-sm mt-1">{errors.names}</p>
@@ -126,7 +127,7 @@ export default function AddStaffPage() {
 
           {/* Email */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
               <Mail size={16} /> Email
             </label>
             <input
@@ -135,9 +136,7 @@ export default function AddStaffPage() {
               placeholder="staff@example.com"
               value={form.email}
               onChange={handleChange}
-              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
-                errors.email ? "border-red-500" : ""
-              }`}
+              className={`${fieldClass} ${errors.email ? "border-red-500" : ""}`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -146,7 +145,7 @@ export default function AddStaffPage() {
 
           {/* Password */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
               <Lock size={16} /> Password
             </label>
             <input
@@ -155,9 +154,7 @@ export default function AddStaffPage() {
               placeholder="Enter password (min 6 characters)"
               value={form.password}
               onChange={handleChange}
-              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
-                errors.password ? "border-red-500" : ""
-              }`}
+              className={`${fieldClass} ${errors.password ? "border-red-500" : ""}`}
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -166,7 +163,7 @@ export default function AddStaffPage() {
 
           {/* Phone */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
               <Phone size={16} /> Phone
             </label>
             <input
@@ -175,9 +172,7 @@ export default function AddStaffPage() {
               placeholder="Phone number (optional)"
               value={form.phone}
               onChange={handleChange}
-              className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none ${
-                errors.phone ? "border-red-500" : ""
-              }`}
+              className={`${fieldClass} ${errors.phone ? "border-red-500" : ""}`}
             />
             {errors.phone && (
               <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
@@ -186,14 +181,14 @@ export default function AddStaffPage() {
 
           {/* Role */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
               <Briefcase size={16} /> Role
             </label>
             <select
               name="role"
               value={form.role}
               onChange={handleChange}
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              className={fieldClass}
             >
               <option value="executive">Executive</option>
               <option value="superadmin">Super Admin</option>

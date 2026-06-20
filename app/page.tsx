@@ -1,41 +1,39 @@
-'use client'
-import Hero from '../components/Hero'
-import Services from '../components/Services'
-import Projects from '../components/Projects'
-import Journey from '../components/Journey'
-import ContactForm from '../components/ContactForm'
-import OgeraDemo from '../components/OgeraDemo'
-import Chatbot from '../components/Chatbot'
-import { logger } from '../lib/logger'
-import { useEffect } from 'react'
-import TeamSlider from '@/components/Slider'
-import USPSection from '@/components/Usp'
-import EcosystemSolutions from '@/components/Ecosystem'
-import SubscriptionPopup from '@/components/Popup'
-import AdminLogin from '@/app/signin/page'
+import type { Metadata } from "next";
+import HomeClient from "@/components/HomeClient";
 
-export default function Page() {
-    useEffect(() => {
-        logger.info('Home page loaded', {
-            page: 'home',
-            timestamp: new Date().toISOString()
-        });
-    }, []);
 
-    return (
-        <div>
-            <Hero />
-            <Services />
-            <Projects />
-            <TeamSlider />
-            <USPSection />
-            <OgeraDemo />
-            <Journey />
-            <EcosystemSolutions />
-            <ContactForm />
-            <Chatbot />
-            <SubscriptionPopup />
-            {/* <AdminLogin /> */}
-        </div>
-    )
+export const metadata: Metadata = {
+  title: "Software Development Company in Africa | SaaS & ERP Solutions | Sybella Systems",
+  description: "Sybella Systems is a leading software development company in Africa specializing in SaaS platforms, custom ERP systems, and student job platforms. Creators of Ogera, a platform for student online jobs in Africa.",
+  keywords: [
+    "software development company Africa",
+    "SaaS development Africa",
+    "custom ERP systems",
+    "student online jobs Africa",
+    "software engineering Rwanda",
+    "digital transformation Africa",
+    "Ogera student jobs"
+  ],
+  openGraph: {
+    title: "Software Development Company in Africa | Sybella Systems",
+    description: "Leading software engineering company building SaaS platforms, ERP systems, and Ogera — Africa's student employment platform.",
+    url: "https://sybellasystems.co.rw",
+    type: "website",
+    images: [{
+      url: "/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: "Sybella Systems — Software Development Company in Africa"
+    }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Software Development Company in Africa | Sybella Systems",
+    description: "SaaS platforms, ERP systems, and Ogera student jobs — premium software solutions across Africa.",
+    images: ["/og-image.png"]
+  }
+};
+
+export default function HomePage() {
+  return <HomeClient />;
 }

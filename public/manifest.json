@@ -1,0 +1,14 @@
+{
+  "name": "Sybella Systems",
+  "short_name": "Sybella",
+  "description": "Africa's Premium Software Engineering Company",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#c9a84c",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/LOGO WITH NO BG.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/LOGO WITH NO BG.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
