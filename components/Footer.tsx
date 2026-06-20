@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const cols = [
   { title: "Company", links: [["Home", "/"], ["About", "/impact"], ["Technology", "/technology"], ["Impact", "/impact"]] },
-  { title: "Products", links: [["Ogera Platform", "/ogera"], ["For Students", "/ogera#students"], ["For Employers", "/ogera#employers"], ["Join Beta", "/ogera#join"]] },
+  { title: "Products", links: [["Ogera Platform", "/ogera"], ["For Students", "/ogera#students"], ["For Employers", "/ogera#employers"], ["Join Ogera", "/ogera#join"]] },
   { title: "Services", links: [["Custom Software", "/technology"], ["SaaS Development", "/technology"], ["ERP Systems", "/technology"], ["Cloud Solutions", "/technology"]] },
 ];
 

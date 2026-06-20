@@ -36,7 +36,7 @@ export default function OgeraPageClient() {
           email: form.email,
           company: form.company,
           role: form.role,
-          message: `New Ogera Beta Registration\n\nRole: ${form.role}\nCompany: ${form.company}`,
+          message: `New OgeraRegistration\n\nRole: ${form.role}\nCompany: ${form.company}`,
         }),
       });
 
@@ -71,7 +71,7 @@ export default function OgeraPageClient() {
             Ogera doesn&apos;t just connect students to jobs. It builds careers. A complete platform for Africa&apos;s brightest young professionals to earn, grow, and be recognized.
           </p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <a href="https://ogera.sybellasystems.co.rw" className="btn-primary" style={{ background: "var(--emerald)" }}>Join the Beta ↗</a>
+            <a href="https://ogera.sybellasystems.co.rw" className="btn-primary" style={{ background: "var(--emerald)" }}>Join the platform ↗</a>
             <a href="#how" className="btn-ghost">How It Works</a>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function OgeraPageClient() {
           <div className="fade-up">
             <div className="tag tag-emerald" style={{ marginBottom: 28, display: "inline-flex" }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} />
-              Early Access Open
+              Ogera went public
             </div>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px, 4vw, 56px)", fontWeight: 800, letterSpacing: "-0.04em", marginBottom: 20 }}>Partnership Inquiries</h2>
             <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.8, marginBottom: 28 }}>For university partnerships, enterprise integrations, or institutional access inquiries.</p>

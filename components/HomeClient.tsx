@@ -2,46 +2,128 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Projects from '../components/Projects'
-import Journey from '../components/Journey'
-import TeamSlider from '@/components/Slider'
-import SubscriptionPopup from '@/components/Popup'
-import ContactForm from '../components/ContactForm'
-
-
+import Projects from "../components/Projects";
+import Journey from "../components/Journey";
+import TeamSlider from "@/components/Slider";
+import SubscriptionPopup from "@/components/Popup";
+import ContactForm from "../components/ContactForm";
 
 function useIntersection(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
-    const obs = new IntersectionObserver(entries =>
-      entries.forEach(e => e.target.classList.toggle("visible", e.isIntersecting)),
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) =>
+          e.target.classList.toggle("visible", e.isIntersecting)
+        ),
       { threshold: 0.12 }
     );
-    ref.current?.querySelectorAll(".fade-up").forEach(el => obs.observe(el));
+    ref.current?.querySelectorAll(".fade-up").forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, [ref]);
 }
 
-/* Stat card */
-function Stat({ n, label, suffix = "" }: { n: string; label: string; suffix?: string }) {
+function Stat({
+  n,
+  label,
+  suffix = "",
+}: {
+  n: string;
+  label: string;
+  suffix?: string;
+}) {
   return (
-    <div style={{ padding: "clamp(20px, 4vw, 28px) clamp(16px, 4vw, 24px)", borderLeft: "1px solid var(--border)" }}>
-      <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 5vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--blue-bright)", lineHeight: 1 }}>
-        {n}<span style={{ fontSize: "clamp(16px, 3vw, 24px)", color: "var(--blue)", opacity: 0.8 }}>{suffix}</span>
+    <div
+      style={{
+        padding: "clamp(20px, 4vw, 28px) clamp(16px, 4vw, 24px)",
+        borderLeft: "1px solid var(--border)",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(28px, 5vw, 40px)",
+          fontWeight: 800,
+          letterSpacing: "-0.04em",
+          color: "var(--blue-bright)",
+          lineHeight: 1,
+        }}
+      >
+        {n}
+        <span
+          style={{
+            fontSize: "clamp(16px, 3vw, 24px)",
+            color: "var(--blue)",
+            opacity: 0.8,
+          }}
+        >
+          {suffix}
+        </span>
       </div>
-      <div style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--text-secondary)", marginTop: 8, fontWeight: 500 }}>{label}</div>
+      <div
+        style={{
+          fontSize: "clamp(11px, 2vw, 13px)",
+          color: "var(--text-secondary)",
+          marginTop: 8,
+          fontWeight: 500,
+        }}
+      >
+        {label}
+      </div>
     </div>
   );
 }
 
-/* Service card */
-function ServiceCard({ icon, title, desc, accent }: { icon: string; title: string; desc: string; accent: string }) {
+function ServiceCard({
+  icon,
+  title,
+  desc,
+  accent,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+  accent: string;
+}) {
   return (
-    <div className="card" style={{ padding: "clamp(24px, 5vw, 36px)", cursor: "default" }}>
-      <div style={{ width: 44, height: 44, borderRadius: 3, background: accent + "15", border: `1px solid ${accent}30`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+    <div
+      className="card"
+      style={{ padding: "clamp(24px, 5vw, 36px)", cursor: "default" }}
+    >
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 3,
+          background: accent + "15",
+          border: `1px solid ${accent}30`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 16,
+        }}
+      >
         <span style={{ fontSize: 20 }}>{icon}</span>
       </div>
-      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(16px, 3vw, 18px)", fontWeight: 700, marginBottom: 12, letterSpacing: "-0.02em" }}>{title}</h3>
-      <p style={{ fontSize: "clamp(13px, 2vw, 14px)", color: "var(--text-secondary)", lineHeight: 1.8 }}>{desc}</p>
+      <h3
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(16px, 3vw, 18px)",
+          fontWeight: 700,
+          marginBottom: 12,
+          letterSpacing: "-0.02em",
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          fontSize: "clamp(13px, 2vw, 14px)",
+          color: "var(--text-secondary)",
+          lineHeight: 1.8,
+        }}
+      >
+        {desc}
+      </p>
     </div>
   );
 }
@@ -53,52 +135,148 @@ export default function HomeClient() {
   const ogeraRef = useRef<HTMLDivElement>(null);
   const trustRef = useRef<HTMLDivElement>(null);
 
-  useIntersection(aboutRef as React.RefObject<HTMLElement>);
-  useIntersection(servicesRef as React.RefObject<HTMLElement>);
-  useIntersection(ogeraRef as React.RefObject<HTMLElement>);
-  useIntersection(trustRef as React.RefObject<HTMLElement>);
+  useIntersection(aboutRef);
+  useIntersection(servicesRef);
+  useIntersection(ogeraRef);
+  useIntersection(trustRef);
 
   return (
     <div>
-      {/* ── HERO ── */}
-      <section ref={heroRef} style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden", paddingTop: "clamp(60px, 10vw, 72px)", paddingBottom: 0 }}>
-        {/* Background grid */}
-        <div className="grid-pattern" style={{ position: "absolute", inset: 0, opacity: 0.7 }} />
-        {/* Background globe pattern */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/globe.svg')", backgroundRepeat: "repeat", backgroundSize: "120px 120px", opacity: 0.15, pointerEvents: "none" }} />
-        {/* Background gradient blob */}
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "clamp(400px, 80vw, 800px)", height: "clamp(400px, 80vw, 800px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: 0, right: 0, width: "clamp(300px, 60vw, 600px)", height: "clamp(300px, 60vw, 600px)", borderRadius: "50%", background: "radial-gradient(circle, rgba(45,186,133,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+      {/* HERO */}
+      <section
+        ref={heroRef}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          position: "relative",
+          overflow: "hidden",
+          paddingTop: "clamp(60px, 10vw, 72px)",
+          paddingBottom: 0,
+        }}
+      >
+        <div
+          className="grid-pattern"
+          style={{ position: "absolute", inset: 0, opacity: 0.7 }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('/globe.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "120px 120px",
+            opacity: 0.15,
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "clamp(400px, 80vw, 800px)",
+            height: "clamp(400px, 80vw, 800px)",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            width: "clamp(300px, 60vw, 600px)",
+            height: "clamp(300px, 60vw, 600px)",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(45,186,133,0.08) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
 
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(40px, 8vw, 80px) clamp(16px, 5vw, 32px)", width: "100%", display: "grid", gridTemplateColumns: "1fr", gap: "clamp(40px, 8vw, 60px)" }} className="hero-grid">
-          {/* Left */}
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "clamp(40px, 8vw, 80px) clamp(16px, 5vw, 32px)",
+            width: "100%",
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: "clamp(40px, 8vw, 60px)",
+          }}
+          className="hero-grid"
+        >
           <div>
             <div className="tag" style={{ marginBottom: "clamp(20px, 4vw, 28px)" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--blue)", display: "inline-block" }} />
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "var(--blue)",
+                  display: "inline-block",
+                }}
+              />
               Rulindo, Rwanda · Est. 2025
             </div>
-            <h1 style={{ 
-              fontFamily: "var(--font-display)", 
-              fontSize: "clamp(36px, 8vw, 76px)", 
-              fontWeight: 800, 
-              letterSpacing: "-0.04em", 
-              lineHeight: 1.0, 
-              marginBottom: "clamp(20px, 4vw, 28px)" 
-            }}>
+
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(36px, 8vw, 76px)",
+                fontWeight: 800,
+                letterSpacing: "-0.04em",
+                lineHeight: 1.0,
+                marginBottom: "clamp(20px, 4vw, 28px)",
+              }}
+            >
               Premium Software <br />
-              Development<br />
+              Development <br />
               <span className="gradient-text">Solutions for Africa</span>
             </h1>
-            <p style={{ fontSize: "clamp(14px, 2.5vw, 18px)", color: "var(--text-secondary)", lineHeight: 1.8, maxWidth: 520, marginBottom: "clamp(32px, 6vw, 44px)" }}>
-              Sybella Systems is a leading software development company in Africa, specializing in SaaS platforms, custom ERP systems, and the Ogera student employment platform. We build digital solutions that power Africa's most ambitious companies.
+
+            <p
+              style={{
+                fontSize: "clamp(14px, 2.5vw, 18px)",
+                color: "var(--text-secondary)",
+                lineHeight: 1.8,
+                maxWidth: 520,
+                marginBottom: "clamp(32px, 6vw, 44px)",
+              }}
+            >
+              Sybella Systems is a leading software development company in Africa,
+              specializing in SaaS platforms, custom ERP systems, and the Ogera
+              student employment platform.
             </p>
-            <div style={{ display: "flex", gap: "clamp(12px, 3vw, 16px)", flexWrap: "wrap", marginBottom: "clamp(40px, 8vw, 60px)" }}>
-              <Link href="/technology" className="btn-primary">Explore Our Work</Link>
-              <Link href="/ogera" className="btn-ghost">Discover Ogera</Link>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "clamp(12px, 3vw, 16px)",
+                flexWrap: "wrap",
+                marginBottom: "clamp(40px, 8vw, 60px)",
+              }}
+            >
+              <Link href="/technology" className="btn-primary">
+                Explore Our Work
+              </Link>
+              <Link href="/ogera" className="btn-ghost">
+                Discover Ogera
+              </Link>
             </div>
 
-            {/* Stats row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", borderTop: "1px solid var(--border)", paddingTop: "clamp(40px, 8vw, 60px)" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                borderTop: "1px solid var(--border)",
+                paddingTop: "clamp(40px, 8vw, 60px)",
+              }}
+            >
               <Stat n="6" suffix="+" label="Service Verticals" />
               <Stat n="∞" label="Scalable Architecture" />
               <Stat n="1" suffix="st" label="African SaaS Vision" />
@@ -107,105 +285,268 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ── VISION ── */}
-      <section 
-        ref={aboutRef} 
-        style={{ 
-          padding: "clamp(60px, 10vw, 80px) clamp(16px, 5vw, 32px)", 
-          borderTop: "1px solid var(--border)", 
-          background: "var(--charcoal)", 
-          position: "relative", 
-          overflow: "hidden" 
+      {/* VISION */}
+      <section
+        ref={aboutRef}
+        style={{
+          padding: "clamp(60px, 10vw, 80px) clamp(16px, 5vw, 32px)",
+          borderTop: "1px solid var(--border)",
+          background: "var(--charcoal)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        {/* Background patterns */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/window.svg')", backgroundRepeat: "repeat", backgroundSize: "150px 150px", opacity: 0.02, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "80%", height: 1, background: "linear-gradient(90deg, transparent, var(--gold), transparent)", opacity: 0.3 }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('/window.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "150px 150px",
+            opacity: 0.02,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "80%",
+            height: 1,
+            background:
+              "linear-gradient(90deg, transparent, var(--gold), transparent)",
+            opacity: 0.3,
+          }}
+        />
 
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "1fr 1fr", 
-            gap: "clamp(40px, 8vw, 80px)", 
-            alignItems: "center" 
-          }} className="vision-grid">
-
-            {/* Left - Text */}
+          <div
+            className="vision-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "clamp(40px, 8vw, 80px)",
+              alignItems: "center",
+            }}
+          >
             <div className="fade-up">
-              <div className="tag" style={{ marginBottom: "clamp(16px, 3vw, 24px)" }}>Vision</div>
-              <h2 style={{ 
-                fontFamily: "var(--font-display)", 
-                fontSize: "clamp(28px, 6vw, 56px)", 
-                fontWeight: 800, 
-                letterSpacing: "-0.03em", 
-                lineHeight: 1.1, 
-                marginBottom: "clamp(16px, 3vw, 24px)" 
-              }}>
-                We don't follow trends.<br />
-                <span style={{ color: "var(--text-secondary)", fontStyle: "italic", fontWeight: 400 }}>We engineer the systems that create them.</span>
+              <div className="tag" style={{ marginBottom: "clamp(16px, 3vw, 24px)" }}>
+                Vision
+              </div>
+
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(28px, 6vw, 56px)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                  marginBottom: "clamp(16px, 3vw, 24px)",
+                }}
+              >
+                We don't follow trends. <br />
+                <span
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                  }}
+                >
+                  We engineer the systems that create them.
+                </span>
               </h2>
-              <p style={{ fontSize: "clamp(14px, 2.5vw, 17px)", color: "var(--text-secondary)", lineHeight: 1.85, marginBottom: "clamp(20px, 4vw, 28px)" }}>
-                Africa has 1.4 billion people and the world's fastest-growing youth population. Our software development company in Africa is building the digital infrastructure for that future — custom, precise, and uncompromising in excellence. Every system we build is engineered to handle complexity, scale beyond expectations, and serve as the foundation for lasting success.
+
+              <p
+                style={{
+                  fontSize: "clamp(14px, 2.5vw, 17px)",
+                  color: "var(--text-secondary)",
+                  lineHeight: 1.85,
+                  marginBottom: "clamp(20px, 4vw, 28px)",
+                }}
+              >
+                Africa has 1.4 billion people and the world's fastest-growing youth
+                population. Our software development company is building the
+                digital infrastructure for that future.
               </p>
             </div>
 
-            {/* Right - Developer Image */}
-            <div className="fade-up" style={{ 
-              position: "relative", 
-              display: "flex", 
-              justifyContent: "center",
-              alignItems: "center"
-            }}>
-              <div style={{ position: "relative", width: "100%", maxWidth: "500px", height: "clamp(400px, 70vw, 600px)", borderRadius: "clamp(16px, 4vw, 28px)", overflow: "hidden" }}>
-                <Image 
+            <div
+              className="fade-up"
+              style={{
+                position: "relative",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  maxWidth: "500px",
+                  height: "clamp(400px, 70vw, 600px)",
+                  borderRadius: "clamp(16px, 4vw, 28px)",
+                  overflow: "hidden",
+                }}
+              >
+                <Image
                   src="/developer-reviewing-code.png"
                   alt="Software development company in Africa — Sybella Systems engineer reviewing custom ERP and SaaS code"
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 90vw, 500px"
-                  style={{ 
+                  style={{
                     objectFit: "cover",
-                    filter: "drop-shadow(0 40px 90px rgba(0,0,0,0.35))"
+                    filter: "drop-shadow(0 40px 90px rgba(0,0,0,0.35))",
                   }}
                   priority
                   quality={85}
                 />
               </div>
             </div>
-
           </div>
 
-          {/* Values grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 2, marginTop: "clamp(60px, 12vw, 100px)" }} className="values-grid">
+          <div
+            className="values-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: 2,
+              marginTop: "clamp(60px, 12vw, 100px)",
+            }}
+          >
             {[
-              { n: "01", title: "Precision Engineering", text: "Every line of code is intentional. Our software development company builds systems that handle edge cases, scale under load, and last decades." },
-              { n: "02", title: "African Context First", text: "Our SaaS and ERP solutions understand local infrastructure, regulations, payment systems, and real user behavior across the continent." },
-              { n: "03", title: "Global Standard", text: "We hold our software engineering to the same standards as the world's top companies — because Africa's builders deserve nothing less." },
-            ].map(v => (
-              <div key={v.n} className="fade-up" style={{ padding: "clamp(32px, 6vw, 48px) clamp(24px, 6vw, 40px)", background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(9px, 1.5vw, 11px)", fontWeight: 700, color: "var(--blue)", letterSpacing: "0.2em", marginBottom: "clamp(16px, 3vw, 20px)" }}>{v.n}</div>
-                <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(18px, 4vw, 22px)", fontWeight: 700, marginBottom: "clamp(12px, 2vw, 16px)", letterSpacing: "-0.02em" }}>{v.title}</h3>
-                <p style={{ fontSize: "clamp(13px, 2vw, 14px)", color: "var(--text-secondary)", lineHeight: 1.85 }}>{v.text}</p>
+              {
+                n: "01",
+                title: "Precision Engineering",
+                text: "Every line of code is intentional.",
+              },
+              {
+                n: "02",
+                title: "African Context First",
+                text: "Our SaaS and ERP solutions understand local infrastructure.",
+              },
+              {
+                n: "03",
+                title: "Global Standard",
+                text: "We hold our engineering to world-class standards.",
+              },
+            ].map((v) => (
+              <div
+                key={v.n}
+                className="fade-up"
+                style={{
+                  padding: "clamp(32px, 6vw, 48px) clamp(24px, 6vw, 40px)",
+                  background: "var(--surface)",
+                  borderRight: "1px solid var(--border)",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(9px, 1.5vw, 11px)",
+                    fontWeight: 700,
+                    color: "var(--blue)",
+                    letterSpacing: "0.2em",
+                    marginBottom: "clamp(16px, 3vw, 20px)",
+                  }}
+                >
+                  {v.n}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(18px, 4vw, 22px)",
+                    fontWeight: 700,
+                    marginBottom: "clamp(12px, 2vw, 16px)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {v.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "clamp(13px, 2vw, 14px)",
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.85,
+                  }}
+                >
+                  {v.text}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SERVICES ── */}
-      <section ref={servicesRef} style={{ padding: "clamp(60px, 10vw, 80px) clamp(16px, 5vw, 32px)", position: "relative", overflow: "hidden", marginBottom: 0 }}>
-        {/* Background file pattern */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/file.svg')", backgroundRepeat: "repeat", backgroundSize: "100px 100px", opacity: 0.12, pointerEvents: "none" }} />
+      {/* SERVICES */}
+      <section
+        ref={servicesRef}
+        style={{
+          padding: "clamp(60px, 10vw, 80px) clamp(16px, 5vw, 32px)",
+          position: "relative",
+          overflow: "hidden",
+          marginBottom: 0,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('/file.svg')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "100px 100px",
+            opacity: 0.12,
+            pointerEvents: "none",
+          }}
+        />
+
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "clamp(40px, 8vw, 64px)", flexWrap: "wrap", gap: "clamp(16px, 4vw, 24px)" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              marginBottom: "clamp(40px, 8vw, 64px)",
+              flexWrap: "wrap",
+              gap: "clamp(16px, 4vw, 24px)",
+            }}
+          >
             <div className="fade-up">
-              <div className="tag" style={{ marginBottom: "clamp(16px, 2vw, 20px)" }}>Services</div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 5vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1 }}>
-                Software Development Services<br />
-                <span style={{ color: "var(--text-secondary)", fontWeight: 600, fontSize: "clamp(18px, 4vw, 32px)" }}>Custom SaaS & ERP Solutions</span>
+              <div className="tag" style={{ marginBottom: "clamp(16px, 2vw, 20px)" }}>
+                Services
+              </div>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(24px, 5vw, 48px)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                }}
+              >
+                Software Development Services <br />
+                <span
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontWeight: 600,
+                    fontSize: "clamp(18px, 4vw, 32px)",
+                  }}
+                >
+                  Custom SaaS & ERP Solutions
+                </span>
               </h2>
             </div>
-            <Link href="/technology" className="btn-ghost fade-up" style={{ fontSize: "clamp(11px, 2vw, 12px)" }}>View All Capabilities →</Link>
+
+            <Link
+              href="/technology"
+              className="btn-ghost fade-up"
+              style={{ fontSize: "clamp(11px, 2vw, 12px)" }}
+            >
+              View All Capabilities →
+            </Link>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(clamp(250px, 100%, 320px), 1fr))", gap: 2 }}>
@@ -280,49 +621,212 @@ export default function HomeClient() {
         </div>
       </section>
       
-      {/* ── TRUST INDICATORS ── */}
-      <section ref={trustRef} style={{ padding: "clamp(60px, 10vw, 80px) clamp(16px, 5vw, 32px)", borderTop: "1px solid var(--border)", position: "relative", overflow: "hidden" }}>
-        {/* Background window pattern */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/window.svg')", backgroundRepeat: "repeat", backgroundSize: "160px 160px", opacity: 0.02, pointerEvents: "none" }} />
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div className="fade-up" style={{ textAlign: "center", marginBottom: "clamp(40px, 8vw, 64px)" }}>
-            <div className="tag" style={{ marginBottom: "clamp(16px, 2vw, 20px)" }}>Credibility</div>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 5vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em" }}>Built to Last. Trusted to Scale.</h2>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 2, marginBottom: "clamp(40px, 8vw, 80px)" }} className="stats-grid">
-            {[
-              { n: "RWF 10M", label: "Authorized Capital" },
-              { n: "6", label: "Service Verticals" },
-              { n: "14 Jun", label: "Ogera Beta Launch" },
-              { n: "∞", label: "Scalability Target" },
-            ].map(s => (
-              <div key={s.label} className="fade-up" style={{ padding: "clamp(28px, 5vw, 40px) clamp(20px, 4vw, 32px)", background: "var(--surface)", border: "1px solid var(--border)", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 5vw, 36px)", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--blue-bright)", marginBottom: 8 }}>{s.n}</div>
-                <div style={{ fontSize: "clamp(11px, 2vw, 13px)", color: "var(--text-secondary)", fontWeight: 500 }}>{s.label}</div>
-              </div>
-            ))}
+     {/* ── TRUST INDICATORS ── */}
+<section
+  ref={trustRef}
+  style={{
+    padding: "clamp(50px, 8vw, 70px) clamp(16px, 5vw, 32px)",
+    borderTop: "1px solid var(--border)",
+    position: "relative",
+    overflow: "visible"
+  }}
+>
+  {/* Background pattern */}
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      backgroundImage: "url('/window.svg')",
+      backgroundRepeat: "repeat",
+      backgroundSize: "160px 160px",
+      opacity: 0.02,
+      pointerEvents: "none"
+    }}
+  />
+
+  <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+    {/* Title */}
+    <div
+      className="fade-up"
+      style={{
+        textAlign: "center",
+        marginBottom: "clamp(32px, 6vw, 48px)"
+      }}
+    >
+      <div className="tag" style={{ marginBottom: "clamp(12px, 2vw, 18px)" }}>
+        Credibility
+      </div>
+      <h2
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(20px, 3.5vw, 28px)",
+          fontWeight: 800,
+          letterSpacing: "-0.03em"
+        }}
+      >
+        Built to Last. Trusted to Scale.
+      </h2>
+    </div>
+
+    {/* Stats Grid */}
+    <div
+      className="stats-grid"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: "clamp(8px, 1vw, 12px)",
+        marginBottom: "clamp(32px, 6vw, 56px)"
+      }}
+    >
+      {[
+        { n: "Founder", label: "BESSORA Neema Hirwa" },
+        { n: "Co-founder", label: "Kayla Elyse" },
+        { n: "6", label: "Service Verticals" },
+        { n: "21 June", label: "Ogera went public" },
+        { n: "∞", label: "Scalability Target" }
+      ].map((s) => (
+        <div
+          key={s.label}
+          className="fade-up"
+          style={{
+            padding: "clamp(18px, 3vw, 26px) clamp(16px, 3vw, 22px)",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            textAlign: "center",
+            borderRadius: 6
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(18px, 3vw, 24px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: "var(--blue-bright)",
+              marginBottom: 4,
+              lineHeight: 1.2
+            }}
+          >
+            {s.n}
           </div>
 
-      {/* milestones Journey data fetched from backend API */}
-       <div><Journey /></div> 
-
-          {/* CTA block */}
-          <div className="fade-up cta-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 2 }}>
-            <div style={{ padding: "clamp(40px, 8vw, 60px) clamp(24px, 6vw, 56px)", background: "var(--surface)", border: "1px solid var(--border)" }}>
-              <div className="tag" style={{ marginBottom: "clamp(16px, 3vw, 24px)" }}>For Businesses</div>
-              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: "clamp(12px, 2vw, 16px)" }}>Partner with a leading software development company in Africa</h3>
-              <p style={{ fontSize: "clamp(13px, 2vw, 14px)", color: "var(--text-secondary)", marginBottom: "clamp(20px, 4vw, 32px)", lineHeight: 1.8 }}>Engineer the exact SaaS platform, ERP system, or digital solution your organization needs to scale across Africa and beyond.</p>
-              <Link href="/impact#contact" className="btn-primary">Work With Us →</Link>
-            </div>
-            <div style={{ padding: "clamp(40px, 8vw, 60px) clamp(24px, 6vw, 56px)", background: "linear-gradient(135deg, rgba(45,186,133,0.08) 0%, var(--surface) 60%)", border: "1px solid rgba(45,186,133,0.2)" }}>
-              <div className="tag tag-emerald" style={{ marginBottom: "clamp(16px, 3vw, 24px)" }}>For Students & Employers</div>
-              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: "clamp(12px, 2vw, 16px)" }}>Africa's talent deserves Africa's opportunity.</h3>
-              <p style={{ fontSize: "clamp(13px, 2vw, 14px)", color: "var(--text-secondary)", marginBottom: "clamp(20px, 4vw, 32px)", lineHeight: 1.8 }}>Join Ogera's early access platform for student online jobs and be part of the revolution in African talent and employment.</p>
-              <Link href="/ogera#join" className="btn-primary" style={{ background: "var(--emerald)" }}>Join Ogera →</Link>
-            </div>
+          <div
+            style={{
+              fontSize: "clamp(10px, 1.6vw, 12px)",
+              color: "var(--text-secondary)",
+              fontWeight: 500,
+              lineHeight: 1.4
+            }}
+          >
+            {s.label}
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+
+    {/* Journey */}
+    <div className="fade-up" style={{ marginBottom: "clamp(40px, 8vw, 60px)" }}>
+      <Journey />
+    </div>
+
+    {/* CTA GRID */}
+    <div
+      className="fade-up cta-grid"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr",
+        gap: "clamp(12px, 2vw, 16px)"
+      }}
+    >
+      {/* CTA 1 */}
+      <div
+        style={{
+          padding: "clamp(32px, 6vw, 48px) clamp(20px, 5vw, 40px)",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 6
+        }}
+      >
+        <div className="tag" style={{ marginBottom: "clamp(12px, 2vw, 18px)" }}>
+          For Businesses
+        </div>
+        <h3
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(18px, 4vw, 24px)",
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            marginBottom: "clamp(10px, 2vw, 14px)"
+          }}
+        >
+          Partner with a leading software development company in Africa
+        </h3>
+        <p
+          style={{
+            fontSize: "clamp(12px, 2vw, 14px)",
+            color: "var(--text-secondary)",
+            marginBottom: "clamp(16px, 3vw, 24px)",
+            lineHeight: 1.7
+          }}
+        >
+          Engineer the exact SaaS platform, ERP system, or digital solution your
+          organization needs to scale across Africa and beyond.
+        </p>
+        <Link href="/impact#contact" className="btn-primary">
+          Work With Us →
+        </Link>
+      </div>
+
+      {/* CTA 2 */}
+      <div
+        style={{
+          padding: "clamp(32px, 6vw, 48px) clamp(20px, 5vw, 40px)",
+          background:
+            "linear-gradient(135deg, rgba(45,186,133,0.08) 0%, var(--surface) 60%)",
+          border: "1px solid rgba(45,186,133,0.2)",
+          borderRadius: 6
+        }}
+      >
+        <div
+          className="tag tag-emerald"
+          style={{ marginBottom: "clamp(12px, 2vw, 18px)" }}
+        >
+          For Students & Employers
+        </div>
+        <h3
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(18px, 4vw, 24px)",
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            marginBottom: "clamp(10px, 2vw, 14px)"
+          }}
+        >
+          Africa's talent deserves Africa's opportunity.
+        </h3>
+        <p
+          style={{
+            fontSize: "clamp(12px, 2vw, 14px)",
+            color: "var(--text-secondary)",
+            marginBottom: "clamp(16px, 3vw, 24px)",
+            lineHeight: 1.7
+          }}
+        >
+          Join Ogera platform for student online jobs and be part
+          of the revolution in African talent and employment.
+        </p>
+        <Link
+          href="/ogera#join"
+          className="btn-primary"
+          style={{ background: "var(--emerald)" }}
+        >
+          Join Ogera →
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       <style>{`
         /* Fade-up animation */

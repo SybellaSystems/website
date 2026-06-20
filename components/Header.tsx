@@ -10,7 +10,6 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
 
-  // ✅ Use ReturnType<typeof setTimeout> for cross-environment compatibility
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const navigationItems = [
@@ -30,14 +29,12 @@ export default function Header() {
   ];
 
   return (
-    <header className="py-4 bg-dark-blue shadow-sm sticky top-0 z-50">
+    <header className="py-4 bg-dark-blue shadow-sm sticky top-0 z-50 nav-blur">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between">
+
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-3 focus:outline-none focus:ring-0"
-          >
+          <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
               alt="Sybella Systems Logo"
@@ -54,13 +51,13 @@ export default function Header() {
               <Link
                 key={item.key}
                 href={item.href}
-                className="text-white hover:text-yellow transition-colors text-sm xl:text-base focus:outline-none focus:ring-0"
+                className="text-white hover:text-yellow transition-colors text-sm xl:text-base"
               >
                 {t(item.key)}
               </Link>
             ))}
 
-            {/* ✅ Language Dropdown */}
+            {/* Language Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => {
@@ -68,34 +65,24 @@ export default function Header() {
                 setIsLangOpen(true);
               }}
               onMouseLeave={() => {
-                closeTimeout.current = setTimeout(
-                  () => setIsLangOpen(false),
-                  150
-                );
+                closeTimeout.current = setTimeout(() => setIsLangOpen(false), 150);
               }}
             >
               <button
-                className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm flex items-center gap-1 focus:outline-none focus:ring-0"
+                className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm flex items-center gap-1"
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent accidental closures
+                  e.stopPropagation();
                   setIsLangOpen(!isLangOpen);
                 }}
               >
                 {languages.find((l) => l.code === locale)?.label || "Language"}
                 <svg
-                  className={`w-4 h-4 transition-transform ${
-                    isLangOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 transition-transform ${isLangOpen ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
@@ -125,29 +112,14 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden text-white p-2 focus:outline-none focus:ring-0"
+            className="lg:hidden text-white p-2"
             aria-label="Toggle mobile menu"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>
@@ -156,12 +128,12 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-dark-blue px-4 pt-2 pb-4 space-y-2">
+        <div className="lg:hidden bg-dark-blue px-4 pt-2 pb-4 space-y-2 border-t border-white/10">
           {navigationItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
-              className="block text-white hover:text-yellow transition-colors text-sm focus:outline-none focus:ring-0"
+              className="block text-white hover:text-yellow transition-colors text-sm"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {t(item.key)}
@@ -170,6 +142,7 @@ export default function Header() {
 
           <div className="border-t border-white/20 my-2"></div>
 
+          {/* Mobile Language Selector */}
           <div className="space-y-2">
             {languages.map((lang) => (
               <button

@@ -43,7 +43,7 @@ export default function OgeraClient() {
           email: form.email,
           company: form.company,
           role: form.role,
-          message: `New Ogera Beta Registration\n\nRole: ${form.role}\nCompany: ${form.company}`,
+          message: `New Ogera Registration\n\nRole: ${form.role}\nCompany: ${form.company}`,
         }),
       });
 
@@ -82,7 +82,7 @@ export default function OgeraClient() {
           </p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <a href="https://ogera.sybellasystems.co.rw" className="btn-primary" style={{ background: "var(--emerald)" }}>
-              Join the Beta ↗
+              Join the platform ↗
             </a>
             <a href="#how" className="btn-ghost">
               How It Works
