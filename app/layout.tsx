@@ -55,12 +55,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <Providers>
           {/* Navigation with built-in mobile menu */}
-          <Nav />
+
 
           {/* Push content below sticky navbar */}
-          <ClientWrapper>
-            <main className="pt-20">{children}</main>
-          </ClientWrapper>
+         <ClientWrapper>
+  {children}
+</ClientWrapper>
 
           <AppToaster />
         </Providers>
