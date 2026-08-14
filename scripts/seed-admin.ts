@@ -5,7 +5,9 @@
  * Make sure you have MONGODB_URI in your .env.local file
  */
 
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env.local" });
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
@@ -52,7 +54,7 @@ async function seedAdmin() {
       console.log("\n📝 If you forgot your password, you can:");
       console.log("   1. Reset it through the database");
       console.log(
-        "   2. Or delete the existing admin and run this script again"
+        "   2. Or delete the existing admin and run this script again",
       );
       await client.close();
       return;
@@ -62,7 +64,7 @@ async function seedAdmin() {
     const staffCount = await collection.countDocuments();
     if (staffCount > 0) {
       console.log(
-        `⚠️  Warning: ${staffCount} staff member(s) already exist in the database.`
+        `⚠️  Warning: ${staffCount} staff member(s) already exist in the database.`,
       );
       console.log("   This script will still create the default admin user.");
     }
@@ -82,7 +84,7 @@ async function seedAdmin() {
       console.log(`   Email: ${DEFAULT_ADMIN.email}`);
       console.log(`   Password: ${DEFAULT_ADMIN.password}`);
       console.log(
-        "\n⚠️  IMPORTANT: Please change the password after your first login!"
+        "\n⚠️  IMPORTANT: Please change the password after your first login!",
       );
       console.log("\n🔗 Login URL: http://localhost:3000/signin");
     } else {
@@ -92,7 +94,7 @@ async function seedAdmin() {
     console.error("❌ Error seeding admin user:", error.message);
     if (error.message.includes("authentication")) {
       console.log(
-        "\n💡 Tip: Check your MongoDB connection string and credentials"
+        "\n💡 Tip: Check your MongoDB connection string and credentials",
       );
     }
     process.exit(1);
