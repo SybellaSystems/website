@@ -23,13 +23,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: { 
-    default: "Sybella Systems — Africa's Premium Software Company", 
-    template: "%s | Sybella Systems – Software & SaaS in Africa" 
+  title: {
+    default: "Sybella Systems — Africa's Premium Software Company",
+    template: "%s | Sybella Systems – Software & SaaS in Africa",
   },
   description:
     "Sybella Systems is Africa's leading software engineering company. We build custom ERP systems, SaaS platforms, and digital solutions across the continent.",
-  metadataBase: new URL("https://sybellasystems.co.rw"),
+  // Was hard-coded to the non-www domain, which conflicted with
+  // NEXT_PUBLIC_SITE_URL (www) used by the blog article pages. Now driven
+  // by the same env var so canonical/OG URLs are consistent site-wide.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.sybellasystems.co.rw",
+  ),
 };
 
 export const viewport: Viewport = {
@@ -51,15 +56,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           {/* Navigation with built-in mobile menu */}
           <Nav />
-          
+
           {/* Push content below sticky navbar */}
           <ClientWrapper>
             <main className="pt-20">{children}</main>
           </ClientWrapper>
-          
+
           <AppToaster />
         </Providers>
-        
+
         {/* Scripts */}
         <Script id="org-schema" type="application/ld+json" />
         <Script id="breadcrumb-schema" type="application/ld+json" />

@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { useI18n } from "../../contexts/I18nContext";
 import { logger } from "../../lib/logger";
-import { toast } from "sonner";
 import Loader from "@/components/Loader";
 
 interface BlogPost {
@@ -46,15 +46,13 @@ export default function BlogPage() {
   const { t } = useI18n();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [activePost, setActivePost] = useState<BlogPost | null>(null);
-  const [modalLoading, setModalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 6;
+
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("All");
 
@@ -64,16 +62,13 @@ export default function BlogPage() {
       const title = post.title ?? "";
       const excerpt = post.excerpt ?? "";
       const tags = post.tags ?? [];
-
       const matchesSearch =
         !query ||
         title.toLowerCase().includes(query) ||
         excerpt.toLowerCase().includes(query);
-
       const matchesTag =
         selectedTag === "All" ||
         tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase());
-
       return matchesSearch && matchesTag;
     });
   }, [blogPosts, search, selectedTag]);
@@ -105,27 +100,6 @@ export default function BlogPage() {
     fetchBlogs();
   }, [page]);
 
-  // Open modal (single blog)
-  const openModal = async (slug: string) => {
-    setModalOpen(true);
-    setModalLoading(true);
-    try {
-      const res = await axios.get(`/api/blogposts/${slug}/`);
-      setActivePost(res.data);
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to load blog details");
-      setModalOpen(false);
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setActivePost(null);
-  };
-
   const clearFilters = () => {
     setSearch("");
     setSelectedTag("All");
@@ -135,7 +109,6 @@ export default function BlogPage() {
   const handleNext = () => {
     if (page < totalPages) setPage((prev) => prev + 1);
   };
-
   const handlePrev = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
@@ -144,7 +117,6 @@ export default function BlogPage() {
     <div className="min-h-screen relative overflow-hidden">
       <div className="grid-pattern absolute inset-0 opacity-20 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.14),transparent_60%)] pointer-events-none" />
-
       {/* Hero */}
       <div className="border-b border-dim relative">
         <div className="container mx-auto px-6 py-16 sm:py-20 text-center relative">
@@ -157,7 +129,6 @@ export default function BlogPage() {
           </p>
         </div>
       </div>
-
       <div className="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12 relative">
         {/* Main Content */}
         <div className="lg:w-3/4 space-y-10 min-w-0">
@@ -196,7 +167,6 @@ export default function BlogPage() {
                     </button>
                   )}
                 </div>
-
                 <div className="flex flex-wrap items-center gap-2">
                   {TAG_FILTERS.map((tag) => (
                     <button
@@ -221,7 +191,6 @@ export default function BlogPage() {
                   )}
                 </div>
               </div>
-
               {filteredPosts.length === 0 ? (
                 /* Empty search state */
                 <div className="card rounded-xl p-14 text-center space-y-3">
@@ -268,16 +237,15 @@ export default function BlogPage() {
                           <span>•</span>
                           <span>{featuredPost.readTime} min read</span>
                         </div>
-                        <button
-                          onClick={() => openModal(featuredPost.slug)}
+                        <Link
+                          href={`/blog/${featuredPost.slug}`}
                           className="btn-primary w-fit"
                         >
                           Read article
-                        </button>
+                        </Link>
                       </div>
                     </article>
                   )}
-
                   {/* Blog Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {gridPosts.map((post) => (
@@ -298,7 +266,6 @@ export default function BlogPage() {
                             </span>
                           )}
                         </div>
-
                         <div className="p-5 flex flex-col flex-1 justify-between">
                           <div>
                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs text-secondary mb-2">
@@ -306,16 +273,13 @@ export default function BlogPage() {
                               <span>•</span>
                               <span>{post.readTime} min read</span>
                             </div>
-
                             <h2 className="text-lg font-semibold mb-2 leading-snug hover:text-[var(--blue-bright)] transition-colors line-clamp-2">
                               {post.title}
                             </h2>
-
                             <p className="text-secondary mb-4 text-sm line-clamp-3">
                               {post.excerpt}
                             </p>
                           </div>
-
                           <div className="space-y-3">
                             <div className="flex flex-wrap gap-2">
                               {(post.tags ?? []).slice(0, 3).map((tag) => (
@@ -328,17 +292,16 @@ export default function BlogPage() {
                                 </button>
                               ))}
                             </div>
-
                             <div className="flex items-center justify-between pt-1">
                               <span className="text-xs text-secondary">
                                 By {post.author}
                               </span>
-                              <button
-                                onClick={() => openModal(post.slug)}
+                              <Link
+                                href={`/blog/${post.slug}`}
                                 className="btn-primary text-xs"
                               >
                                 {t("blog.readMore")}
-                              </button>
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -347,7 +310,6 @@ export default function BlogPage() {
                   </div>
                 </>
               )}
-
               {/* Pagination Controls */}
               <div className="flex justify-center items-center gap-4 pt-4">
                 <button
@@ -375,7 +337,6 @@ export default function BlogPage() {
             </>
           )}
         </div>
-
         {/* Sidebar */}
         <div className="lg:w-1/4 space-y-8">
           {/* Popular Posts */}
@@ -388,15 +349,10 @@ export default function BlogPage() {
                 <p className="text-sm text-secondary">No posts yet</p>
               )}
               {blogPosts.slice(0, 3).map((post) => (
-                <div
+                <Link
                   key={post.slug}
-                  role="button"
-                  tabIndex={0}
-                  className="flex space-x-3 items-center hover:bg-[var(--surface-2)] p-2 rounded-lg cursor-pointer transition-colors"
-                  onClick={() => openModal(post.slug)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") openModal(post.slug);
-                  }}
+                  href={`/blog/${post.slug}`}
+                  className="flex space-x-3 items-center hover:bg-[var(--surface-2)] p-2 rounded-lg transition-colors"
                 >
                   <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                     <img
@@ -413,11 +369,10 @@ export default function BlogPage() {
                       {formatDate(post.publishedAt)} • {post.readTime} min
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
-
           {/* Tags */}
           <div className="card p-6 rounded-xl">
             <h3 className="text-xl font-bold mb-4">{t("blog.tags.title")}</h3>
@@ -437,7 +392,6 @@ export default function BlogPage() {
               ))}
             </div>
           </div>
-
           {/* Newsletter CTA */}
           <div className="card p-6 rounded-xl relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_65%)] pointer-events-none" />
@@ -460,66 +414,6 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={closeModal}
-        >
-          <div
-            className="card rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col relative overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={closeModal}
-              aria-label="Close"
-              className="absolute top-4 right-4 z-10 text-secondary text-lg font-bold hover:text-[var(--blue-bright)] bg-[var(--surface)] rounded-full w-9 h-9 flex items-center justify-center border border-dim transition-colors"
-            >
-              &times;
-            </button>
-
-            {modalLoading || !activePost ? (
-              <div className="p-16">
-                <Loader size="lg" text="Loading article..." />
-              </div>
-            ) : (
-              <div className="overflow-y-auto flex-1">
-                <img
-                  src={activePost.thumbnailUrl || DEFAULT_THUMBNAIL}
-                  alt={activePost.title}
-                  className="w-full h-56 sm:h-72 lg:h-80 object-cover"
-                />
-                <div className="p-6 sm:p-8 lg:p-10 max-w-2xl mx-auto">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {(activePost.tags ?? []).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-[var(--blue-dim)] text-[var(--blue-bright)] text-xs rounded-full border border-[rgba(59,130,246,0.25)]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight mb-4">
-                    {activePost.title}
-                  </h2>
-                  <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm text-secondary mb-8 pb-6 border-b border-dim">
-                    <span>By {activePost.author}</span>
-                    <span>•</span>
-                    <span>{formatDate(activePost.publishedAt)}</span>
-                    <span>•</span>
-                    <span>{activePost.readTime} min read</span>
-                  </div>
-                  <div className="text-secondary text-base sm:text-lg leading-8 whitespace-pre-wrap">
-                    {activePost.content}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
