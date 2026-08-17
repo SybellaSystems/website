@@ -73,11 +73,7 @@ function getInitials(name?: string) {
 // Builds schema.org BlogPosting JSON-LD for this article. Returned as an
 // already-escaped string so it can be safely injected via
 // dangerouslySetInnerHTML without risking a </script> breakout.
-function buildArticleJsonLd(
-  post: BlogPostDoc,
-  pageUrl: string,
-  image: string,
-) {
+function buildArticleJsonLd(post: BlogPostDoc, pageUrl: string, image: string) {
   const datePublished = toIso(post.publishedAt) ?? toIso(new Date());
   const dateModified = toIso(post.updatedAt) ?? datePublished;
 
@@ -229,7 +225,9 @@ export default async function BlogPostPage({ params }: RouteParams) {
               {primaryTag && (
                 <>
                   <span className="text-dim">/</span>
-                  <span className="text-[var(--blue-bright)]">{primaryTag}</span>
+                  <span className="text-[var(--blue-bright)]">
+                    {primaryTag}
+                  </span>
                 </>
               )}
             </div>
@@ -297,9 +295,26 @@ export default async function BlogPostPage({ params }: RouteParams) {
           aria-label="Article content"
           className="container mx-auto px-4 sm:px-6 py-10 sm:py-14 max-w-2xl"
         >
-          <div className="text-secondary text-base sm:text-lg leading-7 sm:leading-8 whitespace-pre-wrap break-words">
-            {post.content}
-          </div>
+          <section
+            aria-label="Article content"
+            className="container mx-auto px-4 sm:px-6 py-10 sm:py-14 max-w-2xl"
+          >
+            <div
+              className="blog-content text-secondary text-base sm:text-lg leading-7 sm:leading-8 break-words"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+
+            <footer className="mt-10 pt-6 border-t border-dim flex items-center justify-between flex-wrap gap-4">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--blue-bright)] hover:underline"
+              >
+                ← Back to Blog
+              </Link>
+
+              <ShareButtons url={pageUrl} title={post.title} />
+            </footer>
+          </section>
 
           <footer className="mt-10 pt-6 border-t border-dim flex items-center justify-between flex-wrap gap-4">
             <Link

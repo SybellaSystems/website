@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import getClientPromise from "@/lib/mongodb";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const client = await getClientPromise();
   const db = client.db();

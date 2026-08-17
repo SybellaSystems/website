@@ -4,15 +4,8 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // 👈 use sonner instead of react-hot-toast
-import {
-  FileText,
-  Type,
-  User,
-  Tags,
-  Image,
-  Clock,
-  Upload,
-} from "lucide-react";
+import BlogEditor from "@/components/blog/BlogEditor";
+import { FileText, Type, User, Tags, Image, Clock, Upload } from "lucide-react";
 
 export default function AddBlogPage() {
   const router = useRouter();
@@ -36,10 +29,10 @@ export default function AddBlogPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    
+
     // If user enters URL manually, clear uploaded image
     if (name === "thumbnailUrl") {
       setForm({ ...form, [name]: value });
@@ -62,9 +55,17 @@ export default function AddBlogPage() {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
     if (!validTypes.includes(file.type)) {
-      toast.error("Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.");
+      toast.error(
+        "Invalid file type. Please upload JPEG, PNG, WebP, or GIF images.",
+      );
       return;
     }
 
@@ -134,15 +135,18 @@ export default function AddBlogPage() {
         excerpt: expert, // Map expert to excerpt for API
         // Use uploaded image URL if available, otherwise use URL field
         thumbnailUrl: uploadedImageUrl || form.thumbnailUrl,
-        tags: form.tags ? form.tags.split(",").map((tag) => tag.trim()).filter(tag => tag.length > 0) : [],
+        tags: form.tags
+          ? form.tags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter((tag) => tag.length > 0)
+          : [],
         // Slug will be auto-generated from title in the API
       };
-      
-      await axios.post(
-        "/api/blogposts/",
-        apiData,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
+
+      await axios.post("/api/blogposts/", apiData, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
 
       // update toast to success
       toast.success("Blog created successfully!", { id: toastId });
@@ -208,13 +212,14 @@ export default function AddBlogPage() {
             <label className={labelClass}>
               <FileText size={16} /> Content
             </label>
-            <textarea
-              name="content"
-              placeholder="Write your full blog content here..."
+            <BlogEditor
               value={form.content}
-              onChange={handleChange}
-              rows={6}
-              className={`${fieldClass} resize-y min-h-[120px]`}
+              onChange={(content) =>
+                setForm((prev) => ({
+                  ...prev,
+                  content,
+                }))
+              }
             />
           </div>
 
@@ -267,7 +272,7 @@ export default function AddBlogPage() {
             <label className={labelClass}>
               <Image size={16} /> Thumbnail
             </label>
-            
+
             {/* Image Preview */}
             {imagePreview && (
               <div className="mb-3">
@@ -281,14 +286,18 @@ export default function AddBlogPage() {
 
             {/* File Upload */}
             <div className="mb-3">
-              <label className={`flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-gray-800 dark:text-gray-200 ${
-                form.thumbnailUrl && !uploadedImageUrl 
-                  ? "border-gray-200 cursor-not-allowed opacity-50" 
-                  : "border-gray-300 hover:border-indigo-400"
-              }`}>
+              <label
+                className={`flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors text-gray-800 dark:text-gray-200 ${
+                  form.thumbnailUrl && !uploadedImageUrl
+                    ? "border-gray-200 cursor-not-allowed opacity-50"
+                    : "border-gray-300 hover:border-indigo-400"
+                }`}
+              >
                 <Upload size={20} className="text-gray-500" />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {uploadingImage ? "Uploading..." : "Upload image from computer"}
+                  {uploadingImage
+                    ? "Uploading..."
+                    : "Upload image from computer"}
                 </span>
                 <input
                   ref={fileInputRef}
@@ -296,7 +305,9 @@ export default function AddBlogPage() {
                   accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                   onChange={handleFileChange}
                   className="hidden"
-                  disabled={uploadingImage || !!(form.thumbnailUrl && !uploadedImageUrl)}
+                  disabled={
+                    uploadingImage || !!(form.thumbnailUrl && !uploadedImageUrl)
+                  }
                 />
               </label>
               {form.thumbnailUrl && !uploadedImageUrl && (
@@ -308,7 +319,9 @@ export default function AddBlogPage() {
 
             {/* URL Input */}
             <div className="relative">
-              <span className="text-xs text-gray-500 mb-1 block">Or enter image URL:</span>
+              <span className="text-xs text-gray-500 mb-1 block">
+                Or enter image URL:
+              </span>
               <div className="flex gap-2">
                 <input
                   type="text"
