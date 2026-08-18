@@ -1,18 +1,23 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { AppToaster } from "@/components/Toaster"; // 👈 import toaster
+import { AppToaster } from "@/components/Toaster";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-dark-bg">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="min-h-screen lg:ml-64">
+        <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
+          {children}
+        </div>
+      </main>
 
-      {/* ✅ Toaster inside Admin area */}
       <AppToaster />
     </div>
   );
