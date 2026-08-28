@@ -288,33 +288,15 @@ export default async function BlogPostPage({ params }: RouteParams) {
           </div>
         </figure>
 
-        {/* Article body — narrower reading width. A <section> for the body
-            text, and a <footer> for the article's own back-link/share actions
-            (semantically distinct from the body content itself). */}
+        {/* Article body */}
         <section
           aria-label="Article content"
           className="container mx-auto px-4 sm:px-6 py-10 sm:py-14 max-w-2xl"
         >
-          <section
-            aria-label="Article content"
-            className="container mx-auto px-4 sm:px-6 py-10 sm:py-14 max-w-2xl"
-          >
-            <div
-              className="blog-content text-secondary text-base sm:text-lg leading-7 sm:leading-8 break-words"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-
-            <footer className="mt-10 pt-6 border-t border-dim flex items-center justify-between flex-wrap gap-4">
-              <Link
-                href="/blog"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--blue-bright)] hover:underline"
-              >
-                ← Back to Blog
-              </Link>
-
-              <ShareButtons url={pageUrl} title={post.title} />
-            </footer>
-          </section>
+          <div
+            className="blog-content text-secondary text-base sm:text-lg leading-7 sm:leading-8 break-words"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           <footer className="mt-10 pt-6 border-t border-dim flex items-center justify-between flex-wrap gap-4">
             <Link
@@ -323,12 +305,12 @@ export default async function BlogPostPage({ params }: RouteParams) {
             >
               ← Back to Blog
             </Link>
+
             <ShareButtons url={pageUrl} title={post.title} />
           </footer>
         </section>
 
-        {/* Related articles — own <section> with an <h2>, keeping heading
-            hierarchy correct (h1 in header, h2 here, h3 per card). */}
+        {/* Related articles */}
         {related.length > 0 && (
           <section
             aria-labelledby="related-articles-heading"

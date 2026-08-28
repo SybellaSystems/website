@@ -29,11 +29,9 @@ export const metadata: Metadata = {
   },
   description:
     "Sybella Systems is Africa's leading software engineering company. We build custom ERP systems, SaaS platforms, and digital solutions across the continent.",
-  // Was hard-coded to the non-www domain, which conflicted with
-  // NEXT_PUBLIC_SITE_URL (www) used by the blog article pages. Now driven
-  // by the same env var so canonical/OG URLs are consistent site-wide.
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.sybellasystems.co.rw",
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://www.sybellasystems.co.rw"
   ),
 };
 
@@ -44,7 +42,11 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -52,24 +54,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${spaceGrotesk.variable} ${inter.variable}`}
     >
       <head />
+
       <body>
         <Providers>
-          {/* Navigation with built-in mobile menu */}
-
-
-          {/* Push content below sticky navbar */}
-         <ClientWrapper>
-  {children}
-</ClientWrapper>
+          <ClientWrapper>
+            {children}
+          </ClientWrapper>
 
           <AppToaster />
         </Providers>
 
-        {/* Scripts */}
         <Script id="org-schema" type="application/ld+json" />
         <Script id="breadcrumb-schema" type="application/ld+json" />
         <Script id="company-schema" type="application/ld+json" />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
+
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+          strategy="afterInteractive"
+        />
+
         <Script id="ga-script" />
       </body>
     </html>
