@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  EditorContent,
-  useEditor,
-  type Editor,
-} from "@tiptap/react";
+import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 
 import { useEffect, useState } from "react";
 
@@ -72,8 +68,7 @@ const BlogImage = Image.extend({
       align: {
         default: "center",
 
-        parseHTML: (element) =>
-          element.getAttribute("data-align") || "center",
+        parseHTML: (element) => element.getAttribute("data-align") || "center",
 
         renderHTML: (attributes) => ({
           "data-align": attributes.align,
@@ -83,8 +78,7 @@ const BlogImage = Image.extend({
       wrap: {
         default: false,
 
-        parseHTML: (element) =>
-          element.getAttribute("data-wrap") === "true",
+        parseHTML: (element) => element.getAttribute("data-wrap") === "true",
 
         renderHTML: (attributes) => ({
           "data-wrap": attributes.wrap ? "true" : "false",
@@ -94,29 +88,22 @@ const BlogImage = Image.extend({
       width: {
         default: "100%",
 
-        parseHTML: (element) =>
-          element.getAttribute("data-width") || "100%",
+        parseHTML: (element) => element.getAttribute("data-width") || "100%",
 
         renderHTML: (attributes) => ({
           "data-width": attributes.width,
+          style: `width: ${attributes.width};`,
         }),
       },
     };
   },
 });
 
-
-export default function BlogEditor({
-  value,
-  onChange,
-}: BlogEditorProps) {
-  const [imageModalOpen, setImageModalOpen] =
-    useState(false);
+export default function BlogEditor({ value, onChange }: BlogEditorProps) {
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const adminToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("adminToken")
-      : null;
+    typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -138,8 +125,7 @@ export default function BlogEditor({
       }),
 
       Placeholder.configure({
-        placeholder:
-          "Start writing your article...",
+        placeholder: "Start writing your article...",
       }),
     ],
 
@@ -147,8 +133,7 @@ export default function BlogEditor({
 
     editorProps: {
       attributes: {
-        class:
-          "ProseMirror blog-editor-prose focus:outline-none",
+        class: "ProseMirror blog-editor-prose focus:outline-none",
       },
     },
 
@@ -156,7 +141,6 @@ export default function BlogEditor({
       onChange(editor.getHTML());
     },
   });
-
 
   /*
   |--------------------------------------------------------------------------
@@ -169,15 +153,10 @@ export default function BlogEditor({
 
     const currentHTML = editor.getHTML();
 
-    if (
-      value &&
-      value !== currentHTML &&
-      !editor.isFocused
-    ) {
+    if (value && value !== currentHTML && !editor.isFocused) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
-
 
   /*
   |--------------------------------------------------------------------------
@@ -185,21 +164,24 @@ export default function BlogEditor({
   |--------------------------------------------------------------------------
   */
 
-const insertImage = (image: InsertImageData) => {
-  if (!editor) return;
+  const insertImage = (image: InsertImageData) => {
+    if (!editor) return;
 
-  editor
-    .chain()
-    .focus()
-    .setImage({
-      src: image.src,
-      alt: image.alt,
-      title: image.alt,
-    })
-    .run();
+    editor
+      .chain()
+      .focus()
+      .setImage({
+        src: image.src,
+        alt: image.alt,
+        title: image.alt,
+        align: image.align,
+        wrap: image.wrap,
+        width: image.width,
+      })
+      .run();
 
-  setImageModalOpen(false);
-};
+    setImageModalOpen(false);
+  };
   /*
   |--------------------------------------------------------------------------
   | Link
@@ -209,22 +191,14 @@ const insertImage = (image: InsertImageData) => {
   const addLink = () => {
     if (!editor) return;
 
-    const previousUrl =
-      editor.getAttributes("link").href;
+    const previousUrl = editor.getAttributes("link").href;
 
-    const url = window.prompt(
-      "Enter URL",
-      previousUrl || "https://",
-    );
+    const url = window.prompt("Enter URL", previousUrl || "https://");
 
     if (url === null) return;
 
     if (url === "") {
-      editor
-        .chain()
-        .focus()
-        .unsetLink()
-        .run();
+      editor.chain().focus().unsetLink().run();
 
       return;
     }
@@ -239,7 +213,6 @@ const insertImage = (image: InsertImageData) => {
       .run();
   };
 
-
   /*
   |--------------------------------------------------------------------------
   | Clear formatting
@@ -249,14 +222,8 @@ const insertImage = (image: InsertImageData) => {
   const clearFormatting = () => {
     if (!editor) return;
 
-    editor
-      .chain()
-      .focus()
-      .clearNodes()
-      .unsetAllMarks()
-      .run();
+    editor.chain().focus().clearNodes().unsetAllMarks().run();
   };
-
 
   if (!editor) {
     return (
@@ -264,28 +231,19 @@ const insertImage = (image: InsertImageData) => {
     );
   }
 
-
   return (
     <>
       <div className="blog-editor-wrapper">
-
         {/* =====================================================
             TOOLBAR
         ===================================================== */}
 
         <div className="blog-editor-toolbar">
-
           {/* Undo / Redo */}
 
           <ToolbarButton
             title="Undo"
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .undo()
-                .run()
-            }
+            onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().undo()}
           >
             <Undo2 size={17} />
@@ -293,21 +251,13 @@ const insertImage = (image: InsertImageData) => {
 
           <ToolbarButton
             title="Redo"
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .redo()
-                .run()
-            }
+            onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
           >
             <Redo2 size={17} />
           </ToolbarButton>
 
-
           <ToolbarDivider />
-
 
           {/* =================================================
               HEADINGS
@@ -315,10 +265,7 @@ const insertImage = (image: InsertImageData) => {
 
           <ToolbarButton
             title="Heading 1"
-            active={editor.isActive(
-              "heading",
-              { level: 1 },
-            )}
+            active={editor.isActive("heading", { level: 1 })}
             onClick={() =>
               editor
                 .chain()
@@ -334,10 +281,7 @@ const insertImage = (image: InsertImageData) => {
 
           <ToolbarButton
             title="Heading 2"
-            active={editor.isActive(
-              "heading",
-              { level: 2 },
-            )}
+            active={editor.isActive("heading", { level: 2 })}
             onClick={() =>
               editor
                 .chain()
@@ -353,10 +297,7 @@ const insertImage = (image: InsertImageData) => {
 
           <ToolbarButton
             title="Heading 3"
-            active={editor.isActive(
-              "heading",
-              { level: 3 },
-            )}
+            active={editor.isActive("heading", { level: 3 })}
             onClick={() =>
               editor
                 .chain()
@@ -370,9 +311,7 @@ const insertImage = (image: InsertImageData) => {
             <Heading3 size={17} />
           </ToolbarButton>
 
-
           <ToolbarDivider />
-
 
           {/* =================================================
               TEXT FORMATTING
@@ -381,13 +320,7 @@ const insertImage = (image: InsertImageData) => {
           <ToolbarButton
             title="Bold"
             active={editor.isActive("bold")}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleBold()
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleBold().run()}
           >
             <Bold size={17} />
           </ToolbarButton>
@@ -395,13 +328,7 @@ const insertImage = (image: InsertImageData) => {
           <ToolbarButton
             title="Italic"
             active={editor.isActive("italic")}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleItalic()
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleItalic().run()}
           >
             <Italic size={17} />
           </ToolbarButton>
@@ -409,13 +336,7 @@ const insertImage = (image: InsertImageData) => {
           <ToolbarButton
             title="Underline"
             active={editor.isActive("underline")}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleUnderline()
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
           >
             <UnderlineIcon size={17} />
           </ToolbarButton>
@@ -423,20 +344,12 @@ const insertImage = (image: InsertImageData) => {
           <ToolbarButton
             title="Strikethrough"
             active={editor.isActive("strike")}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleStrike()
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleStrike().run()}
           >
             <Strikethrough size={17} />
           </ToolbarButton>
 
-
           <ToolbarDivider />
-
 
           {/* =================================================
               LISTS
@@ -444,56 +357,29 @@ const insertImage = (image: InsertImageData) => {
 
           <ToolbarButton
             title="Bullet list"
-            active={editor.isActive(
-              "bulletList",
-            )}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleBulletList()
-                .run()
-            }
+            active={editor.isActive("bulletList")}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
           >
             <List size={17} />
           </ToolbarButton>
 
           <ToolbarButton
             title="Numbered list"
-            active={editor.isActive(
-              "orderedList",
-            )}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleOrderedList()
-                .run()
-            }
+            active={editor.isActive("orderedList")}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
           >
             <ListOrdered size={17} />
           </ToolbarButton>
 
-
           <ToolbarButton
             title="Blockquote"
-            active={editor.isActive(
-              "blockquote",
-            )}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleBlockquote()
-                .run()
-            }
+            active={editor.isActive("blockquote")}
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
           >
             <Quote size={17} />
           </ToolbarButton>
 
-
           <ToolbarDivider />
-
 
           {/* =================================================
               LINK
@@ -507,23 +393,18 @@ const insertImage = (image: InsertImageData) => {
             <LinkIcon size={17} />
           </ToolbarButton>
 
-
           {/* =================================================
               IMAGE
           ================================================= */}
 
           <ToolbarButton
             title="Insert image"
-            onClick={() =>
-              setImageModalOpen(true)
-            }
+            onClick={() => setImageModalOpen(true)}
           >
             <ImagePlus size={17} />
           </ToolbarButton>
 
-
           <ToolbarDivider />
-
 
           {/* =================================================
               CODE
@@ -532,91 +413,49 @@ const insertImage = (image: InsertImageData) => {
           <ToolbarButton
             title="Inline code"
             active={editor.isActive("code")}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleCode()
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleCode().run()}
           >
             <Code2 size={17} />
           </ToolbarButton>
 
-
           <ToolbarButton
             title="Code block"
-            active={editor.isActive(
-              "codeBlock",
-            )}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleCodeBlock()
-                .run()
-            }
+            active={editor.isActive("codeBlock")}
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           >
             <CodeSquare size={17} />
           </ToolbarButton>
 
-
           <ToolbarButton
             title="Horizontal divider"
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .setHorizontalRule()
-                .run()
-            }
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
           >
             <Minus size={17} />
           </ToolbarButton>
 
-
-          <ToolbarButton
-            title="Clear formatting"
-            onClick={clearFormatting}
-          >
+          <ToolbarButton title="Clear formatting" onClick={clearFormatting}>
             <RemoveFormatting size={17} />
           </ToolbarButton>
-
         </div>
-
 
         {/* =====================================================
             EDITOR
         ===================================================== */}
 
         <div className="blog-editor-writing-area">
-
-          <EditorContent
-            editor={editor}
-          />
-
+          <EditorContent editor={editor} />
         </div>
-
 
         {/* =====================================================
             FOOTER
         ===================================================== */}
 
         <div className="blog-editor-footer">
+          <span>Rich text editor</span>
 
-          <span>
-            Rich text editor
-          </span>
-
-          <span>
-            {editor.getText().length.toLocaleString()}{" "}
-            characters
-          </span>
-
+          <span>{editor.getText().length.toLocaleString()} characters</span>
         </div>
-
       </div>
-
 
       {/* =======================================================
           IMAGE MODAL
@@ -624,16 +463,13 @@ const insertImage = (image: InsertImageData) => {
 
       <ImageInsertModal
         open={imageModalOpen}
-        onClose={() =>
-          setImageModalOpen(false)
-        }
+        onClose={() => setImageModalOpen(false)}
         onInsert={insertImage}
         adminToken={adminToken}
       />
     </>
   );
 }
-
 
 /* =============================================================
    TOOLBAR BUTTON
@@ -669,15 +505,9 @@ function ToolbarButton({
       className={`
         blog-toolbar-button
 
-        ${active
-          ? "blog-toolbar-button-active"
-          : ""
-        }
+        ${active ? "blog-toolbar-button-active" : ""}
 
-        ${disabled
-          ? "blog-toolbar-button-disabled"
-          : ""
-        }
+        ${disabled ? "blog-toolbar-button-disabled" : ""}
       `}
     >
       {children}
@@ -685,16 +515,10 @@ function ToolbarButton({
   );
 }
 
-
 /* =============================================================
    TOOLBAR DIVIDER
 ============================================================= */
 
 function ToolbarDivider() {
-  return (
-    <div
-      className="mx-1 h-6 w-px bg-gray-200"
-      aria-hidden="true"
-    />
-  );
+  return <div className="mx-1 h-6 w-px bg-gray-200" aria-hidden="true" />;
 }

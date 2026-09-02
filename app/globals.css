@@ -1127,3 +1127,37 @@ img, video {
     margin: 1.5rem 0;
   }
 }
+.blog-editor-prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-editor-prose img[data-align="left"] {
+  display: block;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.blog-editor-prose img[data-align="center"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.blog-editor-prose img[data-align="right"] {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.blog-editor-prose img[data-wrap="true"][data-align="left"] {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.blog-editor-prose img[data-wrap="true"][data-align="right"] {
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 0.75rem;
+}
