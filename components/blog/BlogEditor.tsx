@@ -44,7 +44,7 @@ interface InsertImageData {
   alt: string;
   align: "left" | "center" | "right";
   wrap: boolean;
-  width: string;
+  width?: string;
 }
 
 /*
@@ -164,24 +164,27 @@ export default function BlogEditor({ value, onChange }: BlogEditorProps) {
   |--------------------------------------------------------------------------
   */
 
-  const insertImage = (image: InsertImageData) => {
-    if (!editor) return;
+ const insertImage = (image: InsertImageData) => {
+  if (!editor) return;
 
-    editor
-      .chain()
-      .focus()
-      .setImage({
+  editor
+    .chain()
+    .focus()
+    .insertContent({
+      type: "image",
+      attrs: {
         src: image.src,
-        alt: image.alt,
-        title: image.alt,
-        align: image.align,
-        wrap: image.wrap,
-        width: image.width,
-      })
-      .run();
+        alt: image.alt || "",
+        title: image.alt || "",
+        align: image.align || "center",
+        wrap: image.wrap || "none",
+        width: image.width || "100%",
+      },
+    })
+    .run();
 
-    setImageModalOpen(false);
-  };
+  setImageModalOpen(false);
+};
   /*
   |--------------------------------------------------------------------------
   | Link
