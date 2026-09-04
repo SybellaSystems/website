@@ -241,7 +241,7 @@ export default function BlogEditor({ value, onChange }: BlogEditorProps) {
             TOOLBAR
         ===================================================== */}
 
-        <div className="blog-editor-toolbar">
+        <div className="blog-editor-toolbar sticky top-4 z-30">
           {/* Undo / Redo */}
 
           <ToolbarButton
