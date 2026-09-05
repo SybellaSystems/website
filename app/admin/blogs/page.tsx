@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import {
@@ -12,8 +12,10 @@ import {
   FileText,
   User,
   Image as ImageIcon,
-  CalendarDays,
   ArrowUpRight,
+  MoreHorizontal,
+  ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import Loader from "@/components/Loader";
 
@@ -60,12 +62,31 @@ export default function ViewBlogsPage() {
     }
   };
 
+  const getBlogImage = (blog: Blog) => {
+    if (blog.thumbnailUrl) {
+      return blog.thumbnailUrl;
+    }
+
+    if (blog.content) {
+      const match = blog.content.match(
+        /<img[^>]+src=["']([^"']+)["']/i,
+      );
+
+      if (match?.[1]) {
+        return match[1];
+      }
+    }
+
+    return "/images/blog/default.jpg";
+  };
+
   const handleDeleteBlog = async (id: string) => {
-    toast.warning("Are you sure you want to delete this blog?", {
+    toast.warning("Are you sure you want to delete this article?", {
+      description: "This action cannot be undone.",
       action: {
         label: "Delete",
         onClick: async () => {
-          const toastId = toast.loading("Deleting blog...");
+          const toastId = toast.loading("Deleting article...");
 
           try {
             const res = await axios.delete(`/api/blogposts/${id}`, {
@@ -75,20 +96,20 @@ export default function ViewBlogsPage() {
             });
 
             if (res.status >= 200 && res.status < 300) {
-              toast.success("Blog deleted successfully!", {
+              toast.success("Article deleted successfully!", {
                 id: toastId,
               });
 
               fetchBlogs();
             } else {
-              toast.error("Failed to delete blog.", {
+              toast.error("Failed to delete article.", {
                 id: toastId,
               });
             }
           } catch (err: any) {
             console.error(err);
 
-            toast.error("Failed to delete blog.", {
+            toast.error("Failed to delete article.", {
               id: toastId,
               description:
                 err.response?.data?.message || "Please try again",
@@ -114,7 +135,7 @@ export default function ViewBlogsPage() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     if (!editingBlog) return;
 
@@ -127,7 +148,7 @@ export default function ViewBlogsPage() {
   const handleUpdateBlog = async (id: string) => {
     if (!editingBlog) return;
 
-    const toastId = toast.loading("Updating blog...");
+    const toastId = toast.loading("Updating article...");
 
     try {
       const identifier = editingBlog.slug || id;
@@ -145,25 +166,25 @@ export default function ViewBlogsPage() {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
-        }
+        },
       );
 
       if (res.status >= 200 && res.status < 300) {
-        toast.success("Blog updated successfully!", {
+        toast.success("Article updated successfully!", {
           id: toastId,
         });
 
         closeModal();
         fetchBlogs();
       } else {
-        toast.error("Failed to update blog", {
+        toast.error("Failed to update article", {
           id: toastId,
         });
       }
     } catch (err: any) {
       console.error(err);
 
-      toast.error("Failed to update blog", {
+      toast.error("Failed to update article", {
         id: toastId,
         description:
           err.response?.data?.error ||
@@ -173,392 +194,600 @@ export default function ViewBlogsPage() {
     }
   };
 
-  const filteredBlogs = blogs.filter((blog) => {
-    const query = searchQuery.toLowerCase();
+  const filteredBlogs = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
 
-    return (
-      blog.title.toLowerCase().includes(query) ||
-      blog.excerpt.toLowerCase().includes(query) ||
-      blog.author.toLowerCase().includes(query)
-    );
-  });
+    if (!query) return blogs;
+
+    return blogs.filter((blog) => {
+      return (
+        blog.title.toLowerCase().includes(query) ||
+        blog.excerpt.toLowerCase().includes(query) ||
+        blog.author.toLowerCase().includes(query)
+      );
+    });
+  }, [blogs, searchQuery]);
+
+  const authorsCount = new Set(
+    blogs.map((blog) => blog.author).filter(Boolean),
+  ).size;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      {/* ================= HEADER ================= */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+    <div className="min-h-screen bg-[#f6f7fb] text-slate-900">
+      {/* =========================================================
+          TOP HEADER
+      ========================================================= */}
+      <header className="border-b border-slate-200/80 bg-white">
+        <div className="mx-auto max-w-[1500px] px-5 py-7 sm:px-7 lg:px-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-sm text-slate-500">
-                <FileText size={16} />
-                <span>Content Management</span>
-                <span>•</span>
-                <span>Articles</span>
+              <div className="mb-4 flex items-center gap-2 text-xs font-medium text-slate-400">
+                <span>Dashboard</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-slate-600">Blog</span>
               </div>
 
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                Blog Articles
-              </h1>
+              <div className="flex items-start gap-4">
+                <div className="hidden rounded-2xl bg-indigo-50 p-3.5 text-indigo-600 sm:flex">
+                  <FileText size={25} strokeWidth={1.8} />
+                </div>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Manage, edit and publish your website articles.
-              </p>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                      Blog Articles
+                    </h1>
+
+                    <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 sm:inline-flex">
+                      {blogs.length} published
+                    </span>
+                  </div>
+
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                    Create, manage and maintain the content published
+                    across the Sybella website.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={() => {
                 window.location.href = "/admin/blogs/create";
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/15 transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/20 active:translate-y-0"
             >
-              <Plus size={18} />
-              Create Article
+              <Plus
+                size={18}
+                className="transition-transform duration-200 group-hover:rotate-90"
+              />
+              Create article
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ================= CONTENT ================= */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Stats */}
-        <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between">
+      {/* =========================================================
+          MAIN
+      ========================================================= */}
+      <main className="mx-auto max-w-[1500px] px-5 py-8 sm:px-7 lg:px-10">
+        {/* =======================================================
+            STATS
+        ======================================================= */}
+        <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Total */}
+          <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
-                  Total Articles
+                  Total articles
                 </p>
 
-                <p className="mt-1 text-3xl font-bold text-slate-900">
+                <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
                   {blogs.length}
                 </p>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  All published content
+                </p>
               </div>
 
-              <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
-                <FileText size={22} />
+              <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600 transition-transform group-hover:scale-105">
+                <FileText size={21} strokeWidth={1.8} />
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between">
+          {/* Showing */}
+          <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
-                  Showing
+                  Search results
                 </p>
 
-                <p className="mt-1 text-3xl font-bold text-slate-900">
+                <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
                   {filteredBlogs.length}
                 </p>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  {searchQuery
+                    ? `Matching "${searchQuery}"`
+                    : "Currently displayed"}
+                </p>
               </div>
 
-              <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600">
-                <ArrowUpRight size={22} />
+              <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600 transition-transform group-hover:scale-105">
+                <ArrowUpRight size={21} strokeWidth={1.8} />
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between">
+          {/* Authors */}
+          <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
-                  Authors
+                  Contributors
                 </p>
 
-                <p className="mt-1 text-3xl font-bold text-slate-900">
-                  {new Set(blogs.map((blog) => blog.author)).size}
+                <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+                  {authorsCount}
+                </p>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Unique article authors
                 </p>
               </div>
 
-              <div className="rounded-xl bg-purple-50 p-3 text-purple-600">
-                <User size={22} />
+              <div className="rounded-xl bg-violet-50 p-3 text-violet-600 transition-transform group-hover:scale-105">
+                <User size={21} strokeWidth={1.8} />
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Search */}
-        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-md">
-            <Search
-              size={19}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+        {/* =======================================================
+            TOOLBAR
+        ======================================================= */}
+        <section className="mb-7 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative w-full lg:max-w-xl">
+              <Search
+                size={19}
+                strokeWidth={1.8}
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              />
 
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-            />
+              <input
+                type="text"
+                placeholder="Search by title, description or author..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-3.5 pl-11 pr-11 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              />
+
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-4 lg:justify-end">
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span>
+                  {filteredBlogs.length}{" "}
+                  {filteredBlogs.length === 1 ? "article" : "articles"}
+                </span>
+              </div>
+
+              <div className="hidden h-8 w-px bg-slate-200 sm:block" />
+
+              <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
+                <Sparkles size={14} />
+                Content management
+              </div>
+            </div>
           </div>
+        </section>
 
-          <p className="text-sm text-slate-500">
-            {filteredBlogs.length} article
-            {filteredBlogs.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-
-        {/* ================= BLOGS ================= */}
+        {/* =======================================================
+            CONTENT
+        ======================================================= */}
         {loading ? (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl border border-slate-200 bg-white">
+          <div className="flex min-h-[480px] items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
             <Loader size="lg" text="Loading articles..." />
           </div>
         ) : filteredBlogs.length === 0 ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 text-center">
-            <div className="mb-4 rounded-2xl bg-slate-100 p-4 text-slate-400">
-              <FileText size={32} />
+          <div className="flex min-h-[480px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 text-center shadow-sm">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+              {searchQuery ? (
+                <Search size={28} strokeWidth={1.7} />
+              ) : (
+                <FileText size={28} strokeWidth={1.7} />
+              )}
             </div>
 
-            <h2 className="text-lg font-semibold text-slate-900">
-              {searchQuery ? "No articles found" : "No articles yet"}
+            <h2 className="text-xl font-bold text-slate-900">
+              {searchQuery ? "No articles found" : "Your blog is empty"}
             </h2>
 
-            <p className="mt-1 max-w-md text-sm text-slate-500">
+            <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
               {searchQuery
-                ? "Try searching with another title, author or keyword."
-                : "Create your first article to start building your blog."}
+                ? "We couldn't find any articles matching your search. Try another title, author or keyword."
+                : "Start publishing content by creating your first article."}
             </p>
 
-            {!searchQuery && (
+            {searchQuery ? (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="mt-6 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Clear search
+              </button>
+            ) : (
               <button
                 onClick={() => {
                   window.location.href = "/admin/blogs/create";
                 }}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
                 <Plus size={18} />
-                Create Article
+                Create your first article
               </button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {filteredBlogs.map((blog) => (
               <article
                 key={blog._id}
-                className="group flex overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group flex min-h-[490px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/5"
               >
-                {/* Image */}
-                <div className="relative h-52 w-full overflow-hidden">
+                {/* =================================================
+                    CARD IMAGE
+                ================================================= */}
+                <div className="relative h-56 shrink-0 overflow-hidden bg-slate-100">
                   <img
-                    src={
-                      blog.thumbnailUrl ||
-                      "/images/blog/default.jpg"
-                    }
+                    src={getBlogImage(blog)}
                     alt={blog.title}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
 
-                  <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur">
-                    Published
+                  {/* Image gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-70" />
+
+                  {/* Status */}
+                  <div className="absolute left-4 top-4">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/90 px-3 py-1.5 text-[11px] font-bold text-emerald-700 shadow-lg backdrop-blur-md">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      Published
+                    </span>
+                  </div>
+
+                  {/* More */}
+                  <button
+                    className="absolute right-4 top-4 rounded-xl border border-white/20 bg-black/20 p-2 text-white opacity-0 backdrop-blur-md transition-all duration-200 hover:bg-black/40 group-hover:opacity-100"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal size={18} />
+                  </button>
+
+                  {/* Bottom image info */}
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                    <span className="text-xs font-medium text-white/85">
+                      Article
+                    </span>
+
+                    {blog.slug && (
+                      <span className="max-w-[170px] truncate text-xs text-white/70">
+                        /{blog.slug}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Content */}
+                {/* =================================================
+                    CARD BODY
+                ================================================= */}
                 <div className="flex flex-1 flex-col p-5">
-                  <div className="mb-4">
-                    <h2 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition group-hover:text-indigo-600">
+                  <div>
+                    <h2 className="line-clamp-2 text-xl font-bold leading-snug tracking-tight text-slate-950 transition-colors duration-200 group-hover:text-indigo-600">
                       {blog.title}
                     </h2>
 
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-500">
+                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">
                       {blog.excerpt}
                     </p>
                   </div>
 
-                  {/* Meta */}
-                  <div className="mt-auto border-t border-slate-100 pt-4">
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                          <User size={15} />
+                  {/* =================================================
+                      CARD FOOTER
+                  ================================================= */}
+                  <div className="mt-auto pt-6">
+                    <div className="mb-4 flex items-center justify-between border-t border-slate-100 pt-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                          <User size={16} strokeWidth={1.8} />
                         </div>
 
-                        <div>
-                          <p className="text-xs text-slate-400">
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                             Author
                           </p>
 
-                          <p className="text-sm font-medium text-slate-700">
-                            {blog.author}
+                          <p className="truncate text-sm font-semibold text-slate-700">
+                            {blog.author || "Unknown author"}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 text-xs text-slate-400">
-                        <CalendarDays size={14} />
-                        Article
+                      <div className="rounded-lg bg-slate-50 p-2 text-slate-400">
+                        <FileText size={15} />
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-[1fr_auto] gap-2">
                       <button
                         onClick={() => handleEditClick(blog)}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-indigo-600 active:scale-[0.98]"
                       >
-                        <Edit size={16} />
-                        Edit
+                        <Edit size={15} />
+                        Edit article
                       </button>
 
                       <button
                         onClick={() => handleDeleteBlog(blog._id!)}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-100 px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                        className="inline-flex items-center justify-center rounded-xl border border-red-100 bg-red-50 px-3.5 text-red-500 transition-all duration-200 hover:border-red-200 hover:bg-red-100 hover:text-red-600 active:scale-[0.98]"
+                        aria-label={`Delete ${blog.title}`}
                       >
-                        <Trash2 size={16} />
-                        Delete
+                        <Trash2 size={17} />
                       </button>
                     </div>
                   </div>
                 </div>
               </article>
             ))}
-          </div>
+          </section>
         )}
       </main>
 
-      {/* ================= EDIT MODAL ================= */}
+      {/* =========================================================
+          EDIT MODAL
+      ========================================================= */}
       {isModalOpen && editingBlog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl">
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
-                  Article Management
-                </p>
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-5 sm:px-7">
+              <div className="flex items-center gap-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <Edit size={19} />
+                </div>
 
-                <h2 className="mt-1 text-xl font-bold text-slate-900">
-                  Edit Article
-                </h2>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-600">
+                    Content editor
+                  </p>
+
+                  <h2 className="mt-0.5 text-xl font-bold tracking-tight text-slate-950">
+                    Edit article
+                  </h2>
+                </div>
               </div>
 
               <button
                 onClick={closeModal}
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-xl border border-slate-200 p-2.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close editor"
               >
-                <X size={20} />
+                <X size={19} />
               </button>
             </div>
 
-            {/* Form */}
-            <div className="space-y-5 p-6">
-              {/* Title */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Article title
-                </label>
+            {/* Modal Body */}
+            <div className="overflow-y-auto">
+              <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
+                {/* Main form */}
+                <div className="space-y-6 p-6 sm:p-7">
+                  {/* Title */}
+                  <div>
+                    <label className="mb-2.5 block text-sm font-semibold text-slate-800">
+                      Article title
+                    </label>
 
-                <input
-                  type="text"
-                  name="title"
-                  value={editingBlog.title}
-                  onChange={handleInputChange}
-                  placeholder="Enter article title"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                />
-              </div>
-
-              {/* Excerpt */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Excerpt
-                </label>
-
-                <textarea
-                  name="excerpt"
-                  value={editingBlog.excerpt}
-                  onChange={handleInputChange}
-                  rows={3}
-                  placeholder="Write a short description..."
-                  className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                />
-              </div>
-
-              {/* Author */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Author
-                </label>
-
-                <input
-                  type="text"
-                  name="author"
-                  value={editingBlog.author}
-                  onChange={handleInputChange}
-                  placeholder="Author name"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                />
-              </div>
-
-              {/* Thumbnail */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Featured image URL
-                </label>
-
-                <div className="relative">
-                  <ImageIcon
-                    size={17}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="text"
-                    name="thumbnailUrl"
-                    value={editingBlog.thumbnailUrl}
-                    onChange={handleInputChange}
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-slate-200 py-3 pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                  />
-                </div>
-
-                {editingBlog.thumbnailUrl && (
-                  <div className="mt-3 overflow-hidden rounded-xl border border-slate-200">
-                    <img
-                      src={editingBlog.thumbnailUrl}
-                      alt="Preview"
-                      className="h-40 w-full object-cover"
+                    <input
+                      type="text"
+                      name="title"
+                      value={editingBlog.title}
+                      onChange={handleInputChange}
+                      placeholder="Enter article title"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                     />
                   </div>
-                )}
-              </div>
 
-              {/* Content */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Article content
-                </label>
+                  {/* Excerpt */}
+                  <div>
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-slate-800">
+                        Excerpt
+                      </label>
 
-                <textarea
-                  name="content"
-                  value={editingBlog.content || ""}
-                  onChange={handleInputChange}
-                  rows={10}
-                  placeholder="Write your article content..."
-                  className="w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                />
+                      <span className="text-[11px] text-slate-400">
+                        Short description
+                      </span>
+                    </div>
+
+                    <textarea
+                      name="excerpt"
+                      value={editingBlog.excerpt}
+                      onChange={handleInputChange}
+                      rows={4}
+                      placeholder="Write a short description for the article..."
+                      className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 text-sm leading-6 text-slate-950 outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div>
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-slate-800">
+                        Article content
+                      </label>
+
+                      <span className="text-[11px] text-slate-400">
+                        HTML / rich content
+                      </span>
+                    </div>
+
+                    <textarea
+                      name="content"
+                      value={editingBlog.content || ""}
+                      onChange={handleInputChange}
+                      rows={14}
+                      placeholder="Write your article content..."
+                      className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 font-mono text-xs leading-6 text-slate-950 outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                    />
+                  </div>
+                </div>
+
+                {/* Sidebar */}
+                <aside className="border-t border-slate-200 bg-slate-50/70 p-6 lg:border-l lg:border-t-0 sm:p-7">
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Article details
+                    </h3>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                      Manage the metadata and featured image.
+                    </p>
+                  </div>
+
+                  {/* Author */}
+                  <div className="mb-5">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Author
+                    </label>
+
+                    <div className="relative">
+                      <User
+                        size={16}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+
+                      <input
+                        type="text"
+                        name="author"
+                        value={editingBlog.author}
+                        onChange={handleInputChange}
+                        placeholder="Author name"
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Slug */}
+                  <div className="mb-5">
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Slug
+                    </label>
+
+                    <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-xs text-slate-500">
+                      /{editingBlog.slug || "article-slug"}
+                    </div>
+                  </div>
+
+                  {/* Image */}
+                  <div>
+                    <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Featured image
+                    </label>
+
+                    <div className="relative">
+                      <ImageIcon
+                        size={16}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+
+                      <input
+                        type="text"
+                        name="thumbnailUrl"
+                        value={editingBlog.thumbnailUrl}
+                        onChange={handleInputChange}
+                        placeholder="Image URL..."
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-xs text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                      />
+                    </div>
+
+                    <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                      <img
+                        src={getBlogImage(editingBlog)}
+                        alt="Featured image preview"
+                        className="h-40 w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            "/images/blog/default.jpg";
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="mt-5 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+
+                      <span className="text-xs font-semibold text-emerald-700">
+                        Published
+                      </span>
+                    </div>
+
+                    <span className="text-[10px] font-medium text-emerald-600">
+                      LIVE
+                    </span>
+                  </div>
+                </aside>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-6 py-4">
-              <button
-                onClick={closeModal}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-              >
-                Cancel
-              </button>
+            <div className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-6 py-4 sm:px-7">
+              <p className="hidden text-xs text-slate-400 sm:block">
+                Changes will be saved to the published article.
+              </p>
 
-              <button
-                onClick={() => handleUpdateBlog(editingBlog._id!)}
-                className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md"
-              >
-                Save Changes
-              </button>
+              <div className="ml-auto flex items-center gap-2.5">
+                <button
+                  onClick={closeModal}
+                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleUpdateBlog(editingBlog._id!)
+                  }
+                  className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/15 transition hover:bg-indigo-700 hover:shadow-xl active:scale-[0.98]"
+                >
+                  <Edit size={15} />
+                  Save changes
+                </button>
+              </div>
             </div>
           </div>
         </div>
