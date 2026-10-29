@@ -74,6 +74,16 @@ export default function RootLayout({
         />
 
         <Script id="ga-script" />
+
+        {/* ZOHO SALESIQ - ADD HERE */}
+        <Script id="zoho-salesiq-init" strategy="afterInteractive">
+          {`window.$zoho=window.$zoho||{};$zoho.salesiq=$zoho.salesiq||{ready:function(){}}`}
+        </Script>
+        <Script
+          id="zsiqscript"
+          src="https://salesiq.zoho.com/widget?wc=siq5e30df3bc15a41f1a01a27dc665b9db989ca150694cbe1ca90e7828877e1da29"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
