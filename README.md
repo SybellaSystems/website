@@ -236,7 +236,7 @@ The website is ready for integration with:
 For technical support or questions:
 - **Email**: tech@sybellasystems.com
 - **Phone**: +250 789 123 456
-- **Location**: Kigali, Rwanda
+- **Location**: Rulindo, Rwanda
 
 ## 🎯 Next Steps
 
