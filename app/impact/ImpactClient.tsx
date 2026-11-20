@@ -1,5 +1,68 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import {
+  getCountries,
+  getCountryCallingCode,
+  validatePhoneNumberLength,
+  type CountryCode,
+} from "libphonenumber-js";
+import { toast } from "sonner";
+
+const initialForm = {
+  name: "",
+  email: "",
+  company: "",
+  phone: "",
+  country: "",
+  service: "",
+  message: "",
+  budget: "",
+  contactMethod: "",
+};
+
+const serviceOptions = [
+  "Custom ERP Platforms",
+  "SaaS Product Engineering",
+  "Web & Mobile Experiences",
+  "Cloud & DevOps Enablement",
+  "Cloud SaaS",
+  "Business Automation & Integrations",
+  "Analytics & Insights",
+  "Collaboration Tools",
+  "Secure Systems",
+  "AI-Driven Digital Solutions",
+  "Education Platform",
+  "Healthcare Solutions",
+  "Retail & Business",
+  "Hospitality Technology",
+  "Real Estate",
+  "Transport & Logistics",
+  "HR Management",
+  "Inventory & Billing",
+  "Government & NGO",
+  "Ogera / Other Digital Product",
+];
+
+const phoneCountries = getCountries();
+
+function getPhoneLengthError(value: string, country: CountryCode) {
+  const trimmedValue = value.trim();
+  if (trimmedValue.startsWith("+") || trimmedValue.startsWith("00")) {
+    return "Choose the country code from the list and enter the number without its country code.";
+  }
+
+  const validationResult = validatePhoneNumberLength(trimmedValue, country);
+  if (validationResult === "TOO_SHORT") {
+    return "This phone number is too short for the selected country.";
+  }
+  if (validationResult === "TOO_LONG") {
+    return "This phone number is too long for the selected country.";
+  }
+  if (validationResult) {
+    return "Enter a phone number with a valid length for the selected country.";
+  }
+  return "";
+}
 
 function useIntersection(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -21,49 +84,72 @@ export default function ImpactClient() {
   useIntersection(s2 as React.RefObject<HTMLElement>);
   useIntersection(s3 as React.RefObject<HTMLElement>);
   useIntersection(s4 as React.RefObject<HTMLElement>);
-  const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [form, setForm] = useState(initialForm);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [deliveryNotice, setDeliveryNotice] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("RW");
+  const [phoneError, setPhoneError] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
-  const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    setLoading(true);
     setError("");
+    setDeliveryNotice("");
+    const localPhoneNumber = form.phone.trim();
+    if (localPhoneNumber) {
+      const validationError = getPhoneLengthError(localPhoneNumber, phoneCountry);
+      setPhoneError(validationError);
+      setPhoneTouched(true);
+      if (validationError) return;
+    } else {
+      setPhoneError("");
+      setPhoneTouched(false);
+    }
+
+    setLoading(true);
 
     try {
-      const formData = {
-        name: form.name,
-        email: form.email,
-        company: form.company,
-        message: form.message,
-        phone: "",
-      };
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...form,
+          phone: localPhoneNumber
+            ? `+${getCountryCallingCode(phoneCountry)} ${localPhoneNumber}`
+            : "",
+          privacyConsent,
+        }),
       });
+      const data = await res.json();
 
       if (!res.ok) {
-        let msg = "Failed to send message. Please try again.";
-        try {
-          const data = await res.json();
-          if (data?.error) msg = data.error;
-        } catch {
-          /* use default */
-        }
-        setError(msg);
+        setError(data?.error || "Failed to send message. Please try again.");
         return;
       }
 
+      if (data.notificationSent === false) {
+        setDeliveryNotice("Your enquiry was saved, but our email alert could not be delivered. Please contact us directly at contact@sybellasystems.co.rw.");
+      } else if (data.acknowledgementSent === false) {
+        setDeliveryNotice("Your enquiry was received, but we could not send a confirmation email.");
+      }
+
       setSent(true);
-      setForm({ name: "", email: "", company: "", message: "" });
+      toast.success("Enquiry submitted successfully!", {
+        description: "Thank you for reaching out. Our team will be in touch soon.",
+      });
+      setForm(initialForm);
+      setPrivacyConsent(false);
+      setPhoneCountry("RW");
+      setPhoneError("");
+      setPhoneTouched(false);
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -199,8 +285,8 @@ export default function ImpactClient() {
               something<br />
               <span className="gradient-text">exceptional.</span>
             </h2>
-            <p className="fade-up" style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8, marginBottom: 44 }}>
-              Whether you need an ERP system, a SaaS platform, or a mobile application — start with a conversation. No sales pitch. Just an honest discussion about what you're building and how we can help.
+            <p className="fade-up" style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8, marginBottom: 32 }}>
+              Tell us about your business needs, project ideas or technology challenges. Our team will get in touch to explore how Sybella Systems can help.
             </p>
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {[
@@ -217,49 +303,124 @@ export default function ImpactClient() {
                 </div>
               ))}
             </div>
+            <aside className="fade-up" style={{ marginTop: 32, padding: 24, background: "var(--blue-dim)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4 }}>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 700, marginBottom: 8 }}>
+                Not Sure What You Need?
+              </h3>
+              <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.75 }}>
+                Whether you&apos;re looking for a custom software solution, business automation, an ERP system or a new digital product, tell us what you&apos;re trying to achieve. We&apos;ll help you identify the right approach.
+              </p>
+            </aside>
           </div>
           <div className="fade-up">
             {sent ? (
-              <div style={{ padding: 60, background: "var(--blue-dim)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 4, textAlign: "center" }}>
+              <div role="status" aria-live="polite" style={{ padding: 60, background: "var(--blue-dim)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 4, textAlign: "center" }}>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>◎</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "var(--blue-bright)", marginBottom: 8 }}>Message received.</div>
-                <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 24 }}>We'll respond within 24-48 hours.</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "var(--blue-bright)", marginBottom: 8 }}>Enquiry submitted.</div>
+                <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 24 }}>Thank you for reaching out. Our team will be in touch within 24-48 hours.</div>
+                {deliveryNotice && <p role="alert" style={{ fontSize: 13, color: "#fbbf24", lineHeight: 1.6, marginBottom: 20 }}>{deliveryNotice}</p>}
                 <button onClick={() => setSent(false)} style={{ padding: "10px 20px", background: "var(--blue)", color: "#fff", border: "none", borderRadius: 2, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                  Send another message
+                  Submit another enquiry
                 </button>
               </div>
             ) : (
-              <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  {[{ name: "name", placeholder: "Your name" }, { name: "company", placeholder: "Company / Organization" }].map(f => (
-                    <input
-                      key={f.name}
-                      name={f.name}
-                      required
-                      placeholder={f.placeholder}
-                      value={form[f.name as keyof typeof form]}
-                      onChange={handle}
-                      style={inputStyle}
-                      onFocus={e => (e.target.style.borderColor = "var(--blue)")}
-                      onBlur={e => (e.target.style.borderColor = "var(--border)")}
-                    />
-                  ))}
+              <form onSubmit={submit} className="inquiry-form" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="inquiry-fields">
+                  <label className="inquiry-field">
+                    <span>Full Name <span aria-hidden="true">*</span></span>
+                    <input name="name" required maxLength={120} autoComplete="name" placeholder="Your full name" value={form.name} onChange={handle} style={inputStyle} />
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Company / Organisation <span className="optional-label"></span></span>
+                    <input name="company" maxLength={200} autoComplete="organization" placeholder="Company or organisation" value={form.company} onChange={handle} style={inputStyle} />
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Business Email Address <span aria-hidden="true">*</span></span>
+                    <input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@company.com" value={form.email} onChange={handle} style={inputStyle} />
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Phone Number <span className="optional-label"></span></span>
+                    <div className="phone-input-group">
+                      <select
+                        aria-label="Phone country code"
+                        value={phoneCountry}
+                        onChange={e => {
+                          const selectedCountry = phoneCountries.find(country => country === e.target.value);
+                          if (selectedCountry) {
+                            setPhoneCountry(selectedCountry);
+                            setPhoneTouched(Boolean(form.phone.trim()));
+                            setPhoneError(form.phone.trim() ? getPhoneLengthError(form.phone, selectedCountry) : "");
+                          }
+                        }}
+                        style={{ ...inputStyle, padding: "16px 10px", fontSize: 13 }}
+                      >
+                        {phoneCountries.map(country => (
+                          <option key={country} value={country}>
+                            {country} +{getCountryCallingCode(country)}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        name="phone"
+                        type="tel"
+                        maxLength={32}
+                        autoComplete="tel-national"
+                        placeholder="Enter your phone number"
+                        value={form.phone}
+                        onChange={e => {
+                          handle(e);
+                          if (phoneTouched) {
+                            setPhoneError(e.target.value.trim() ? getPhoneLengthError(e.target.value, phoneCountry) : "");
+                          }
+                        }}
+                        onBlur={() => {
+                          setPhoneTouched(true);
+                          setPhoneError(form.phone.trim() ? getPhoneLengthError(form.phone, phoneCountry) : "");
+                        }}
+                        aria-invalid={phoneTouched && Boolean(phoneError)}
+                        aria-describedby={phoneTouched && phoneError ? "phone-error" : undefined}
+                        style={inputStyle}
+                      />
+                    </div>
+                    {phoneTouched && phoneError && <span id="phone-error" role="alert" className="phone-error">{phoneError}</span>}
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Country / Location <span aria-hidden="true">*</span></span>
+                    <input name="country" required maxLength={120} autoComplete="country-name" placeholder="Country or city" value={form.country} onChange={handle} style={inputStyle} />
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Service of Interest <span aria-hidden="true">*</span></span>
+                    <select name="service" required value={form.service} onChange={handle} style={inputStyle}>
+                      <option value="" disabled>Select a service</option>
+                      {serviceOptions.map(service => <option key={service} value={service}>{service}</option>)}
+                    </select>
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Estimated Project Budget <span className="optional-label"></span></span>
+                    <input name="budget" maxLength={120} placeholder="e.g. $5,000 - $10,000" value={form.budget} onChange={handle} style={inputStyle} />
+                  </label>
+                  <label className="inquiry-field">
+                    <span>Preferred Contact Method <span aria-hidden="true">*</span></span>
+                    <select name="contactMethod" required value={form.contactMethod} onChange={handle} style={inputStyle}>
+                      <option value="" disabled>Select a contact method</option>
+                      <option value="Email">Email</option>
+                      <option value="Phone call">Phone call</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                    </select>
+                  </label>
+                  <label className="inquiry-field inquiry-message">
+                    <span>Project Description / Message <span aria-hidden="true">*</span></span>
+                    <textarea name="message" required maxLength={5000} placeholder="Tell us about your business needs, goals, or technology challenges..." rows={5} value={form.message} onChange={handle} style={{ ...inputStyle, resize: "vertical" }} />
+                  </label>
                 </div>
-                <input name="email" type="email" required placeholder="Email address" value={form.email} onChange={handle} style={inputStyle} onFocus={e => (e.target.style.borderColor = "var(--gold)")} onBlur={e => (e.target.style.borderColor = "var(--border)")} />
-                <textarea
-                  name="message"
-                  required
-                  placeholder="Describe what you're building and how we can help..."
-                  rows={6}
-                  value={form.message}
-                  onChange={handle}
-                  style={{ ...inputStyle, resize: "vertical" }}
-                  onFocus={e => (e.target.style.borderColor = "var(--gold)")}
-                  onBlur={e => (e.target.style.borderColor = "var(--border)")}
-                />
-                {error && <div style={{ fontSize: 13, color: "var(--red)", padding: "12px 16px", background: "rgba(239,68,68,0.1)", borderRadius: 2 }}>{error}</div>}
+                
+                <label className="privacy-consent">
+                  <input type="checkbox" required checked={privacyConsent} onChange={e => setPrivacyConsent(e.target.checked)} />
+                  <span>I agree to the processing of my information as described in Sybella Systems&apos; <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span>
+                </label>
+                {error && <div role="alert" style={{ fontSize: 13, color: "#ff6b6b", padding: "12px 16px", background: "rgba(239,68,68,0.1)", borderRadius: 2 }}>{error}</div>}
                 <button type="submit" className="btn-primary" style={{ justifyContent: "center", padding: "18px 32px", fontSize: 14 }} disabled={loading}>
-                  {loading ? "Sending..." : "Send Message →"}
+                  {loading ? "Sending..." : "Submit Enquiry →"}
                 </button>
                 <p style={{ fontSize: 12, color: "var(--text-tertiary)", textAlign: "center" }}>Sent to contact@sybellasystems.co.rw · We respond within 48 hours</p>
               </form>
@@ -267,13 +428,6 @@ export default function ImpactClient() {
           </div>
         </div>
       </section>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
-          .two-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }

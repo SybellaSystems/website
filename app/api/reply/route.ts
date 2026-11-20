@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { permissionMiddleware } from "@/app/middleware/permissionMiddleware";
 import getClientPromise  from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import { sendEmail } from "@/lib/email";
+import { buildSupportReplyEmailHtml, sendEmail } from "@/lib/email";
 
 const COLLECTIONS = {
   contacts: "contacts",
@@ -49,6 +49,10 @@ export async function POST(req: NextRequest) {
       name: "Sybella Support Team",
       company: record.company || "Sybella Systems",
       phone: record.phone || "+254 715 410 009",
+      html: buildSupportReplyEmailHtml({
+        recipientName: typeof record.name === "string" ? record.name : undefined,
+        message,
+      }),
     });
 
     if (!emailResult.success)
