@@ -12,6 +12,12 @@ export interface ContactFormData {
   message: string;
   company?: string;
   phone?: string;
+  country?: string;
+  service?: string;
+  budget?: string;
+  contactMethod?: string;
+  privacyConsent?: boolean;
+  privacyConsentAt?: Date;
   createdAt?: Date;
 }
 

@@ -48,6 +48,46 @@ body {
   overflow-x: hidden;
 }
 
+[data-sonner-toast].sybella-toast-success {
+  border-color: rgba(45, 186, 133, 0.45) !important;
+}
+
+[data-sonner-toast].sybella-toast-success [data-icon],
+[data-sonner-toast].sybella-toast-success [data-icon] svg {
+  color: var(--emerald) !important;
+}
+
+[data-sonner-toast].sybella-toast-error {
+  border-color: rgba(255, 107, 107, 0.45) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+  .two-grid { grid-template-columns: 1fr !important; }
+}
+
+.inquiry-form { padding: clamp(18px, 3vw, 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.inquiry-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.inquiry-field { display: flex; flex-direction: column; gap: 7px; color: var(--text-secondary); font-size: 12px; font-weight: 600; }
+.inquiry-field > span > span[aria-hidden="true"] { color: var(--blue-bright); }
+.inquiry-field .optional-label { color: var(--text-tertiary); font-weight: 400; }
+.inquiry-field input, .inquiry-field select, .inquiry-field textarea { min-width: 0; font-size: 14px; }
+.inquiry-field select { color-scheme: dark; }
+.inquiry-field option { background: var(--surface); color: var(--text-primary); }
+.phone-input-group { display: grid; grid-template-columns: minmax(100px, 0.8fr) minmax(0, 1.6fr); gap: 8px; }
+.phone-error { color: #ff6b6b; font-size: 12px; font-weight: 400; }
+.phone-input-group input[aria-invalid="true"], .phone-input-group select[aria-invalid="true"] { border-color: #ff6b6b; }
+.inquiry-message { grid-column: 1 / -1; }
+.privacy-consent { display: flex; align-items: flex-start; gap: 10px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; cursor: pointer; }
+.privacy-consent input { margin-top: 3px; accent-color: var(--blue); flex-shrink: 0; }
+.privacy-consent a { color: var(--blue-bright); text-decoration: underline; text-underline-offset: 3px; }
+.honeypot-field { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+@media (max-width: 540px) {
+  .inquiry-fields { grid-template-columns: 1fr; }
+  .inquiry-message { grid-column: auto; }
+}
+
 /* Grain overlay */
 body::after {
   content: "";

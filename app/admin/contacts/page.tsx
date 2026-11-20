@@ -26,6 +26,10 @@ interface Contact {
   message: string;
   company: string;
   phone: string;
+  country?: string;
+  service?: string;
+  budget?: string;
+  contactMethod?: string;
   createdAt: string;
 }
 
@@ -112,6 +116,8 @@ export default function AdminContactsPage() {
         contact.email?.toLowerCase().includes(query) ||
         contact.company?.toLowerCase().includes(query) ||
         contact.phone?.toLowerCase().includes(query) ||
+        contact.service?.toLowerCase().includes(query) ||
+        contact.country?.toLowerCase().includes(query) ||
         contact.message?.toLowerCase().includes(query)
       );
     });
@@ -335,6 +341,10 @@ export default function AdminContactsPage() {
                     </th>
 
                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      Service
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
                       Message
                     </th>
 
@@ -400,6 +410,28 @@ export default function AdminContactsPage() {
                           <span className="text-sm text-gray-400">
                             —
                           </span>
+                        )}
+                      </td>
+
+                      {/* Service */}
+                      <td className="px-6 py-5">
+                        {contact.service ? (
+                          <div>
+                            <span className="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                              {contact.service}
+                            </span>
+                            {contact.budget && (
+                              <p className="mt-2 text-xs text-gray-500">Budget: {contact.budget}</p>
+                            )}
+                            {contact.country && (
+                              <p className="mt-2 text-xs text-gray-500">Country: {contact.country}</p>
+                            )}
+                            {contact.contactMethod && (
+                              <p className="mt-1 text-xs text-gray-500">Contact At: {contact.contactMethod}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">—</span>
                         )}
                       </td>
 
@@ -496,6 +528,20 @@ export default function AdminContactsPage() {
                       <Phone className="h-4 w-4" />
                       {contact.phone}
                     </div>
+                  )}
+
+                  {contact.service && (
+                    <div className="font-medium text-indigo-600">
+                      Service: {contact.service}
+                    </div>
+                  )}
+
+                  {contact.country && <div>Location: {contact.country}</div>}
+
+                  {contact.budget && <div>Budget: {contact.budget}</div>}
+
+                  {contact.contactMethod && (
+                    <div>Preferred contact: {contact.contactMethod}</div>
                   )}
 
                   <div className="flex items-center gap-2">
